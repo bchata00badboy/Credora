@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credora</title>
+    <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="../../Styles/normalize.css">
+    <link rel="stylesheet" href="../../Styles/font.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form_box login">
+            <form action="">
+                <h1>Iniciar Sesión</h1>
+                <div class="input_box">
+                    <input type="email" name="" id="" placeholder="Correo electronico" required>
+                    <img src="../../Assets/Images/envelope.svg" alt="user" class="bx bxs-userIcon">
+                </div>
+
+                <div class="input_box">
+                    <input type="password" name="" id="" placeholder="Contraseña" required>
+                    <img src="../../Assets/Images/lock.svg" alt="lock" class="bx bxs-lock">
+                </div>
+                <div class="forgot_link">
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit" class="btn ">Iniciar Sesión</button>
+                <p>Inicia Sesion con Google</p>
+                <a href="#" class="google"><img src="../../Assets/Images/google.svg" alt="google"><p>Iniciar Sesion con Google</p></a>
+            </form>
+        </div>
+
+
+        <div class="form_box register">
+            <form action="">
+                <h1>Registrar</h1>
+                <div class="input_box">
+                    <input type="email" name="" id="" placeholder="Correo eletronico" required>
+                    <img src="../../Assets/Images/envelope.svg" alt="user" class="bx bxs-userIcon">
+                </div>
+
+                <div class="input_box">
+                    <input type="password" name="" id="" placeholder="contraseña" required>
+                    <img src="../../Assets/Images/lock.svg" alt="lock" class="bx bxs-lock">
+                </div>
+
+                <div class="input_box">
+                    <input type="password" name="" id="" placeholder="Confirmar contraseña" required>
+                    <img src="../../Assets/Images/lock.svg" alt="lock" class="bx bxs-lock">
+                </div>
+                <div class="forgot_link">
+                </div>
+                <button type="submit" class="btn">Registrar</button>
+                <p>Registrate con Google</p>
+                <a href="#" class="google"><img src="../../Assets/Images/google.svg" alt="google"><p> Registrate con Google</p></a>
+            </form>
+        </div>
+        <div class="toggle_box">
+            <div class="toggle_panel toggle-left">
+                <h1>Hola, Bienvenido</h1>
+                <p>¿No tiene una cuenta aun?</p>
+                <button class="btn register-btn">Registrate</button>
+            </div>
+            
+            <div class="toggle_panel toggle-right">
+                <h1>Bienvenido otra vez!</h1>
+                <p>¿Ya tienes una cuenta?</p>
+                <button class="btn login-btn">Inicia Sesion</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

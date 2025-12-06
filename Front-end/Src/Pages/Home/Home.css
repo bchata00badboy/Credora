@@ -62,6 +62,8 @@ margin-top: 10px;
 }
 
 .nav_link {
+    justify-content: center;
+    align-items: center;
     margin-left: auto;
     padding: 0;
     display: grid;
@@ -158,7 +160,7 @@ margin-top: 10px;
 }
 
 .about_icon {
-    width: 40px;
+    width: 64px;
 }
 
 /* Knowledge */
@@ -177,6 +179,7 @@ margin-top: 10px;
     grid-template-columns: 1fR 1fr;
     gap: 1em;
     align-items: center;
+    padding: 25px;
 }
 
 .Knowledge_picture {
@@ -387,7 +390,7 @@ margin-top: 10px;
     text-align: left;
     max-height: 0; 
     overflow: hidden; 
-    transition: max-height 0.1s ease; 
+    transition: max-height .1s ease; 
 }
 .questions_show--active {
     max-height: 1000px; 

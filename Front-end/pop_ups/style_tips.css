@@ -1,0 +1,136 @@
+/* Definición de Variables (Paleta Credora) */
+:root {
+    --bg-cream: #FDF0D5;
+    --risk-red: #C1121F;
+    --risk-wine: #780000;
+    --ai-blue-light: #669BBC;
+    --ai-blue-dark: #003049;
+    --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --border-radius: 20px;
+}
+
+/* =========================================
+   CLASE UTILITARIA (La Lógica de Ocultar)
+   ========================================= */
+.hidden {
+    display: none !important; /* Fuerza a que el elemento no exista visualmente */
+}
+
+/* =========================================
+   A. ESTILOS DEL MODAL (Riesgo)
+   ========================================= */
+
+/* 1. El Fondo Oscuro (Overlay) */
+.modal-overlay {
+    position: fixed;       /* Se queda fijo en la pantalla */
+    top: 0; left: 0;       /* Empieza en la esquina superior izquierda */
+    width: 100%;           /* Ocupa todo el ancho */
+    height: 100%;          /* Ocupa todo el alto */
+    background-color: rgba(0, 0, 0, 0.6); /* Negro al 60% de opacidad */
+    z-index: 1000;         /* Capa muy superior */
+    
+    /* Truco de Flexbox para centrar la tarjeta perfectamente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(3px); /* Efecto moderno de desenfoque de fondo */
+}
+
+/* 2. La Tarjeta del Modal */
+.modal-card {
+    background-color: var(--bg-cream);
+    width: 90%;
+    max-width: 400px;      /* Que no sea demasiado ancha en PC */
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;      /* Para que el encabezado respete los bordes redondeados */
+    animation: slideIn 0.3s ease-out; /* Pequeña animación de entrada */
+}
+
+.modal-header {
+    padding: 15px 20px;
+    color: white;
+}
+
+.warning-bg {
+    background-color: var(--risk-red);
+}
+
+.modal-body {
+    padding: 20px;
+    color: #333;
+    font-family: sans-serif;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end; /* Botones a la derecha */
+    gap: 10px;
+}
+
+/* Botones estilo Credora */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px; /* Bordes suaves internos */
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-primary-danger {
+    background-color: var(--risk-wine);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #ccc;
+}
+
+/* =========================================
+   B. ESTILOS DEL TOAST (Consejo IA)
+   ========================================= */
+.toast-card {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;           /* Esquina inferior derecha */
+    z-index: 999;          /* Encima del contenido, pero debajo del modal si se abren ambos */
+    
+    background-color: var(--bg-cream);
+    border-left: 8px solid var(--ai-blue-dark); /* Borde indicador de tipo */
+    border-radius: 15px;   /* Un poco menos redondeado que el modal */
+    box-shadow: var(--shadow-soft);
+    
+    width: 300px;
+    padding: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    
+    animation: floatUp 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Rebote suave */
+}
+
+.toast-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--ai-blue-dark);
+    font-size: 16px;
+}
+
+.toast-content p {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+}
+
+/* Animaciones Simples */
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes floatUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

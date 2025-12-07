@@ -1,9 +1,25 @@
-  <section id="vista-inicio" class="content-section">
-            <header>
-                <h1>Bienvenido, Alejandro</h1>
-                <p>Resumen general de tu cuenta</p>
-            </header>
-            <div class="card-container">
-                <div class="card">Saldo: $1,250.00</div>
-            </div>
-</section>
+<section class="content-section">
+    <header>
+        <h1>Bienvenido, Alejandro</h1>
+        <p>Resumen general de tu cuenta</p>
+    </header>
+
+    <div class="card-container" style="margin-bottom: 2rem;">
+        <div class="card">Saldo: $1,250.00</div>
+    </div>
+    <!--Esto al ser de prueba se le cargan sus estilos, pero no estaran presentes en el final-->
+    <div class="card" style="border: 1px dashed var(--color-surface); background: #fdfdfd;">
+        <h3 style="margin-bottom: 1rem; color: var(--color-surface);">⚡ Panel de Demostración IA</h3>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem;">Usa estos botones para simular eventos que la IA detectaría:</p>
+        
+        <div style="display: flex; gap: 10px;">
+            <button id="btn-simular-riesgo" class="btn-demo-riesgo">
+                <i class='bx bx-error'></i> Simular Riesgo
+            </button>
+            <button id="btn-simular-consejo" class="btn-demo-consejo">
+                <i class='bx bx-bulb'></i> Simular Consejo
+            </button>
+        </div>
+    </div>
+
+    </section>

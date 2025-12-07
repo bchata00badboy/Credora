@@ -1,8 +1,7 @@
 /* =========================================
-   Logica para manejar el sidebar 
+   1. LOGICA DEL SIDEBAR (Visual)
    ========================================= */
 const menuItemsDropDown = document.querySelectorAll('.menu-item-dropdown');
-const menuItemsStatic = document.querySelectorAll('.menu-item-static');
 const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menu-btn');
 
@@ -14,23 +13,17 @@ menuBtn.addEventListener('click', () => {
 // Lógica de menús desplegables
 menuItemsDropDown.forEach((menuItem) => {
     menuItem.addEventListener('click', (e) => {
-        // Si sidebar está minimizado, no expandir acordeón
         if (sidebar.classList.contains('minimize')) return;
 
         const subMenu = menuItem.querySelector('.sub-menu');
         const isActive = menuItem.classList.toggle('sub-menu-toggle');
         
         if (subMenu) {
-            if (isActive) {
-                subMenu.style.height = `${subMenu.scrollHeight + 6}px`;
-                subMenu.style.padding = '0.2rem 0';
-            } else {
-                subMenu.style.height = '0';
-                subMenu.style.padding = '0';
-            }
+            subMenu.style.height = isActive ? `${subMenu.scrollHeight + 6}px` : '0';
+            subMenu.style.padding = isActive ? '0.2rem 0' : '0';
         }
         
-        // Cerrar otros menús hermanos
+        // Cerrar otros menús
         menuItemsDropDown.forEach((item) => {
             if (item !== menuItem) {
                 const otherSubmenu = item.querySelector('.sub-menu');
@@ -44,80 +37,224 @@ menuItemsDropDown.forEach((menuItem) => {
     });
 });
 
+
 /* =========================================
-    Logica para Navegar de forma dinamica
+   DICCIONARIO DE CONTROLADORES
+   ========================================= */
+const controladores = {
+    // ✅ AGREGA ../ AL INICIO DE CADA RUTA
+    '../Main_Parts/main_home.html': iniciarInicio,
+    '../Main_Parts/main_profile.html': iniciarPerfil,
+    '../Main_Parts/notificaciones.html': iniciarNotificaciones,
+    '../Main_Parts/transferir.html': iniciarTransferencias,
+    '../Main_Parts/movimientos.html': iniciarMovimientos
+};
+
+/* =========================================
+   3. LOGICA DE NAVEGACIÓN (SPA)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     
     const menuLinks = document.querySelectorAll('.menu-link, .sub-menu-link');
     const contenedor = document.getElementById('contenedor-dinamico');
 
-    // Función para cargar archivos HTML externos
+    // Función principal de carga
     function cargarVista(rutaArchivo) {
         
-        // 1. Efecto visual de carga (opcional pero recomendado)
+        // Efecto visual de carga
         contenedor.style.opacity = '0';
 
         setTimeout(() => {
-            // 2. Pedimos el archivo al servidor
             fetch(rutaArchivo)
                 .then(respuesta => {
                     if (!respuesta.ok) throw new Error('No se encontró el archivo');
                     return respuesta.text();
                 })
                 .then(html => {
-                    // 3. Insertamos el HTML dentro del main
+                    // A. Insertamos el HTML
                     contenedor.innerHTML = html;
-                    
-                    // 4. Restauramos la opacidad con animación
                     contenedor.style.opacity = '1';
                     
-                    // IMPORTANTE: Si la vista cargada tiene formularios (como perfil),
-                    // hay que reconectar sus scripts aquí.
-                    reconectarScripts();
+                    // B. LÓGICA INTELIGENTE:
+                    // Verificamos si existe un controlador para esta ruta en el diccionario
+                    if (controladores[rutaArchivo]) {
+                        console.log(`Ejecutando controlador para: ${rutaArchivo}`);
+                        controladores[rutaArchivo](); // <--- AQUÍ OCURRE LA MAGIA
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    contenedor.innerHTML = `<h2>Error 404: No se encontró la sección</h2>`;
+                    contenedor.innerHTML = `<div style="padding:2rem;"><h2>Error 404</h2><p>No pudimos cargar la sección solicitada.</p></div>`;
                     contenedor.style.opacity = '1';
                 });
-        }, 200); // Pequeña pausa para la transición
+        }, 200);
     }
 
-    // Eventos Click
+    // Eventos Click en el menú
     menuLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            // Leemos la ruta del atributo data-vista
             const ruta = link.getAttribute('data-vista');
 
-            // Si no tiene ruta (es un dropdown), no hacemos nada
-            if (!ruta) return;
+            // Si es un dropdown o no tiene ruta, ignoramos
+            if (!ruta || ruta === '#') return;
 
             e.preventDefault();
             cargarVista(ruta);
         });
     });
 
-    // Cargar Inicio por defecto
+    // Cargar Inicio por defecto (Si no usas renderizado inicial en HTML)
+    // Asegúrate de que la ruta coincida con la del diccionario (sin ../ si estás en la raíz)
     cargarVista('../Main_Parts/main_home.html');
 });
 
-// Función auxiliar para que funcionen los botones dentro de las vistas cargadas
-function reconectarScripts() {
+/* =========================================
+   4. FUNCIONES ESPECÍFICAS (Lógica por pantalla)
+   ========================================= */
+
+// --- LÓGICA DE INICIO (Con Carga Perezosa) ---
+function iniciarInicio() {
+    console.log("Inicio cargado. Esperando interacción...");
+
+    const btnRiesgo = document.getElementById('btn-simular-riesgo');
+    const btnConsejo = document.getElementById('btn-simular-consejo');
+
+    // --- FUNCIÓN AUXILIAR PARA CARGAR MICRO-ARCHIVOS ---
+    // idElemento: El ID del div principal del archivo (ej: 'modal-riesgo')
+    // rutaArchivo: Dónde está el HTML
+    async function cargarComponente(idElemento, rutaArchivo) {
+        
+        // 1. Verificamos si ya existe en el DOM (para no cargarlo 2 veces)
+        let elemento = document.getElementById(idElemento);
+        
+        if (!elemento) {
+            console.log(`Descargando componente: ${rutaArchivo}...`);
+            try {
+                const respuesta = await fetch(rutaArchivo);
+                if(!respuesta.ok) throw new Error("Error cargando componente");
+                
+                const html = await respuesta.text();
+                
+                // 2. Lo inyectamos al final del body (fuera del contenedor dinámico para evitar conflictos de z-index)
+                document.body.insertAdjacentHTML('beforeend', html);
+                
+                // 3. Actualizamos la referencia
+                elemento = document.getElementById(idElemento);
+                
+                // 4. Activamos sus botones de cerrar (Solo la primera vez que se carga)
+                activarListenersComponente(idElemento);
+                
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        } else {
+            console.log("El componente ya estaba en memoria.");
+        }
+        return elemento;
+    }
+
+    // --- MANEJADORES DE CLIC ---
+
+    // A) BOTÓN RIESGO
+    if (btnRiesgo) {
+        btnRiesgo.addEventListener('click', async () => {
+            // Llamamos a la carga bajo demanda
+            const modal = await cargarComponente('modal-riesgo', '../../../pop_ups/index_tips.html');
+            
+            if (modal) {
+                modal.classList.remove('hidden'); // Mostrar
+            }
+        });
+    }
+
+    // B) BOTÓN CONSEJO
+    if (btnConsejo) {
+        btnConsejo.addEventListener('click', async () => {
+            const toast = await cargarComponente('toast-consejo', '../../../pop_ups/index_tips.html');
+            
+            if (toast) {
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    if(document.body.contains(toast)) toast.classList.add('hidden');
+                }, 5000);
+            }
+        });
+    }
+}
+
+//Función extra para dar vida a los botones de "Cerrar" de los elementos inyectados
+function activarListenersComponente(idElemento) {
+    const elemento = document.getElementById(idElemento);
+    if (!elemento) return;
+
+    // === LÓGICA PARA EL MODAL DE RIESGO ===
+    if (idElemento === 'modal-riesgo') {
+        
+        // A. Buscamos el botón "Ignorar" por su clase
+        const btnCerrar = elemento.querySelector('.btn-cerrar-modal');
+        
+        // B. Le damos la orden de cerrar
+        if (btnCerrar) {
+            btnCerrar.addEventListener('click', () => {
+                console.log("Cerrando modal...");
+                elemento.classList.add('hidden'); // Vuelve a ocultarlo
+            });
+        }
+
+        // C. (Extra) Cerrar si hacen clic en el fondo oscuro (overlay)
+        elemento.addEventListener('click', (e) => {
+            // Si el clic fue directo en el fondo oscuro y no en la tarjeta blanca
+            if (e.target === elemento) {
+                elemento.classList.add('hidden');
+            }
+        });
+    }
+
+    // Lógica específica para el TOAST
+    if (idElemento === 'toast-consejo') {
+        const btnCerrar = elemento.querySelector('.toast-close');
+        if (btnCerrar) btnCerrar.addEventListener('click', () => elemento.classList.add('hidden'));
+    }
+
+    
+}
+// --- LÓGICA DE PERFIL (Formularios) ---
+function iniciarPerfil() {
     const formPassword = document.getElementById('form-password');
     if (formPassword) {
         formPassword.addEventListener('submit', (e) => {
             e.preventDefault();
-            alert('¡Contraseña actualizada! (Desde archivo externo)');
+            alert('¡Contraseña actualizada correctamente!');
             formPassword.reset();
         });
     }
 }
 
-/*
-================================
+// --- LÓGICA DE NOTIFICACIONES ---
+function iniciarNotificaciones() {
+    const btnMarcar = document.getElementById('btn-marcar-leidas');
+    const notificaciones = document.querySelectorAll('.notificacion-item.no-leida');
 
-Logica del apartado de notificaciones
+    if (btnMarcar) {
+        btnMarcar.addEventListener('click', () => {
+            notificaciones.forEach(notif => {
+                notif.classList.remove('no-leida');
+                notif.style.transition = "background-color 0.5s";
+            });
+            alert("Todas las notificaciones marcadas como leídas.");
+        });
+    }
+}
 
-================================
-*/
+// --- LÓGICA DE TRANSFERENCIAS (Opcional) ---
+function iniciarTransferencias() {
+    // Aquí podrías agregar validaciones de monto, selección de banco, etc.
+    console.log("Módulo de transferencias listo.");
+}
+
+// --- LÓGICA DE MOVIMIENTOS (Opcional) ---
+function iniciarMovimientos() {
+    // Aquí iría la lógica de filtros de tabla
+    console.log("Módulo de movimientos listo.");
+}

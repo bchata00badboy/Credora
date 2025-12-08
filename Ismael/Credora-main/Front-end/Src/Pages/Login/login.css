@@ -1,0 +1,427 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #003049 0%, #cb0523 100%); /* Degradado rojo -> azul */
+    overflow: hidden; /* Importante para que las billeteras no estiren la pantalla */
+}
+
+/* --- 1. ANIMACIÓN DEL FONDO (SCROLL INFINITO) --- */
+.background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+     /* Imagen de fondo desactivada para mostrar el degradado del body.
+         Si quieres reactivar la imagen, descomenta y ajusta la ruta */
+     /* background: url('fondo-credora.jpg') repeat; */
+     /* background-size: 400px; */
+     filter: none;
+     background: transparent;
+     z-index: -1;
+}
+
+@keyframes animateBg {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100% 100%; /* Mueve el fondo en diagonal */
+    }
+}
+
+/* --- 2. ESTILOS DE BILLETERAS FLOTANTES (BUBBLES) --- */
+.bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Detrás del formulario pero sobre el fondo borroso */
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Clase que aplicaremos con JS a cada icono */
+.floating-wallet {
+    position: absolute;
+    bottom: -50px;
+    color: rgba(255, 255, 255, 0.3); /* Blancos semitransparentes */
+    font-size: 20px;
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-120vh) rotate(360deg); /* Suben hasta salir de pantalla y giran */
+        opacity: 0;
+    }
+}
+
+/* --- TUS ESTILOS DEL CONTENEDOR Y FORMULARIO (MANTENIDOS) --- */
+.container {
+    position: relative;
+    width: 750px;
+    height: 500px;
+    background: rgba(171, 15, 15, 0.726);
+    border: 2px solid rgba(255, 255, 255, .2);
+    box-shadow: 0 0 20px rgba(232, 4, 4, 0.493);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px; 
+}
+
+.content-box {
+    position: absolute;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    z-index: 1;
+    gap: 15px;
+}
+
+.logo-welcome {
+    display: block;
+    width: 500px;
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 5px;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
+}
+
+.brand-name {
+    font-size: 42px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.text-sci h2 {
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.text-sci h2 span {
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.text-sci p {
+    font-size: 14px;
+    margin: 15px 0 20px 0;
+}
+
+.social-icons a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 35px;
+    background: transparent;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    font-size: 18px;
+    color: #fff;
+    text-decoration: none;
+    margin: 0 5px;
+    transition: .5s;
+}
+
+.social-icons a:hover {
+    background: #fff;
+    color: #003049;
+    box-shadow: 0 0 10px #fff;
+}
+
+.logreg-box {
+    position: absolute;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    border-radius: 20px;
+    background: #003049;
+    border: 2px solid rgba(255, 255, 255, 0.1); 
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease-in-out;
+}
+
+.container.active .logreg-box {
+    transform: rotateY(180deg);
+}
+
+.form-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    backface-visibility: hidden;
+}
+
+.form-box.login {
+    transform: rotateY(0deg);
+    z-index: 2;
+}
+
+.form-box.register {
+    transform: rotateY(180deg);
+}
+
+.form-box h2 {
+    font-size: 32px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.form-box form {
+    width: 100%;
+    padding: 0 40px;
+}
+
+.input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid #fff;
+    margin: 30px 0;
+}
+
+.input-box label {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    font-size: 16px;
+    font-weight: 500;
+    pointer-events: none;
+    transition: .5s;
+    color: #fff;
+}
+
+.input-box input:focus ~ label,
+.input-box input:not(:placeholder-shown) ~ label {
+    top: -5px;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #fff;
+    padding: 0 35px 0 5px;
+}
+
+.input-box .icon {
+    position: absolute;
+    right: 0;
+    font-size: 19px;
+    line-height: 57px;
+    color: #fff;
+}
+
+/* Toggle mostrar/ocultar contraseña posicionado junto al candado */
+.input-box .toggle-password {
+    position: absolute;
+    right: 36px; /* junto al icono del candado (que está en right:0) */
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.input-box .toggle-password:focus {
+    outline: 2px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+}
+
+.remember-forgot {
+    font-size: 14.5px;
+    font-weight: 500;
+    margin: -15px 0 15px;
+    display: flex;
+    justify-content: space-between;
+    color: #fff;
+}
+
+.remember-forgot label input {
+    accent-color: #fff;
+    margin-right: 3px;
+}
+
+.remember-forgot a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.remember-forgot a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    width: 100%;
+    height: 45px;
+    background: #fff;
+    border: none;
+    outline: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #003049;
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.login-register {
+    font-size: 14.5px;
+    text-align: center;
+    margin-top: 25px;
+    color: #fff;
+}
+
+.login-register p a {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-register p a:hover {
+    text-decoration: underline;
+}
+
+/* --- RESPONSIVE DESIGN (Móviles y Tablets) --- */
+
+@media (max-width: 768px) {
+    
+    /* 1. Ajuste del Body para permitir scroll si es necesario */
+    body {
+        overflow-y: auto; /* Habilita scroll vertical en móviles pequeños */
+        padding: 20px;    /* Un poco de margen en los bordes */
+        height: auto;     /* Permite que crezca según el contenido */
+        min-height: 100vh;
+    }
+
+    /* 2. El Contenedor Principal cambia de tamaño fijo a fluido */
+    .container {
+        width: 100%;
+        max-width: 450px; /* Para que no se estire demasiado en tablets */
+        height: auto;     /* La altura se adapta */
+        min-height: 650px; /* Altura mínima para que quepan texto y formulario */
+        flex-direction: column;
+    }
+
+    /* 3. La caja de "Bienvenida/Texto" se mueve arriba */
+    .content-box {
+        position: absolute;
+        width: 100%;
+        height: 30%; /* Ocupa el 30% superior */
+        top: 0;
+        left: 0;
+        padding: 20px;
+        z-index: 10;
+    }
+
+    /* Ajustes visuales para el texto en móvil */
+    .brand-name {
+        font-size: 32px;
+    }
+    
+    .logo-welcome {
+        width: 250px; /* Logo más pequeño */
+    }
+
+    .text-sci h2 {
+        font-size: 20px; /* Texto más pequeño */
+    }
+    
+    .text-sci p {
+        display: none; /* Ocultamos el párrafo largo para ahorrar espacio en móvil */
+    }
+
+    /* 4. La caja de Login/Registro se mueve abajo */
+    .logreg-box {
+        position: absolute;
+        width: 100%;
+        height: 65%; /* Ocupa el 65% inferior (dejando espacio con el de arriba) */
+        top: 35%;    /* Empieza donde termina el texto (aprox) */
+        right: 0;
+        border-radius: 20px 20px 20px 20px; /* Bordes redondeados parejos */
+    }
+
+    /* Ajuste de los formularios internos */
+    .form-box {
+        border-radius: 20px;
+    }
+
+    .form-box h2 {
+        font-size: 26px;
+    }
+
+    .input-box {
+        margin: 20px 0; /* Menos separación entre inputs */
+        height: 45px;
+    }
+}
+/* --- AJUSTE PARA PANTALLAS MUY PEQUEÑAS (Móviles antiguos) --- */
+@media (max-width: 400px) {
+    .content-box {
+        height: 25%;
+    }
+    
+    .logreg-box {
+        height: 75%; /* Damos más espacio al formulario */
+        top: 25%;
+    }
+    
+    .brand-name {
+        font-size: 24px;
+        margin-bottom: 0;
+    }
+    
+    .logo-welcome {
+        display: none; /* Si la pantalla es muy chica, ocultamos la imagen grande */
+    }
+}

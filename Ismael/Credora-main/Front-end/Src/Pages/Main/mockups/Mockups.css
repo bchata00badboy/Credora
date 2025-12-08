@@ -1,0 +1,354 @@
+/* Variables globales con la paleta de colores principal para Credora */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --color-bg: #ebecf2;
+    --color-surface: #003049;
+    --color-border: #9a9eb2;
+    --color-text-primary: #000;
+    --color-text-secondary: #ebecf2;
+    --color-tooltip-bg: #2a2e33;
+    --color-tooltip-text: #fff;
+    --shadow-border: rgba(0,0,0,0.1);
+    --user-bg-color: #fafafc;
+}
+/* Body  */
+body {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--color-bg);
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 15rem;
+    height: 100%;
+    padding: 1.4rem 1rem 0 1rem;
+    background-color: var(--color-surface);
+    box-shadow: 1px 0 10px var(--shadow-border);
+    transition: width 0.5s ease;
+}
+
+.sidebar.minimize {
+    width: 4.94rem;
+}
+
+/* Header */
+.header {
+    width: 100%;
+}
+
+/* Menu Button */
+.menu-btn {
+    position: absolute;
+    top: 3.5%;
+    right: -.87rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #000;
+    box-shadow: 2px 2px 5px var(--shadow-border);
+    cursor: pointer;
+    transition: right 0.3s ease;
+}
+
+.menu-btn i {
+    font-size: 1.5rem;
+}
+
+.sidebar.minimize .menu-btn {
+    right: -2.2rem;
+}
+
+.sidebar.minimize .menu-btn i {
+    transform: rotate(180deg);
+}
+
+/* Brand */
+.brand {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 0.455rem;
+    margin-bottom: 1.8rem;
+    overflow: hidden;
+}
+
+.brand img {
+    width: 2rem;
+}
+
+.brand span {
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
+}
+
+/* Menu Container */
+.menu-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Search */
+.search {
+    display: flex;
+    width: 100%;
+    padding: 0.55rem 0;
+    margin-bottom: 1.2rem;
+    border-radius: 0.3rem;
+    box-shadow: 0 0 0 1px var(--color-border);
+    cursor: pointer;
+    transition: box-shadow 0.5s ease;
+}
+
+.search:hover {
+    box-shadow: 0 0 0 1px var(--color-text-primary);
+}
+.sidebar.minimize .search {
+    box-shadow: none;
+}
+
+.sidebar.minimize .search:hover {
+    background-color: var(--user-bg-color);
+}
+
+.search i {
+    font-size: 1.35rem;
+    color: var(--color-text-secondary);
+    padding: 0 0.8rem;
+}
+
+.search:hover i {
+    color: var(--color-text-primary);
+}
+
+.search input {
+    width: 70%;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: var(--color-text-primary);
+}
+
+/* Menu */
+
+.menu {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.menu .menu-item {
+    position: relative;
+    list-style: none;
+    overflow: hidden;
+}
+
+.menu .menu-link {
+    display: flex;
+    padding: 0.55rem 0;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-radius: 0.3rem;
+}
+
+.menu-item:hover .menu-link, 
+.sub-menu .sub-menu-link:hover,
+.menu-item.active .menu-link {
+    color: var(--color-text-primary);
+    background-color: var(--color-bg);
+}
+
+.menu-link i {
+    font-size: 1.35rem;
+    padding: 0 0.8rem;
+}
+
+.sidebar.minimize .menu-link i:last-child{
+    display: none;
+}
+
+.menu-link i:last-child {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+}
+
+.menu-item.sub-menu-toggle .menu-link i:last-child{
+transform: rotate(180deg);
+}
+
+.menu-link span {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.sidebar.minimize .menu-item:hover,
+.sidebar.minimize .menu-item.sub-menu-toggle {
+    overflow: visible;
+}
+
+.sidebar.minimize .menu-item:hover span ,
+.sidebar.minimize .menu-item.sub-menu-toggle span{
+    position: absolute;
+    left: 4.2rem;
+    padding: 0.5rem;
+    background-color: var(--color-tooltip-bg);
+    border-radius: 0.4rem;
+    color: var(--color-tooltip-text);
+    transition: all 0.3s ease;
+}
+/* Sub Menu */
+
+.sub-menu {
+    height: 0;
+    transition: height 0.5s ease;
+    overflow: hidden;
+    left: 0;
+}
+
+.sidebar.minimize .sub-menu {
+    position: absolute;
+    left: 4.2rem;
+    top: 3rem;
+    background-color: var(--color-surface);
+    border-radius: .2rem;
+}
+
+.sidebar.minimize .menu-item.sub-menu-toggle .sub-menub{
+    margin-top: 0.5rem;
+}
+
+.sub-menu .sub-menu-link {
+    display: flex;
+    margin-left: 2.5rem;
+    padding: 0.55rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-radius: 0.3rem;
+}
+
+
+.sub-menu::before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 0.07rem;
+    margin-left: 1.4rem;
+    background-color: var(--color-border);
+}
+
+.sidebar.minimize .sub-menu::before {
+    width: 0;
+}
+
+.sidebar.minimize .sub-menu a {
+    margin: 0 0.5rem;
+}
+/* Foooter */
+.footer {
+    width: 100%;
+    padding: 1rem 0;
+    box-shadow: 0 -0.2rem 0 0 var(--color-border);
+}
+
+.user {
+    display: flex;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.user-img{
+    display: flex;
+    margin: 0 0.7rem 0 0.35rem;
+}
+
+.user-img img {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+}
+
+.user-data {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.user-data .name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.user-data .email {
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+}
+
+.user-icon {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--color-text-primary);
+}
+
+/* Responsive */
+
+
+
+
+
+
+
+/* Opcional: ocultar imágenes en mockups para vistas de diseño */
+.hide-mockup-images .brand img,
+.hide-mockup-images .user-img img {
+    display: none;
+}
+
+/* Asegurar que la fuente tomada desde `font.css` se herede */
+body { font-family: inherit; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

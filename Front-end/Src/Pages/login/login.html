@@ -3,75 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credora</title>
+    <title>Credora Login</title>
     <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="../../Styles/normalize.css">
-    <link rel="stylesheet" href="../../Styles/font.css">
     <link rel="stylesheet" href="login.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
+
+    <div class="background"></div>
+
+    <a href="../Home/Home.html" class="back-home" style="position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.95);color:#003049;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600;z-index:1000;">← Volver al Home</a>
+
+    <div class="bubbles" id="wallet-container"></div>
+
     <div class="container">
-        <div class="form_box login">
-            <form action="">
-                <h1>Iniciar Sesión</h1>
-                <div class="input_box">
-                    <input type="email" name="" id="" placeholder="Correo electronico" required>
-                    <img src="../../Assets/Images/envelope.svg" alt="user" class="bx bxs-userIcon">
-                </div>
-
-                <div class="input_box">
-                    <input type="password" name="" id="" placeholder="Contraseña" required>
-                    <img src="../../Assets/Images/lock.svg" alt="lock" class="bx bxs-lock">
-                </div>
-                <div class="forgot_link">
-                    <a href="#">¿Olvidaste tu contraseña?</a>
-                </div>
-                <button type="submit" class="btn ">Iniciar Sesión</button>
-                <p>Inicia Sesion con Google</p>
-                <a href="#" class="google"><img src="../../Assets/Images/google.svg" alt="google"><p>Iniciar Sesion con Google</p></a>
-            </form>
-        </div>
-
-
-        <div class="form_box register">
-            <form action="">
-                <h1>Registrar</h1>
-                <div class="input_box">
-                    <input type="email" name="" id="" placeholder="Correo eletronico" required>
-                    <img src="../../Assets/Images/envelope.svg" alt="user" class="bx bxs-userIcon">
-                </div>
-
-                <div class="input_box">
-                    <input type="password" name="" id="" placeholder="contraseña" required>
-                    <img src="../../Assets/Images/lock.svg" alt="lock" class="bx bxs-lock">
-                </div>
-
-                <div class="input_box">
-                    <input type="password" name="" id="" placeholder="Confirmar contraseña" required>
-                    <img src="../../Assets/Images/lock.svg" alt="lock" class="bx bxs-lock">
-                </div>
-                <div class="forgot_link">
-                </div>
-                <button type="submit" class="btn">Registrar</button>
-                <p>Registrate con Google</p>
-                <a href="#" class="google"><img src="../../Assets/Images/google.svg" alt="google"><p> Registrate con Google</p></a>
-            </form>
-        </div>
-        <div class="toggle_box">
-            <div class="toggle_panel toggle-left">
-                <h1>Hola, Bienvenido</h1>
-                <p>¿No tiene una cuenta aun?</p>
-                <button class="btn register-btn">Registrate</button>
+        
+        <div class="content-box">
+            <div class="brand-section">
+                <img src="credora2.0.png" alt="Credora Logo" class="logo-welcome">
+                <h1 class="brand-name"></h1>
             </div>
-            
-            <div class="toggle_panel toggle-right">
-                <h1>Bienvenido otra vez!</h1>
-                <p>¿Ya tienes una cuenta?</p>
-                <button class="btn login-btn">Inicia Sesion</button>
+
+            <div class="text-sci">
+                <h2>Bienvenido <br><span>A Nuestra Plataforma</span></h2>
+                <p class="expanded-text">Conéctate con tu futuro financiero de manera segura y rápida.</p>
+            </div>
+        </div>
+
+        <div class="logreg-box">
+            <div class="form-box login">
+                <form action="#">
+                    <h2>Iniciar Sesión</h2>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-envelope'></i></span>
+                        <input type="email" placeholder=" " required>
+                        <label>Email</label>
+                    </div>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-lock-alt'></i></span>
+                        <input type="password" placeholder=" " required>
+                        <label>Contraseña</label>
+                    </div>
+                    <div class="remember-forgot">
+                        <label><input type="checkbox"> Recordarme</label>
+                        <a href="#">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <button type="submit" class="btn">Ingresar</button>
+                    <div class="login-register">
+                        <p>¿No tienes cuenta? <a href="#" class="register-link">Regístrate</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="form-box register">
+                <form action="#">
+                    <h2>Regístrate</h2>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-user'></i></span>
+                        <input type="text" placeholder=" " required>
+                        <label>Nombre</label>
+                    </div>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-envelope'></i></span>
+                        <input type="email" placeholder=" " required>
+                        <label>Email</label>
+                    </div>
+                    <div class="input-box">
+                        <span class="icon"><i class='bx bxs-lock-alt'></i></span>
+                        <input type="password" placeholder=" " required>
+                        <label>Contraseña</label>
+                    </div>
+                    <div class="remember-forgot">
+                        <label><input type="checkbox"> Acepto términos y condiciones</label>
+                    </div>
+                    <button type="submit" class="btn">Registrar</button>
+                    <div class="login-register">
+                        <p>¿Ya tienes cuenta? <a href="#" class="login-link">Inicia Sesión</a></p>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <script src="main.js"></script>
+    <script src="login.js"></script>
 </body>
-</html>
+</html> 

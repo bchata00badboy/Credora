@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,146 +11,130 @@
     <link rel="stylesheet" href="Home.css">
 </head>
 <body>
-    <header class="hero">
+    <header class="hero" id="inicio">
         <nav class="nav container">
             <div class="nav_logo">
                 <img src="../../Assets/Icons/Favicon.png" class="nav_logo" alt="">
                 <h2 class="nav_title">Credora</h2>
             </div>
             <ul class="nav_link nav_link--menu">
-                <li class="nav_items">
-                    <a href="#" class="nav_links">Inicio</a>
-                </li>   
-                <li class="nav_items">
-                    <a href="#" class="nav_links">Acerca de</a>
-                </li>    
-                <li class="nav_items">
-                    <a href="#" class="nav_links">Contacto</a>
-                </li>   
-                <li class="nav_items">
-                    <a href="../login/login.html" class="nav_links cta">Iniciar Sesión</a>
-                </li>
-
+                <li class="nav_items"><a href="#inicio" class="nav_links">Inicio</a></li>   
+                <li class="nav_items"><a href="#acerca" class="nav_links">Acerca de</a></li>    
+                <li class="nav_items"><a href="#contacto" class="nav_links">Contacto</a></li>
+                <li class="nav_items"><a href="#preguntas" class="nav_links">Preguntas Frecuentes</a></li>   
                 <img src="../../" alt="" class="nav_close">
             </ul>
-
             <div class="nav_menu">
                 <img src="../../Assets/Images/menu.svg" class="nav_img" alt="Cerrar">
             </div>
         </nav>  
 
         <section class="hero_container container">
-            <h1 class="hero_title">Bienvenido a tu solución de banca en lìnea y billetera digital</h1>
+            <h1 class="hero_title">Bienvenido a tu solución de banca en línea y billetera digital</h1>
             <p class="hero_paragraph">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Vero cumque porro fugiat, doloribus non ipsum ratione quidem dicta quae cupiditate consectetur illum rerum ipsam magni similique asperiores, ut inventore? Fugit.
+                Tú herramienta de crecimiento. Controla tus gastos, aprende a administrar tus recursos y alcanza tus metas financieras con Credora.
             </p>
-            <a href="#" class="cta">Registrate Ahora</a>
+                <li class="nav_items"><a href="../Login/login.html" class="nav_links cta">Iniciar Sesión</a></li>
+                    <a href="../Login/login.html#register" class="cta">Registrate Ahora</a>
         </section>
     </header>
 
     <main>
-        <section class="container about">
-            <h2 class="subtitle">Lorem ipsum dolor sit.</h2>
-            <p class="about_paragraph">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Est, ad.</p>
+        <section class="container about" id="acerca">
+            <h2 class="subtitle">¿Por qué elegir Credora?</h2>
+            <p class="about_paragraph">Más que una billetera, somos tu aliado para el crecimiento económico.</p>
 
             <div class="about_main">
                 <article class="about_icons">
                     <img src="../../Assets/Images/brain.svg" class="about_icon" alt="icon">
-                    <h3 class="about_title">Lorem, ipsum dolor.</h3>
-                    <p class="about_paragraph">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maiores, excepturi.</p>
+                    <h3 class="about_title">Gestión Inteligente</h3>
+                    <p class="about_paragraph">Analiza tus hábitos de consumo con nuestro sistema automatizado.</p>
                 </article>          
                 <article class="about_icons">
                     <img src="../../Assets/Images/wallet.svg" class="about_icon" alt="icon">
-                    <h3 class="about_title">Lorem, ipsum dolor.</h3>
-                    <p class="about_paragraph">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maiores, excepturi.</p>
+                    <h3 class="about_title">Control Total</h3>
+                    <p class="about_paragraph">Realiza transferencias inmediatas y paga servicios de forma segura.</p>
                 </article>           
                 <article class="about_icons">
                     <img src="../../Assets/Images/education.svg" class="about_icon" alt="icon">
-                    <h3 class="about_title">Lorem, ipsum dolor.</h3>
-                    <p class="about_paragraph">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maiores, excepturi.</p>
+                    <h3 class="about_title">Educación Financiera</h3>
+                    <p class="about_paragraph">Aprende a invertir y ahorrar con módulos educativos exclusivos.</p>
                 </article>
             </div>
         </section>
 
-        <section class="Knowledge">
+        <section class="Knowledge" id="knowledge">
             <div class="Knowledge_container container">
                 <div class="knowledge_texts">
-                    <h2 class="subtitle">Lorem ipsum dolor sit amet.</h2>
-                    <p class="Knowledge_paragraph">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Amet obcaecati accusantium vero repellendus maxime magnam reiciendis labore nisi earum odit architecto, nihil modi repudiandae delectus fugit, nobis laborum incidunt voluptatem?</p>
-                    <a href="#" class="cta">Lorem, ipsum dolor.</a>
+                    <h2 class="subtitle">La nueva era de tu economía digital.</h2>
+                    <p class="Knowledge_paragraph">Diseñada para estudiantes, emprendedores y visionarios. Credora combina la agilidad de una billetera virtual con herramientas de educación financiera.</p>
+                    <a href="#" class="cta">Únete a Credora.</a>
                 </div>
-
                 <figure class="Knowledge_picture">
                     <img src="../../Assets/Images/logo_credora.png" class="Knowledge_img" alt="About_picture">
                 </figure>
             </div>
         </section>
 
-        <section class="services container">
-            <h2 class="subtitle">Lorem ipsum dolor sit amet consectetur.</h2>
+        <section class="services container" id="servicios">
+            <h2 class="subtitle">Estos son los niveles de conocimiento que el usuario obtendrá.</h2>
 
             <div class="services_table">
-                <div class="services_element">
-                    <p class="services_type">Lorem</p>
-                    <h3 class="services_name">lorem</h3>
-                    
+                <div class="services_element" 
+                     data-back-title="Plan Inicial" 
+                     data-back-desc="Ideal para empezar a organizar tu vida financiera con bases sólidas."
+                     data-back-list="Plantillas de presupuesto,Calculadora de ahorro,Sin costo de mantenimiento">
+                    <h3 class="services_name">Nivel Básico</h3>
                     <div class="services_items">
-                        <p class="services_features">lorem</p>
-                        <p class="services_features">lorem</p>
-                        <p class="services_features">lorem</p>
+                        <p class="services_features"><b>Aprende a ahorrar y presupuestar.</b></p>
                     </div>
-
-                    <a href="" class="services_cta">saber mas...</a>
+                    <a href="#" class="services_cta">saber mas...</a>
                 </div>
-                <div class="services_element services_element--best">
-                    <p class="services_type">Lorem</p>
-                    <h3 class="services_name">lorem</h3>
-                    
-                    <div class="services_items">
-                        <p class="services_features">lorem</p>
-                        <p class="services_features">lorem</p>
-                        <p class="services_features">lorem</p>
-                    </div>
 
-                    <a href="" class="services_cta">saber mas...</a>
+                <div class="services_element services_element--best"
+                     data-back-title="Crecimiento Activo"
+                     data-back-desc="Herramientas avanzadas para multiplicar tu capital rápidamente."
+                     data-back-list="Acceso a bolsa,Portafolios automáticos,Análisis de riesgo IA">
+                    <h3 class="services_name">Nivel Inversionista</h3>
+                    <div class="services_items">
+                        <p class="services_features">Domina el mercado y haz crecer tu dinero.</p>
+                    </div>
+                    <a href="#" class="services_cta">saber mas...</a>
                 </div>
-                <div class="services_element">
-                    <p class="services_type">Lorem</p>
-                    <h3 class="services_name">lorem</h3>
-                    
-                    <div class="services_items">
-                        <p class="services_features">lorem</p>
-                        <p class="services_features">lorem</p>
-                        <p class="services_features">lorem</p>
-                    </div>
 
-                    <a href="" class="services_cta">saber mas...</a>
+                <div class="services_element"
+                     data-back-title="Libertad Total"
+                     data-back-desc="Estrategias de alto nivel para consolidar tu patrimonio a largo plazo."
+                     data-back-list="Asesoría fiscal,Inversión inmobiliaria,Mesa de dinero VIP">
+                    <h3 class="services_name">Nivel Experto</h3>
+                    <div class="services_items">
+                        <p class="services_features"><b>Estrategias avanzadas y libertad financiera.</b></p>
+                    </div>
+                    <a href="#" class="services_cta">saber mas...</a>
                 </div>
             </div>
         </section>
 
-        <section class="testimony">
+        <section class="testimony" id="contacto">
             <div class="testimony_container container">
                 <img src="../../Assets/Images/arrowLeft.svg" alt="arrowLeft" class="testimony_arrow" id="before">
                 <section class="testimony_body testimony_body--show" data-id="1">
                     <div class="testimony_texts">
                         <h2 class="subtitle">Mi nombre es Alejandro Jose, <span class="testimony_course">Estudiante</span></h2>
-                        <p class="testimony_review">Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus in commodi modi alias corporis, voluptatem voluptas vel esse distinctio quasi tempore. Accusamus laudantium minus officia harum esse eos corrupti illo!</p>
+                        <p class="testimony_review">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
                     </div>
-                    
                     <figure class="testimony_picture">
-                        <img src="https://i.scdn.co/image/ab67616d00001e02dc70b075d2db0dc27729fa6b" alt="" class="testimony_img">
+                        <img src="https://i.scdn.co/image/ab67616d00001e02dc70b075d2db0dc27729fa6b" alt="Alejandro Jose" class="testimony_img">
                     </figure>
                 </section>
 
                 <section class="testimony_body" data-id="2">
                     <div class="testimony_texts">
-                        <h2 class="subtitle">Mi nombre es kevin Varela, <span class="testimony_course">Estudiante</span></h2>
+                        <h2 class="subtitle">Mi nombre es Kevin Varela, <span class="testimony_course">Estudiante</span></h2>
                         <p class="testimony_review">Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus in commodi modi alias corporis, voluptatem voluptas vel esse harum esse eos corrupti illo!</p>
                     </div>
-
                     <figure class="testimony_picture">
-                        <img src="https://preview.redd.it/vergil-is-so-easy-v0-d6r60f2uagve1.jpeg?width=640&crop=smart&auto=webp&s=d0cfa64ebbe46f15f4b65fa91142cb6218b23525" alt="Face_img" class="testimony_img">
+                        <img src="https://preview.redd.it/vergil-is-so-easy-v0-d6r60f2uagve1.jpeg?width=640&crop=smart&auto=webp&s=d0cfa64ebbe46f15f4b65fa91142cb6218b23525" alt="Kevin Varela" class="testimony_img">
                     </figure>
                 </section>
 
@@ -159,109 +143,110 @@
                         <h2 class="subtitle">Mi nombre es Ismael Campos, <span class="testimony_course">Estudiante</span></h2>
                         <p class="testimony_review">Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus in commodi modi alias corporis, voluptatem voluptas vel esse harum esse eos corrupti illo!</p>
                     </div>
-
                     <figure class="testimony_picture">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpNsORWXdjRA8AKzD1NOiKn94fgcVOHb5WvQ&s" class="testimony_img">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpNsORWXdjRA8AKzD1NOiKn94fgcVOHb5WvQ&s" alt="Ismael Campos" class="testimony_img">
                     </figure>
                 </section>
-
                 <img src="../../Assets/Images/arrowRight.svg" alt="arrowRight" class="testimony_arrow" id="next">
             </div>
-
         </section>
 
-        <section class="questions container">
+        <section class="questions container" id="preguntas">
             <h2 class="subtitle">Preguntas Frecuentes</h2>
-            <p class="questions_paragraph">Lorem ipsum dolor sit amet consectetur adipisicing elit. Facere at expedita tempore sunt cupiditate deserunt.</p>
+            <p class="questions_paragraph">Resolvemos tus dudas principales sobre Credora.</p>
             
             <section class="questions_container">
                 <article class="questions_padding">
                     <div class="questions_answer">
-                        <h3 class="questions_title">¿Qué es Credora?
-                            <span class="questions_arrow">
-                                <img src="../../Assets/Images/arrowUp.svg" alt="arrowDown" class="questions_img">
-                            </span>
-                        </h3>
-
-                        <p class="questions_show">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi atque, corrupti recusandae distinctio magnam magni expedita quas! Laudantium nihil deleniti illum molestiae vel, libero eos, excepturi unde officiis aspernatur nobis. Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae vitae sed minus error dignissimos quia a magnam necessitatibus esse asperiores? Neque optio cum architecto ipsum officiis perferendis fugit, molestias quas?
-                        </p>
-
+                        <h3 class="questions_title">¿Qué es Credora? <span class="questions_arrow"><img src="../../Assets/Images/arrowUp.svg" class="questions_img"></span></h3>
+                        <p class="questions_show">Es una billetera digital enfocada en la educación financiera.</p>
                     </div>
                 </article>
                 <article class="questions_padding">
                     <div class="questions_answer">
-                        <h3 class="questions_title">¿Qué es Credora?
-                            <span class="questions_arrow">
-                                <img src="../../Assets/Images/arrowUp.svg" alt="arrowDown" class="questions_img">
-                            </span>
-                        </h3>
-
-                        <p class="questions_show">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi atque, corrupti recusandae distinctio magnam magni expedita quas! Laudantium nihil deleniti illum molestiae vel, libero eos, excepturi unde officiis aspernatur nobis. Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae vitae sed minus error dignissimos quia a magnam necessitatibus esse asperiores? Neque optio cum architecto ipsum officiis perferendis fugit, molestias quas?
-                        </p>
-
+                        <h3 class="questions_title">¿Cómo funciona? <span class="questions_arrow"><img src="../../Assets/Images/arrowUp.svg" class="questions_img"></span></h3>
+                        <p class="questions_show">Te registras, verificas tu identidad y comienzas a operar.</p>
                     </div>
                 </article>
                 <article class="questions_padding">
                     <div class="questions_answer">
-                        <h3 class="questions_title">¿Qué es Credora?
-                            <span class="questions_arrow">
-                                <img src="../../Assets/Images/arrowUp.svg" alt="arrowDown" class="questions_img">
-                            </span>
-                        </h3>
-
-                        <p class="questions_show">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi atque, corrupti recusandae distinctio magnam magni expedita quas! Laudantium nihil deleniti illum molestiae vel, libero eos, excepturi unde officiis aspernatur nobis. Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae vitae sed minus error dignissimos quia a magnam necessitatibus esse asperiores? Neque optio cum architecto ipsum officiis perferendis fugit, molestias quas?
-                        </p>
-
+                        <h3 class="questions_title">¿Es seguro usar Credora? <span class="questions_arrow"><img src="../../Assets/Images/arrowUp.svg" class="questions_img"></span></h3>
+                        <p class="questions_show">Sí. Credora utiliza medidas estándar de la industria, como cifrado y buenas prácticas de manejo de datos.</p>
                     </div>
                 </article>
             </section>
+            
             <section class="questions_offer">
-                <h2 class="subtitle">¿Estas listo para empezar aprender a gestionar tus finanzas?</h2>
-                <p class="questions_copy">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Reiciendis, animi sit quas quia nulla odio. Labore vero magni velit eligendi repudiandae excepturi molestias saepe, dolorum ab quia suscipit tempora molestiae!</p>
+                <h2 class="subtitle">¿Estas listo para empezar?</h2>
                 <a href="#" class="cta">Comienza Ahora</a>
             </section>
         </section>
 
     </main>
 
-    <footer class="footer">
+    <footer class="footer" id="final">
         <section class="footer_container container">
             <nav class="nav nav--footer">
                 <h2 class="footer_title">Credora</h2>
-
                 <ul class="nav_link nav_link--menu">
-
-                    <li class="nav_items">
-                        <a href="#" class="nav_links">Inicio</a>
-                    </li>
-                    <li class="nav_items">
-                        <a href="#" class="nav_links">Acerca de</a>
-                    </li>
-                    <li class="nav_items">
-                        <a href="#" class="nav_links">Contacto</a>
-                    </li>
-                    <li class="nav_items">
-                        <a href="#" class="nav_links">Blog</a>
-                    </li>
+                    <li class="nav_items"><a href="#inicio" class="nav_links">Inicio</a></li>
+                    <li class="nav_items"><a href="#acerca" class="nav_links">Acerca de</a></li>
+                    <li class="nav_items"><a href="#contacto" class="nav_links">Contacto</a></li>
+                    <li class="nav_items"><a href="#preguntas" class="nav_links">Preguntas Frecuentes</a></li>
                 </ul>
             </nav> 
         </section>
-
         <section class="footer_copy container">
-            <div class="footer_social">
-                <a href="#" class="footer_icons"><img src="../../Assets/Images/instagram.svg" alt="instagram" class="footer_img"></a>
-                <a href="#" class="footer_icons"><img src="../../Assets/Images/tiktok.svg" alt="tiktok" class="footer_img"></a>
-                <a href="#" class="footer_icons"><img src="../../Assets/Images/youtube.svg" alt="" class="footer_img"></a>
-            </div>
-
-            <h3 class="footer_copyright">Derechos reservados &copy; AKI.ca</h3>
+            <h3 class="footer_copyright">Derechos reservados &copy; Credora</h3>
         </section>
     </footer>
 
+    <div class="floating-nav">
+        <button id="navUp" class="nav-btn" title="Anterior sección"><i class='bx bx-chevron-up'></i></button>
+        <button id="navDown" class="nav-btn" title="Siguiente sección"><i class='bx bx-chevron-down'></i></button>
+    </div>
+
     <script src="Sliders.js"></script>
     <script src="questions.js"></script>
+    <script src="Home_flip.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lista actualizada incluyendo 'final'
+            const sections = ['inicio', 'acerca', 'knowledge', 'servicios', 'contacto', 'preguntas', 'final'];
+            
+            const btnUp = document.getElementById('navUp');
+            const btnDown = document.getElementById('navDown');
+
+            function getCurrentSectionIndex() {
+                let current = 0;
+                const scrollPos = window.scrollY + 100; // Margen de error
+                
+                sections.forEach((id, index) => {
+                    const section = document.getElementById(id);
+                    if (section && section.offsetTop <= scrollPos) {
+                        current = index;
+                    }
+                });
+                return current;
+            }
+
+            btnUp.addEventListener('click', () => {
+                const currentIndex = getCurrentSectionIndex();
+                if (currentIndex > 0) {
+                    const prevSection = document.getElementById(sections[currentIndex - 1]);
+                    prevSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
+            btnDown.addEventListener('click', () => {
+                const currentIndex = getCurrentSectionIndex();
+                if (currentIndex < sections.length - 1) {
+                    const nextSection = document.getElementById(sections[currentIndex + 1]);
+                    nextSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

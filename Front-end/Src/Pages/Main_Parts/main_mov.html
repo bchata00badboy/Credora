@@ -1,0 +1,58 @@
+<section class="content-section vista-movimientos">
+    <header>
+        <h1>Historial de Movimientos</h1>
+        <p>Consulta tus ingresos y egresos recientes</p>
+    </header>
+
+    <div class="filtros-container">
+        <div class="input-icon">
+            <i class='bx bx-search'></i>
+            <input type="text" placeholder="Buscar transacción...">
+        </div>
+        <select class="select-filtro">
+            <option value="todos">Todos los periodos</option>
+            <option value="mes">Este mes</option>
+            <option value="ano">Este año</option>
+        </select>
+        <button class="btn-descargar">
+            <i class='bx bx-download'></i> Exportar
+        </button>
+    </div>
+
+    <div class="tabla-container card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th class="text-right">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>07 Dic 2025</td>
+                    <td><span class="titulo-transaccion">Netflix Subscription</span><br><span class="subtitulo">Pago recurrente</span></td>
+                    <td><span class="badge entretenimiento">Entretenimiento</span></td>
+                    <td><i class='bx bxs-check-circle success'></i> Completado</td>
+                    <td class="text-right monto-negativo">- $15.00</td>
+                </tr>
+                <tr>
+                    <td>05 Dic 2025</td>
+                    <td><span class="titulo-transaccion">Transferencia Recibida</span><br><span class="subtitulo">De: Juan Pérez</span></td>
+                    <td><span class="badge ingreso">Transferencias</span></td>
+                    <td><i class='bx bxs-check-circle success'></i> Completado</td>
+                    <td class="text-right monto-positivo">+ $250.00</td>
+                </tr>
+                <tr>
+                    <td>04 Dic 2025</td>
+                    <td><span class="titulo-transaccion">Compra Amazon</span><br><span class="subtitulo">Electrónica</span></td>
+                    <td><span class="badge compras">Compras</span></td>
+                    <td><i class='bx bxs-time-five pending'></i> Pendiente</td>
+                    <td class="text-right monto-negativo">- $120.50</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>

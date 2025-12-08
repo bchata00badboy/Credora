@@ -1,0 +1,115 @@
+<section class="content-section vista-transferencias">
+    <header>
+        <h1>Realizar Transferencia</h1>
+        <p>Envía dinero a otras cuentas</p>
+    </header>
+
+    <div class="transfer-grid">
+        
+        <div class="card card-form">
+            <h3>Detalles de la operación</h3>
+            
+            <form class="form-transferencia">
+                
+                <div class="form-group">
+                    <label>Cuenta de Origen</label>
+                    <div class="account-select">
+                        <div class="acc-icon">
+                            <i class='bx bx-wallet'></i>
+                        </div>
+                        <div class="acc-info">
+                            <span class="acc-name">Cuenta Principal</span>
+                            <span class="acc-balance">Saldo disponible: <strong>$1,250.00</strong></span>
+                        </div>
+                        <i class='bx bx-chevron-down'></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Cuenta Destino</label>
+                    <div class="input-with-icon">
+                        <i class='bx bx-user'></i>
+                        <input type="text" placeholder=" ">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Banco</label>
+                        <select class="select-simple">
+                            <option>Credora</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Beneficiario</label>
+                        <input type="text" placeholder="Nombre del titular" class="input-simple">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Monto a transferir</label>
+                    <div class="monto-input-container">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" placeholder="0.00" class="input-monto">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Concepto / Referencia</label>
+                    <input type="text" placeholder="Ej: Pago de renta" class="input-simple">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancelar">Cancelar</button>
+                    <button type="button" class="btn-confirmar">Continuar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="sidebar-transfer">
+            <div class="card card-favoritos">
+                <div class="fav-header">
+                    <h3>Favoritos</h3>
+                    <button class="btn-icon-small"><i class='bx bx-plus'></i></button>
+                </div>
+                <p class="fav-desc">Envía rápido a tus contactos frecuentes.</p>
+
+                <div class="favoritos-grid">
+                    <div class="fav-item">
+                        <div class="fav-avatar color-1">
+                            <span>JP</span>
+                        </div>
+                        <span class="fav-name">Juan P.</span>
+                    </div>
+                    <div class="fav-item">
+                        <div class="fav-avatar color-2">
+                            <span>AM</span>
+                        </div>
+                        <span class="fav-name">Ana M.</span>
+                    </div>
+                    <div class="fav-item">
+                        <div class="fav-avatar color-3">
+                            <span>C</span>
+                        </div>
+                        <span class="fav-name">Casa</span>
+                    </div>
+                    <div class="fav-item">
+                        <div class="fav-avatar color-4">
+                            <span>S</span>
+                        </div>
+                        <span class="fav-name">Spotify</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card info-card">
+                <i class='bx bx-info-circle'></i>
+                <div>
+                    <h4>Límites diarios</h4>
+                    <p>Puedes transferir hasta $5,000.00 hoy sin comisiones.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>

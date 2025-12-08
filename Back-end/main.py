@@ -1,31 +1,68 @@
-# main.py (Punto de Entrada)
+# main.py (COMPLETO CON SOLUCIÓN DE IMPORTACIÓN)
 
 from fastapi import FastAPI
-# 1. Importamos la función de inicialización de nuestro módulo de configuración
-from configuracion import inicializar_almacenamiento, CARPETA_SUBIDAS 
-# Asumiendo que definimos el resto de la app en routers/
+import uvicorn
+import os
+import sys # Importación del módulo del sistema
 
-app = FastAPI(title="Credora - Billetera Educativa")
+# --- CORRECCIÓN DEFINITIVA DEL PATH ---
+# Obtener el directorio donde reside este archivo (Back-end/)
+DIRECTORIO_RAIZ = os.path.dirname(os.path.abspath(__file__))
 
-# Esto es una buena práctica de ingeniería de sistemas: 
-# asegurar la infraestructura antes de que el servidor se inicie.
+# Añadir la ruta al PYTHONPATH. Esto asegura que 'app' sea reconocible como un paquete.
+sys.path.append(DIRECTORIO_RAIZ)
+# --------------------------------------
+
+# Importamos la configuración y la función de inicialización de la P1.2
+from configuracion import inicializar_almacenamiento
+
+# Importamos los routers de la Fase 2 (Ahora deberían funcionar)
+from app.routers import rutas_autenticacion
+from app.routers import rutas_kyc
+
+# ... (resto del código de FastAPI: app = FastAPI(...), @app.on_event("startup"), etc.)
+# ... (asegúrate de que las importaciones dentro de los routers y servicios sean absolutas/relativas correctas)
+
+# --- 1. INICIALIZACIÓN DE LA APLICACIÓN ---
+app = FastAPI(
+    title="Credora - Billetera Fintech Educativa",
+    version="2.0",
+    description="Backend desarrollado para la gestión financiera y educación."
+)
+
+
+# --- 2. EVENTO DE INICIO (INFRAESTRUCTURA DE LA FASE 1) ---
 @app.on_event("startup")
 def setup_proyecto():
-    """Función que se ejecuta una sola vez al iniciar el servidor."""
+    """
+    Función que se ejecuta al inicio del servidor.
+    Garantiza que la infraestructura esté lista (P1.2).
+    """
+    print("Iniciando infraestructura de Credora...")
     
-    # 2. Llamamos a la función de la P1.2 aquí:
+    # 2.1. Inicialización de Almacenamiento (P1.2)
     if inicializar_almacenamiento():
-        print("✅ P1.2 COMPLETA: Almacenamiento listo.")
+        print("✅ P1.2 COMPLETA: Directorio de subidas verificado.")
     else:
-        # En un sistema real, esto detendría el arranque
-        print("❌ Error de infraestructura, no se pudo crear la carpeta.") 
+        # En un sistema real, se debería registrar un error crítico y detener la app.
+        print("❌ Error de infraestructura: Falló la creación del directorio de subidas.") 
+    
+    # Aquí iría la inicialización de la Base de Datos (ej. creación de tablas si no existen)
+    # print("Conectando y verificando modelos de Base de Datos...")
 
-    # Aquí irían otras inicializaciones (ej. la conexión a la BD)
 
-# Aquí se incluyen los routers (Fase 2)
-# app.include_router(rutas_kyc.router) 
+# --- 3. INCLUSIÓN DE RUTERS (FUNCIONALIDAD DE LA FASE 2) ---
 
-# El bloque de ejecución final (si usas main.py para correr)
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+# Rutas de Autenticación (P2.1: Login/Registro Tradicional)
+app.include_router(rutas_autenticacion.router)
+
+# Rutas de KYC (P2.2: Carga de Documentos)
+# Notar: Estas rutas requieren autenticación (JWT)
+app.include_router(rutas_kyc.router)
+
+
+# --- 4. BLOQUE DE EJECUCIÓN DEL SERVIDOR ---
+if __name__ == '__main__':
+    # Usamos uvicorn para correr la aplicación
+    # La opción --reload es útil durante el desarrollo
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

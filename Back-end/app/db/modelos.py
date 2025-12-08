@@ -21,7 +21,7 @@ class EstadoKYC(str, enum.Enum):
 # 1. Tabla de Usuarios (Actualizada para KYC)
 # ----------------------------------------------------------------------
 class Usuario(Base):
-    __tablename__ = 'usuario' # Minúscula por convención de BD
+    __tablename__ = 'usuario'
 
     id_usuario = Column(Integer, primary_key=True, index=True)
     nombre_completo = Column(String(100), nullable=False)
@@ -29,17 +29,17 @@ class Usuario(Base):
     hash_contrasena = Column(String(255), nullable=False)
     fecha_registro = Column(DateTime(timezone=True), default=datetime.utcnow)
     
-    # Campos Nuevos para Perfil Completo (Fase 3)
+    # --- CAMPO CRÍTICO PARA LA PERSISTENCIA ---
+    cedula = Column(String, unique=True) 
+    # ------------------------------------------
+
     direccion = Column(Text)
     telefono = Column(String(20))
     ocupacion = Column(String(50))
     nivel_estudio = Column(String(50))
     es_cuenta_negocio = Column(Boolean, default=False)
-    
-    # NUEVO CAMPO: Estado de Verificación (P1.1 / P2.4)
     estado_kyc = Column(Enum(EstadoKYC), default=EstadoKYC.PENDIENTE_VERIFICACION, nullable=False)
     
-    # Relaciones
     cuenta = relationship("Cuenta", back_populates="usuario", uselist=False)
     solicitudes_kyc = relationship("SolicitudKYC", back_populates="usuario")
 
@@ -110,19 +110,11 @@ class SolicitudKYC(Base):
     __tablename__ = 'solicitudkyc'
     id_documento = Column(Integer, primary_key=True, index=True)
     id_usuario = Column(Integer, ForeignKey('usuario.id_usuario', ondelete="CASCADE"), nullable=False)
-    
-    # Campo clave de la P1.2: Referencia del archivo UUID en el servidor
-    nombre_archivo_seguro = Column(String(255), unique=True, nullable=False) 
-    
-    # Campo para guardar los datos extraídos por el OCR (P2.3)
+    nombre_archivo_seguro = Column(String(255), unique=True, nullable=False)
     datos_ocr_json = Column(JSONB) 
-    
-    # Estado de validación (Alineación con el Enum)
     estado = Column(Enum(EstadoKYC), default=EstadoKYC.PENDIENTE_OCR, nullable=False) 
-    
     fecha_subida = Column(DateTime(timezone=True), default=datetime.utcnow)
 
-    # Relación
     usuario = relationship("Usuario", back_populates="solicitudes_kyc")
 
 # ----------------------------------------------------------------------

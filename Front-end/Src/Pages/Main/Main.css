@@ -96,7 +96,8 @@ body {
 .brand span {
     font-weight: 900;
     font-size: 1.1rem;
-    color: var(--color-text-primary);
+    /*color: var(--color-text-primary);*/
+    color: whitesmoke;
 }
 
 /* Menu Container */
@@ -316,10 +317,950 @@ transform: rotate(180deg);
     font-size: 1.5rem;
     color: var(--color-text-primary);
 }
-
 /* Responsive */
 
+/* =======================================================
+   INTEGRACIÓN DEL CONTENIDO PRINCIPAL (SPA)
+   ======================================================= */
 
+.main-content {
+    /* POSICIONAMIENTO */
+    margin-left: 15rem; /* Mismo ancho que tu sidebar (.sidebar width) */
+    width: calc(100% - 15rem); /* Ocupa el espacio restante */
+    height: 100vh;
+    
+    /* APARIENCIA */
+    background-color: var(--color-bg); /* Mismo fondo gris azulado */
+    padding: 2rem; /* Espacio interno para que no pegue a los bordes */
+    
+    /* COMPORTAMIENTO */
+    overflow-y: auto; /* Permite scroll si el contenido es largo */
+    transition: all 0.5s ease; /* ¡IMPORTANTE! Para animarse junto con la sidebar */
+}
+
+/* AJUSTE AUTOMÁTICO CUANDO LA SIDEBAR SE MINIMIZA 
+   (Usamos el selector de hermano general '~' o adyacente '+')
+*/
+.sidebar.minimize ~ .main-content {
+    margin-left: 4.94rem; /* Se ajusta al ancho de la sidebar minimizada */
+    width: calc(100% - 4.94rem);
+}
+
+/* =======================================================
+   ESTILOS DE LAS VISTAS (Lógica Mostrar/Ocultar)
+   ======================================================= */
+
+/* Clase utilitaria para ocultar secciones */
+.hidden {
+    display: none !important;
+}
+
+/* Contenedor de cada sección (Inicio, Movimientos, etc.) */
+.content-section {
+    width: 100%;
+    max-width: 1200px; /* Evita que se estire demasiado en pantallas gigantes */
+    margin: 0 auto;    /* Centra el contenido horizontalmente */
+    animation: fadeIn 0.6s cubic-bezier(0.39, 0.575, 0.565, 1); /* Entrada suave */
+}
+
+/* Estilo para los títulos de cada sección */
+.content-section header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1rem;
+}
+
+.content-section header h1 {
+    color: var(--color-surface); /* Azul oscuro */
+    font-size: 1.8rem;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =======================================================
+   TARJETAS DE EJEMPLO (Estilo Credora)
+   ======================================================= */
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background-color: #fff; /* O var(--user-bg-color) */
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px var(--shadow-border);
+    border: 1px solid rgba(0,0,0,0.05);
+    color: var(--color-text-primary);
+}
+
+/* === ESTILOS ESPECÍFICOS: VISTA PERFIL === */
+
+/* Diseño de grilla para poner las dos cajas una al lado de la otra */
+#vista-perfil .perfil-grid {
+    display: flex;
+    gap: 2rem; /* Espacio entre las tarjetas */
+    flex-wrap: wrap; /* Para que se adapte si la pantalla es chica */
+    margin-top: 20px;
+}
+
+/* Estilo "Enmarcado" (Card) compartido para ambas cajas */
+#vista-perfil .card-perfil {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra suave y elegante */
+    flex: 1; /* Ambas ocupan el mismo ancho disponible */
+    min-width: 300px; /* Ancho mínimo para que no se aplasten */
+}
+
+/* --- Estilos Tarjeta Usuario (Izquierda) --- */
+#vista-perfil .avatar-circle {
+    width: 80px;
+    height: 80px;
+    background-color: #003366; /* Azul oscuro corporativo */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+#vista-perfil .datos-usuario h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #333;
+}
+
+#vista-perfil .datos-usuario .rol {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+#vista-perfil .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+#vista-perfil .info-row:last-child {
+    border-bottom: none;
+}
+
+#vista-perfil .label {
+    font-weight: 600;
+    color: #555;
+}
+
+/* --- Estilos Tarjeta Seguridad (Derecha) --- */
+#vista-perfil .seguridad h3 {
+    margin-top: 0;
+    color: #003366;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+#vista-perfil .form-group {
+    margin-bottom: 15px;
+}
+
+#vista-perfil label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+#vista-perfil input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Asegura que el padding no rompa el ancho */
+}
+
+#vista-perfil input[type="password"]:focus {
+    border-color: #003366;
+    outline: none;
+}
+
+#vista-perfil .btn-guardar {
+    background-color: #003366;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+#vista-perfil .btn-guardar:hover {
+    background-color: #002244;
+}
+
+
+/*
+
+CSS para el apartado de Movimientos del usuario
+
+*/
+
+/* === ESTILOS MOVIMIENTOS === */
+
+.filtros-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filtros-container .input-icon {
+    flex: 1;
+    position: relative;
+    min-width: 200px;
+}
+
+.filtros-container .input-icon i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-border);
+}
+
+.filtros-container input, 
+.filtros-container select {
+    width: 100%;
+    padding: 10px 10px 10px 35px; /* Espacio para el icono */
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: #fff;
+    outline: none;
+}
+
+.btn-descargar {
+    background-color: var(--color-surface);
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Tabla */
+.tabla-container {
+    overflow-x: auto; /* Para que no se rompa en celulares */
+    padding: 0; /* Quitamos padding de la tarjeta para que la tabla llene todo */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f9fafb;
+    color: #666;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.titulo-transaccion { font-weight: 600; color: var(--color-text-primary); }
+.subtitulo { font-size: 0.8rem; color: #888; }
+.text-right { text-align: right; }
+
+/* Colores de montos */
+.monto-positivo { color: #2ecc71; font-weight: bold; }
+.monto-negativo { color: #e74c3c; font-weight: bold; }
+
+/* Badges (Etiquetas de colores) */
+.badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; }
+.badge.entretenimiento { background: #e3f2fd; color: #1565c0; }
+.badge.ingreso { background: #e8f5e9; color: #2e7d32; }
+.badge.compras { background: #fff3e0; color: #ef6c00; }
+
+/* Iconos de estado */
+.success { color: #2ecc71; }
+.pending { color: #f1c40f; }
+
+
+
+/*
+
+CSS para el apartado de configuracion
+
+*/
+
+
+/* === ESTILOS CONFIGURACIÓN === */
+
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.config-item:last-child { border-bottom: none; }
+
+.config-info h4 { margin: 0; font-size: 1rem; color: var(--color-text-primary); }
+.config-info p { margin: 2px 0 0; font-size: 0.8rem; color: #888; }
+
+.select-simple {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+}
+
+/* Botones de peligro */
+.btn-outline-danger {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+    background: transparent;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-danger {
+    width: 100%;
+    padding: 10px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* === EL SWITCH (INTERRUPTOR) === */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; width: 16px;
+    left: 4px; bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider { background-color: var(--color-surface); }
+input:checked + .slider:before { transform: translateX(26px); }
+
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+/*
+
+Estilos aparte para transicionalidad
+
+*/
+
+/* === ESTILOS NOTIFICACIONES === */
+
+.btn-texto {
+    background: none;
+    border: none;
+    color: var(--color-surface); /* Azul corporativo */
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.btn-texto:hover {
+    background-color: #e3f2fd;
+}
+
+.notificaciones-container {
+    padding: 0; /* Quitamos padding del contenedor para que los items lleguen al borde */
+    overflow: hidden; /* Para respetar el border-radius */
+}
+
+.notificacion-item {
+    display: flex;
+    gap: 15px;
+    padding: 1.2rem;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.notificacion-item:last-child {
+    border-bottom: none;
+}
+
+.notificacion-item:hover {
+    background-color: #fafafc; /* Ligero gris al pasar el mouse */
+}
+
+/* Estado NO LEÍDO */
+.notificacion-item.no-leida {
+    background-color: #f0f8ff; /* Azul muy pálido (AliceBlue) */
+}
+
+.notificacion-item.no-leida::after {
+    content: "";
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-surface);
+    border-radius: 50%;
+}
+
+/* Iconos circulares */
+.notif-icon {
+    min-width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.notif-icon.seguridad { background-color: #ffebee; color: #e53935; } /* Rojo */
+.notif-icon.ingreso { background-color: #e8f5e9; color: #2e7d32; }   /* Verde */
+.notif-icon.info { background-color: #e3f2fd; color: #1565c0; }      /* Azul */
+.notif-icon.pago { background-color: #fff3e0; color: #ef6c00; }      /* Naranja */
+
+/* Texto */
+.notif-content {
+    flex: 1;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.notif-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+.notif-header .time {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.notif-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+
+
+/*
+
+Estilos aparte para transicionalidad
+
+*/
+
+
+/*
+
+CSS para el apartado de Transferencia a otra cuenta
+
+*/
+
+/* === ESTILOS TRANSFERENCIAS === */
+
+/* Estructura Principal */
+.transfer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Izquierda más ancha que derecha */
+    gap: 2rem;
+}
+
+/* --- Estilos del Formulario --- */
+.card-form {
+    padding: 2rem;
+}
+
+.card-form h3 {
+    margin-bottom: 1.5rem;
+    color: var(--color-surface);
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Selector de Cuenta Origen (Estilo tarjeta) */
+.account-select {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #fafafc;
+}
+
+.account-select:hover {
+    border-color: var(--color-surface);
+    background: #fff;
+}
+
+.acc-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-surface);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 12px;
+}
+
+.acc-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.acc-name { font-size: 0.9rem; font-weight: 600; }
+.acc-balance { font-size: 0.8rem; color: #666; }
+
+/* Inputs Generales */
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 1.2rem;
+}
+
+.input-with-icon input {
+    padding-left: 40px; /* Espacio para el icono */
+}
+
+input[type="text"], 
+input[type="number"], 
+.select-simple {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border 0.3s;
+}
+
+input:focus, .select-simple:focus {
+    border-color: var(--color-surface);
+}
+
+/* Input Gigante para Monto */
+.monto-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-surface);
+}
+
+.input-monto {
+    padding-left: 35px !important;
+    font-size: 1.5rem !important;
+    font-weight: bold;
+    color: var(--color-surface);
+    height: 3.5rem;
+}
+
+/* Botones de Acción */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-cancelar {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: #666;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-confirmar {
+    background: var(--color-surface);
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn-confirmar:hover {
+    background: #002244;
+}
+
+/* --- Sidebar Derecha (Favoritos) --- */
+.fav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.btn-icon-small {
+    background: #f0f0f0;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fav-desc {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 1.5rem;
+}
+
+.favoritos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    text-align: center;
+}
+
+.fav-item {
+    cursor: pointer;
+}
+
+.fav-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    margin: 0 auto 5px auto;
+    transition: transform 0.2s;
+}
+
+.fav-item:hover .fav-avatar {
+    transform: scale(1.1);
+}
+
+.fav-name {
+    font-size: 0.75rem;
+    color: #555;
+}
+
+/* Colores aleatorios para avatares */
+.color-1 { background: #ff7043; }
+.color-2 { background: #42a5f5; }
+.color-3 { background: #66bb6a; }
+.color-4 { background: #ab47bc; }
+
+/* Tarjeta Info */
+.info-card {
+    margin-top: 1.5rem;
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.info-card i {
+    font-size: 1.5rem;
+    color: #1976d2;
+}
+
+.info-card h4 { margin: 0; font-size: 0.9rem; color: #0d47a1; }
+.info-card p { margin: 2px 0 0; font-size: 0.8rem; color: #1565c0; }
+
+/* Responsive para celulares */
+@media (max-width: 768px) {
+    .transfer-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+
+/* Ocultar elementos de forma estricta */
+.hidden {
+    display: none !important;
+    opacity: 0;
+}
+
+/* Clase para activar la animación */
+.active-section {
+    display: block !important;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Tu animación existente (estaba bien) */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================
+   CLASE UTILITARIA (La Lógica de Ocultar)
+   ========================================= */
+.hidden {
+    display: none !important; /* Fuerza a que el elemento no exista visualmente */
+}
+
+/* =========================================
+   A. ESTILOS DEL MODAL (Riesgo)
+   ========================================= */
+
+:root {
+    --bg-cream: #FDF0D5;
+    --risk-red: #C1121F;
+    --risk-wine: #780000;
+    --ai-blue-light: #669BBC;
+    --ai-blue-dark: #003049;
+    --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --border-radius: 20px;
+}
+
+/* 1. El Fondo Oscuro (Overlay) */
+.modal-overlay {
+    position: fixed;       /* Se queda fijo en la pantalla */
+    top: 0; left: 0;       /* Empieza en la esquina superior izquierda */
+    width: 100%;           /* Ocupa todo el ancho */
+    height: 100%;          /* Ocupa todo el alto */
+    background-color: rgba(0, 0, 0, 0.6); /* Negro al 60% de opacidad */
+    z-index: 1000;         /* Capa muy superior */
+    
+    /* Truco de Flexbox para centrar la tarjeta perfectamente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(3px); /* Efecto moderno de desenfoque de fondo */
+}
+
+/* 2. La Tarjeta del Modal */
+.modal-card {
+    background-color: var(--bg-cream);
+    width: 90%;
+    max-width: 400px;      /* Que no sea demasiado ancha en PC */
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;      /* Para que el encabezado respete los bordes redondeados */
+    animation: slideIn 0.3s ease-out; /* Pequeña animación de entrada */
+}
+
+.modal-header {
+    padding: 15px 20px;
+    color: white;
+}
+
+.warning-bg {
+    background-color: var(--risk-red);
+}
+
+.modal-body {
+    padding: 20px;
+    color: #333;
+    font-family: sans-serif;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end; /* Botones a la derecha */
+    gap: 10px;
+}
+
+/* Botones estilo Credora */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px; /* Bordes suaves internos */
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-primary-danger {
+    background-color: var(--risk-wine);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #ccc;
+}
+
+/* =========================================
+   B. ESTILOS DEL TOAST (Consejo IA)
+   ========================================= */
+.toast-card {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;           /* Esquina inferior derecha */
+    z-index: 999;          /* Encima del contenido, pero debajo del modal si se abren ambos */
+    
+    background-color: var(--bg-cream);
+    border-left: 8px solid var(--ai-blue-dark); /* Borde indicador de tipo */
+    border-radius: 15px;   /* Un poco menos redondeado que el modal */
+    box-shadow: var(--shadow-soft);
+    
+    width: 300px;
+    padding: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    
+    animation: floatUp 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Rebote suave */
+}
+
+.toast-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--ai-blue-dark);
+    font-size: 16px;
+}
+
+.toast-content p {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+}
+
+/* Animaciones Simples */
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes floatUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
 
 

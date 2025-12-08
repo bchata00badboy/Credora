@@ -17,8 +17,7 @@ sys.path.append(DIRECTORIO_RAIZ)
 from configuracion import inicializar_almacenamiento
 
 # Importamos los routers de la Fase 2 (Ahora deberían funcionar)
-from app.routers import rutas_autenticacion
-from app.routers import rutas_kyc
+from app.routers import rutas_autenticacion, rutas_kyc, rutas_billetera
 
 # ... (resto del código de FastAPI: app = FastAPI(...), @app.on_event("startup"), etc.)
 # ... (asegúrate de que las importaciones dentro de los routers y servicios sean absolutas/relativas correctas)
@@ -60,6 +59,7 @@ app.include_router(rutas_autenticacion.router)
 # Notar: Estas rutas requieren autenticación (JWT)
 app.include_router(rutas_kyc.router)
 
+app.include_router(rutas_billetera.router)
 
 # --- 4. BLOQUE DE EJECUCIÓN DEL SERVIDOR ---
 if __name__ == '__main__':

@@ -1,0 +1,74 @@
+<link rel="stylesheet" href="style_tips.css"> 
+
+<div id="modal-riesgo" class="modal-overlay hidden">
+    
+    <div class="modal-card">
+        <div class="modal-header warning-bg">
+            <h3 class="modal-title">⚠️ Riesgo Detectado</h3>
+        </div>
+
+        <div class="modal-body">
+            <p>La IA ha detectado un gasto inusual que excede tu presupuesto mensual en un 15%.</p>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary btn-cerrar-modal">Ignorar</button>
+            <button class="btn btn-primary-danger">Ver Detalles</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-consejo" class="toast-card hidden">
+    <div class="toast-icon">
+        🤖
+    </div>
+    <div class="toast-content">
+        <h4>Consejo de Inversión</h4>
+        <p>Las tasas están bajando. Es buen momento para revisar tus bonos.</p>
+    </div>
+    <button class="toast-close">×</button>
+</div>
+
+<script>
+    // 1. Seleccionamos los elementos del DOM (Document Object Model)
+const modalRiesgo = document.getElementById('modal-riesgo');
+const toastConsejo = document.getElementById('toast-consejo');
+
+// Función para MOSTRAR una alerta de riesgo
+function mostrarAlertaRiesgo() {
+    // Lógica: Simplemente quitamos la clase que lo oculta
+    modalRiesgo.classList.remove('hidden');
+    console.log("Sistema Credora: Alerta de riesgo desplegada.");
+}
+
+// Función para CERRAR la alerta (se asignaría al botón de "Ignorar")
+function cerrarAlerta() {
+    // Lógica: Volvemos a poner la clase hidden
+    modalRiesgo.classList.add('hidden');
+}
+
+// Función para MOSTRAR el consejo de la IA
+function mostrarConsejoIA() {
+    toastConsejo.classList.remove('hidden');
+    
+    // Opcional: Que se oculte solo después de 5 segundos (5000ms)
+    setTimeout(() => {
+        toastConsejo.classList.add('hidden');
+    }, 5000);
+}
+
+// --- SIMULACIÓN DE ACTIVACIÓN ---
+
+// Imaginemos que la "IA" detecta algo después de 2 segundos de cargar la página
+setTimeout(() => {
+    mostrarConsejoIA(); // Aparece el toast azul
+}, 2000);
+
+// Imaginemos que el usuario hace click en un botón de "Analizar Gastos"
+// Simulacion de la opcion de analizar los gastos
+
+setTimeout(() =>{
+mostrarAlertaRiesgo();
+},6000);
+
+</script>

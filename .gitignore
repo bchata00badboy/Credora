@@ -1,0 +1,4 @@
+# --- Entorno proyecto ---
+env/
+.vscode/
+.env

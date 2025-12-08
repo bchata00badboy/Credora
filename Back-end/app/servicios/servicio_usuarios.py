@@ -5,7 +5,7 @@ from typing import Optional
 from ..seguridad.hashing import hash_password, verificar_password
 
 # Importaciones de esquemas y modelos
-from app.db.modelos import Usuario # Se asume que importaste Usuario correctamente
+from app.db.modelos import Usuario
 from app.esquemas.esquema_usuario import EsquemaRegistro
 
 # ----------------------------------------------------------------------
@@ -23,8 +23,8 @@ def crear_usuario(db: Session, datos_registro: EsquemaRegistro) -> Usuario:
     nuevo_usuario = Usuario(
         nombre_completo=datos_registro.nombre_completo,
         correo=datos_registro.correo,
-        # CORRECCIÓN: Usando 'password_hash' para el campo de la BD
-        password_hash=contrasena_hasheada 
+        # ✅ CORRECCIÓN FINAL: Usando el nombre correcto de la variable del modelo
+        hash_contrasena=contrasena_hasheada 
     )
     
     db.add(nuevo_usuario)
@@ -49,8 +49,8 @@ def autenticar_usuario(db: Session, correo: str, password: str) -> Optional[Usua
         return None # Usuario no encontrado
 
     # 2. Verificar la contraseña
-    # CORRECCIÓN: Se usa el nombre del atributo 'password_hash'
-    if not verificar_password(password, usuario_bd.password_hash): 
+    # ✅ CORRECCIÓN FINAL: Se usa el nombre del atributo 'hash_contrasena'
+    if not verificar_password(password, usuario_bd.hash_contrasena): 
         return None # Contraseña incorrecta (el hash no coincide)
 
     return usuario_bd

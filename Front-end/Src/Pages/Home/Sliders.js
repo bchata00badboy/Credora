@@ -1,16 +1,72 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Restaurador y controlador del slider de testimonios.
+
+    // ==========================================
+    //  1. SLIDER PRINCIPAL (HERO) - Billeteras
+    // ==========================================
+    const heroImages = document.querySelectorAll('.hero_img');
+    const heroPrevBtn = document.getElementById('heroPrev');
+    const heroNextBtn = document.getElementById('heroNext');
+    let currentHeroIndex = 0;
+    let heroInterval;
+
+    function showHeroImage(index) {
+        if (!heroImages.length) return;
+        
+        // Quitar clase active
+        heroImages.forEach(img => img.classList.remove('active'));
+        
+        // Calcular índice
+        if (index >= heroImages.length) {
+            currentHeroIndex = 0;
+        } else if (index < 0) {
+            currentHeroIndex = heroImages.length - 1;
+        } else {
+            currentHeroIndex = index;
+        }
+
+        // Poner clase active
+        heroImages[currentHeroIndex].classList.add('active');
+    }
+
+    function nextHeroImage() {
+        showHeroImage(currentHeroIndex + 1);
+        resetHeroTimer();
+    }
+
+    function prevHeroImage() {
+        showHeroImage(currentHeroIndex - 1);
+        resetHeroTimer();
+    }
+
+    function resetHeroTimer() {
+        clearInterval(heroInterval);
+        heroInterval = setInterval(nextHeroImage, 5000); // 5 segundos
+    }
+
+    // Listeners del Hero
+    if(heroPrevBtn && heroNextBtn) {
+        heroNextBtn.addEventListener('click', nextHeroImage);
+        heroPrevBtn.addEventListener('click', prevHeroImage);
+    }
+
+    // Iniciar automático
+    heroInterval = setInterval(nextHeroImage, 5000);
+
+
+    // ==========================================
+    //  2. SLIDER DE TESTIMONIOS (Tu código original)
+    // ==========================================
     const container = document.querySelector('.testimony_container');
     let bodies = Array.from(document.querySelectorAll('.testimony_body'));
     let beforeBtn = document.getElementById('before');
     let nextBtn = document.getElementById('next');
 
-    // Si faltan testimonios, inyectamos contenidos por defecto (no modifica HTML fuente)
+    // Inyección de datos por defecto si está vacío
     if ((!bodies || bodies.length === 0) && container) {
         const defaultData = [
-            {name: 'Alejandro Jose', role: 'Estudiante', text: 'Lorem ipsum dolor sit amet consectetur. Con experiencia en finanzas personales.' , img: '../../Assets/Images/default1.jpg'},
-            {name: 'Kevin Varela', role: 'Estudiante', text: 'Opinión del usuario sobre la plataforma y su utilidad.' , img: '../../Assets/Images/default2.jpg'},
-            {name: 'Ismael Campos', role: 'Estudiante', text: 'Testimonio sobre aprendizaje y crecimiento financiero.' , img: '../../Assets/Images/default3.jpg'}
+            {name: 'Alejandro Jose', role: 'Estudiante', text: 'Lorem ipsum dolor sit amet consectetur. Con experiencia en finanzas personales.' , img: 'https://i.scdn.co/image/ab67616d00001e02dc70b075d2db0dc27729fa6b'},
+            {name: 'Kevin Varela', role: 'Estudiante', text: 'Opinión del usuario sobre la plataforma y su utilidad.' , img: 'https://preview.redd.it/vergil-is-so-easy-v0-d6r60f2uagve1.jpeg?width=640&crop=smart&auto=webp&s=d0cfa64ebbe46f15f4b65fa91142cb6218b23525'},
+            {name: 'Ismael Campos', role: 'Estudiante', text: 'Testimonio sobre aprendizaje y crecimiento financiero.' , img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpNsORWXdjRA8AKzD1NOiKn94fgcVOHb5WvQ&s'}
         ];
 
         defaultData.forEach((d, i) => {
@@ -39,23 +95,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             section.appendChild(texts);
             section.appendChild(fig);
-            // insert before the next arrow if present, else append
+            
             if (container.querySelector('#next')) {
                 container.insertBefore(section, container.querySelector('#next'));
             } else {
                 container.appendChild(section);
             }
         });
-
         bodies = Array.from(document.querySelectorAll('.testimony_body'));
     }
 
-    // Si faltan flechas, tratamos de recuperarlas o crearlas (no modifica HTML original salvo inyectar nodos necesarios para interactividad)
     if (!beforeBtn && container) {
         const img = document.createElement('img');
         img.id = 'before';
         img.className = 'testimony_arrow';
-        img.src = '../../Assets/Images/arrowLeft.svg';
+        img.src = '../../Assets/Images/arrowLeft.svg'; // Asegúrate de tener este icono
         img.alt = 'before';
         container.insertBefore(img, container.firstChild);
         beforeBtn = img;
@@ -64,15 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = document.createElement('img');
         img.id = 'next';
         img.className = 'testimony_arrow';
-        img.src = '../../Assets/Images/arrowRight.svg';
+        img.src = '../../Assets/Images/arrowRight.svg'; // Asegúrate de tener este icono
         img.alt = 'next';
         container.appendChild(img);
         nextBtn = img;
     }
 
-    if (!bodies || bodies.length === 0) return; // nada que mostrar
+    if (!bodies || bodies.length === 0) return;
 
-    // determinar índice inicial
     let currentIndex = bodies.findIndex(b => b.classList.contains('testimony_body--show'));
     if (currentIndex === -1) currentIndex = 0;
 
@@ -83,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentIndex = safeIndex;
     }
 
-    // listeners para flechas (si existen)
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
             showTestimony(currentIndex + 1);
@@ -95,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Autoplay con pausa al pasar el ratón
+    // Autoplay Testimonios
     let autoplayInterval = 6000;
     let autoplayTimer = setInterval(() => showTestimony(currentIndex + 1), autoplayInterval);
     if (container) {
@@ -106,10 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inicializa
     showTestimony(currentIndex);
 
-    // Restaurar iconos sociales si están vacíos (pequeña ayuda no invasiva)
+    // ==========================================
+    //  3. RESTAURACIÓN ICONOS FOOTER (Opcional)
+    // ==========================================
     const footerSocial = document.querySelector('.footer_social');
     if (footerSocial && footerSocial.children.length === 0) {
         const socials = [
@@ -129,5 +182,4 @@ document.addEventListener('DOMContentLoaded', () => {
             footerSocial.appendChild(a);
         });
     }
-
 });

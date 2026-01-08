@@ -1,129 +1,287 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Main</title>
+
     <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
+
     <!-- <link rel="stylesheet" href="../../Styles/normalize.css"> -->
+
     <link rel="stylesheet" href="../../Styles/font.css">
+
     <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
-    <link rel="stylesheet" href="Main.css">
+
+    <!-- Font Awesome: iconos usados por el panel IA -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../Main/css/Main.css">
+    <link rel="stylesheet" href="../Main/css/grafica.css">
+    <link rel="stylesheet" href="../Main/css/ia.css">
+
+
+
 </head>
+
 <body>  
+<button id="chatbot-toggler" class="chatbot-toggler" aria-label="Abrir chat">
+        <i class="fa-solid fa-comment"></i>
+    </button>
+
+    <div class="chatbot-interface">
+        
+        <header class="ai-header">
+            <div class="header-info">
+                <div class="ai-avatar">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="ai-text">
+                    <h3>Credo</h3>
+                    <p><span class="dot-online"></span>Asistente Virtual</p>
+                </div>
+            </div>
+            
+            <button id="close-btn" class="close-btn" aria-label="Cerrar chat">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </header>
+
+        <ul class="chat-box" id="chatBox">
+            <li class="chat incoming">
+                <div class="msg-content">
+                    <p>Hola 👋 soy Credo, tu asistente financiero.<br>Haz click en una opción o escribe tu duda para poder ayudarte.</p>
+                </div>
+            </li>
+        </ul>
+
+        <div class="suggestions-bar">
+            <button class="chip" onclick="preguntarIA('Tips de Ahorro')">💰 Ahorro</button>
+            <button class="chip" onclick="preguntarIA('Regla 50/30/20')">📊 50/30/20</button>
+            <button class="chip" onclick="preguntarIA('Gastos Hormiga')">🐜 Gastos</button>
+        </div>
+
+        <div class="chat-input">
+            <textarea id="aiInput" placeholder="Escribe aquí..." spellcheck="false" required></textarea>
+            <button id="send-btn" onclick="enviarMensajeIA()">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
 
     <div class="sidebar" id="sidebar">
+
         <div class="header">
+
             <div class="menu-btn" id="menu-btn">
+
                 <i class="bx bx-chevron-left"></i>
+
             </div>
+
             <div class="brand">
+
                 <img src="../../Assets/Icons/Favicon.png" alt="Credora">
+
                 <span>Credora</span>
+
             </div>
+
         </div>
+
+
 
         <div class="menu-container">
+
             <div class="search">
+
                 <i class="bx bx-search"></i>
+
                 <input type="search" placeholder="Buscar">
+
             </div>
 
+
+
             <ul class="menu">
+
                 <li class="menu-item menu-item-static active">
+
                     <a href="#" class="menu-link" data-vista="../Main_Parts/main_home.html">
+
                         <i class="bx bx-home-alt-2"></i>
+
                         <span>Inicio</span>
+
                     </a>
+
                 </li>
+
                 <li class="menu-item menu-item-static">
+
                     <a href="#" class="menu-link" data-vista="../Main_Parts/main_mov.html">
+
                         <i class='bx bx-file'></i>
+
                         <span>Movimientos</span>
+
                     </a>
+
                 </li>
-                <li class="menu-item menu-item-dropdown"> 
-                    <a href="#" class="menu-link">
-                        <i class='bx bx-transfer'></i>
-                        <span>Transferir</span>
-                        <i class='bx  bx-chevron-down'></i> 
-                    </a>
-                    <ul class="sub-menu">
-                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/main_transf1.html">
-                            Otras Cuenta</a></li>
-                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
-                            Afiliados a Credora</a></li>
-                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
-                            Revisar Datos</a></li>
-                    </ul>
-                </li>
+
                 <li class="menu-item menu-item-dropdown">
+
                     <a href="#" class="menu-link">
-                        <i class='bx  bx-bar-chart'></i> 
-                        <span>Pago de servicios</span>
-                        <i class='bx  bx-chevron-down'></i> 
+
+                        <i class='bx bx-transfer'></i>
+
+                        <span>Transferir</span>
+
+                        <i class='bx  bx-chevron-down'></i>
+
                     </a>
+
                     <ul class="sub-menu">
+
+                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/main_transf1.html">
+
+                            Otras Cuenta</a></li>
+
                         <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
-                            Telefono</a></li>
+
+                            Afiliados a Credora</a></li>
+
                         <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
-                            Servicios</a></li>
-                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
-                            Afiliar Servicios</a></li>
+
+                            Revisar Datos</a></li>
+
                     </ul>
+
                 </li>
-                <li class="menu-item menu-item-static">
-                    <a href="#" class="menu-link" data-vista="../Main_Parts/main_config.html">
-                        <i class='bx  bx-cog'></i> 
-                        <span>Configuración</span>
-                    </a>
-                </li>
-                <li class="menu-item menu-item-static">
+
+                <li class="menu-item menu-item-dropdown">
+
                     <a href="#" class="menu-link">
-                        <i class='bx  bx-door-open' ></i> 
+
+                        <i class='bx  bx-bar-chart'></i>
+
+                        <span>Pago de servicios</span>
+
+                        <i class='bx  bx-chevron-down'></i>
+
+                    </a>
+
+                    <ul class="sub-menu">
+
+                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
+
+                            Telefono</a></li>
+
+                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
+
+                            Servicios</a></li>
+
+                        <li><a href="#" class="sub-menu-link" data-vista="../Main_Parts/.html">
+
+                            Afiliar Servicios</a></li>
+
+                    </ul>
+
+                </li>
+
+                <li class="menu-item menu-item-static">
+
+                    <a href="#" class="menu-link" data-vista="../Main_Parts/main_config.html">
+
+                        <i class='bx  bx-cog'></i>
+
+                        <span>Configuración</span>
+
+                    </a>
+
+                </li>
+
+                <li class="menu-item menu-item-static">
+
+                    <a href="#" class="menu-link">
+
+                        <i class='bx  bx-door-open' ></i>
+
                         <span>Cerrar Sesión</span>
+
                     </a>
+
                 </li>
+
             </ul>
+
         </div>
+
         <div class="footer">
+
             <ul class="menu">
+
                 <li class="menu-item menu-item-static">
+
                     <a href="#" class="menu-link" data-vista="../Main_Parts/main_notif.html">
-                        <i class='bx  bx-bell'></i> 
+
+                        <i class='bx  bx-bell'></i>
+
                         <span>Notificaciones</span>
+
                     </a>
+
                 </li>
+
                 <li class="menu-item menu-item-static">
+
                     <a href="#" class="menu-link" data-vista="../Main_Parts/main_profile.html">
-                        <i class='bx  bx-cog'></i> 
+
+                        <i class='bx  bx-cog'></i>
+
                         <span>Perfil</span>
+
                     </a>
+
                 </li>
+
             </ul>
+
             <div class="user">
+
                 <div class="user-img">
-                    <img src="../../Assets/Images/Gemini_Generated_Image_wem40xwem40xwem4.jpeg" alt="user">
+
+                    <img src="../../Assets/Images/Gemini_Generated_Image_wem40xwem40xwem4.jpeg" alt="user" onerror="this.onerror=null;this.src='../../Assets/Images/userIcon.svg'">
+
                 </div>
+
                 <div class="user-data">
+
                     <span class="name">Alejandro Bueno</span>
+
                     <span class="email">alejandrobuenobellorin@gmail.com</span>
+
                 </div>
-                <div class="user-icon">
-                    
-                </div>
+
+                <!-- switch de tema movido a Configuración (removido del sidebar) -->
             </div>
         </div>
     </div>
 
-    </div> 
-
     <main class="main-content" id="contenedor-dinamico">
-
 
     </main>
 
+    <script src="../Main/js/theme.js"></script>
+    <script src="../Main/js/Main.js"></script>
+    <script src="../Main/js/ia.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../Main/js/grafica.js"></script>
 
-    <script src="Main.js"></script>
 </body>
 </html>

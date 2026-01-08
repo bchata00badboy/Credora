@@ -11,7 +11,28 @@
     <link rel="stylesheet" href="Home.css">
 </head>
 <body>
+    
     <header class="hero" id="inicio">
+        
+        <div class="hero_slider">
+            <div class="slider_overlay"></div> 
+            
+          <video class="hero_img" autoplay muted loop playsinline>
+    <source src="../Logotipos%20Credora%20mejora/Video_Generado_Por_Gemini.mp4" type="video/mp4">
+    
+    </video>
+            
+            <img src="https://www.esic.edu/sites/default/files/rethink/a1a1f3d3-finanzas-digitales.jpg" class="hero_img" alt="Finanzas Digitales">
+
+            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2070&auto=format&fit=crop" class="hero_img" alt="Billetera Credora">
+            <img src="https://images.unsplash.com/photo-1616077168079-7e09a677fb2c?q=80&w=2070&auto=format&fit=crop" class="hero_img" alt="Banca Online">
+        </div>
+
+        <div class="hero_controls">
+            <button id="heroPrev" class="hero_arrow"><i class='bx bx-chevron-left'></i></button>
+            <button id="heroNext" class="hero_arrow"><i class='bx bx-chevron-right'></i></button>
+        </div>
+
         <nav class="nav container">
             <div class="nav_logo">
                 <img src="../../Assets/Icons/Favicon.png" class="nav_logo" alt="">
@@ -34,8 +55,11 @@
             <p class="hero_paragraph">
                 Tú herramienta de crecimiento. Controla tus gastos, aprende a administrar tus recursos y alcanza tus metas financieras con Credora.
             </p>
-                <li class="nav_items"><a href="../Login/login.html" class="nav_links cta">Iniciar Sesión</a></li>
-                    <a href="../Login/login.html#register" class="cta">Registrate Ahora</a>
+            
+            <div class="hero_actions">
+                <a href="../Login/login.html" class="cta">Iniciar Sesión</a>
+                <a href="../Login/login.html#register" class="cta">Regístrate Ahora</a>
+            </div>
         </section>
     </header>
 
@@ -141,7 +165,7 @@
                 <section class="testimony_body" data-id="3">
                     <div class="testimony_texts">
                         <h2 class="subtitle">Mi nombre es Ismael Campos, <span class="testimony_course">Estudiante</span></h2>
-                        <p class="testimony_review">Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus in commodi modi alias corporis, voluptatem voluptas vel esse harum esse eos corrupti illo!</p>
+                        <p class="testimony_review">Soy parte del desarrollo de la Billetera Virtual Credora</p>
                     </div>
                     <figure class="testimony_picture">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpNsORWXdjRA8AKzD1NOiKn94fgcVOHb5WvQ&s" alt="Ismael Campos" class="testimony_img">
@@ -212,7 +236,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Lista actualizada incluyendo 'final'
             const sections = ['inicio', 'acerca', 'knowledge', 'servicios', 'contacto', 'preguntas', 'final'];
             
             const btnUp = document.getElementById('navUp');
@@ -220,7 +243,7 @@
 
             function getCurrentSectionIndex() {
                 let current = 0;
-                const scrollPos = window.scrollY + 100; // Margen de error
+                const scrollPos = window.scrollY + 100;
                 
                 sections.forEach((id, index) => {
                     const section = document.getElementById(id);

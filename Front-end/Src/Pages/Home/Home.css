@@ -16,36 +16,100 @@ body {
     padding: var(--padding-container);
 }
 
+/* --- HERO CON CARRUSEL --- */
 .hero {
     width: 100%;
     height: 100vh;
     min-height: 500px;
     max-height: 700px; 
     position: relative;
-    display: grid;
-    grid-template-rows: 80px 1fr; 
+    display: block; 
+    overflow: hidden;
     color: #fff;
 }
 
-.hero::before {
-    content: "";
+/* Estilos del Slider (Fondo) */
+.hero_slider {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: linear-gradient(180deg, #0000008c 0%, #0000008c 100%), url("../../Assets/Images/iniciando.jpg");
-    background-size: cover;
-    clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 95%, 0 80%);
-    z-index: -1;
+    z-index: 0;
+}
+
+/* Capa oscura (Overlay) */
+.slider_overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #0000008c 0%, #0000008c 100%);
+    z-index: 1; /* Encima de imagen/video, bajo texto */
+}
+
+/* Imágenes y Video del carrusel */
+.hero_img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    z-index: 0;
+}
+
+.hero_img.active {
+    opacity: 1;
+}
+
+/* Controles (Flechas) del Hero */
+.hero_controls {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    transform: translateY(-50%);
+    z-index: 20; 
+    pointer-events: none; /* Click atraviesa el contenedor */
+}
+
+.hero_arrow {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto; /* Reactivamos clicks */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease;
+}
+
+.hero_arrow:hover {
+    background-color: #c1121f;
+    border-color: #c1121f;
+    transform: scale(1.1);
 }
 
 /* Nav */
 .nav {
     --padding-container: 0;
-    height: 100%;
+    height: 80px; 
     display: flex;
     align-items: center;
+    position: relative;
+    z-index: 10; 
 }
 
 .nav_logo {
@@ -97,22 +161,41 @@ body {
     text-shadow: 0 0 5px rgba(255,255,255,0.5); 
 }
 
+/* --- ESTILOS DE LOS BOTONES PRINCIPALES (CTA) --- */
+
+/* 1. Contenedor que apila y centra verticalmente */
+.hero_actions {
+    display: flex;
+    flex-direction: column; /* Apila uno sobre otro */
+    align-items: center;    /* Centra horizontalmente */
+    gap: 15px;              /* Espacio entre ellos */
+    margin-top: 25px;
+}
+
+/* 2. Estilo de los botones */
 .cta {
     display: inline-block;
     background-color: #c1121f !important; 
-    justify-self: center;
     color: #fff;
     text-decoration: none;
-    padding: 12px 25px; 
+    
+    /* Configuración de tamaño fijo */
+    width: 220px;        
+    text-align: center;  
+    padding: 14px 0;     
+    
     border-radius: 31px;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 500;
     border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 .cta:hover {
     background-color: #a00f1a !important; 
-    transform: translateY(-3px) scale(1.05); 
-    box-shadow: 0 5px 15px rgba(193, 18, 31, 0.4); 
+    transform: translateY(-3px); 
+    box-shadow: 0 7px 15px rgba(193, 18, 31, 0.4); 
 }
 
 .nav_menu {
@@ -136,6 +219,10 @@ body {
     gap: 1em;
     padding-bottom: 80px; 
     text-align: center;
+    position: relative;
+    z-index: 10;
+    height: calc(100% - 80px); 
+    margin: 0 auto;
 }
 
 .hero_title {
@@ -335,7 +422,6 @@ body {
 }
 
 /* --- FLIP CARD LOGIC --- */
-
 .flip-card {
     background-color: transparent;
     width: 100%;
@@ -356,7 +442,6 @@ body {
     transform: rotateY(180deg);
 }
 
-/* Caras de la tarjeta */
 .flip-front, .flip-back {
     position: absolute;
     top: 0;
@@ -375,12 +460,10 @@ body {
     box-shadow: 0 5px 20px rgba(0,0,0,0.08);
 }
 
-/* FRENTE */
 .flip-front {
     background-color: var(--card-bg-front);
 }
 
-/* REVERSO */
 .flip-back {
     background-color: var(--card-bg-back); 
     color: var(--back-text-color); 
@@ -512,7 +595,6 @@ body {
 /* Questions */
 .questions {
     text-align: center;
-    /* AJUSTE PARA DAR MÁS AIRE */
     padding-top: 40px !important;
     padding-bottom: 40px !important;
 }

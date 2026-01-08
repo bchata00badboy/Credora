@@ -1012,3 +1012,184 @@ body.dark .pill-btn.active { background: var(--color-surface); color: #fff; }
 .dot.color-1 { background: #00d26a; }
 .dot.color-2 { background: #003049; }
 .dot.color-3 { background: #f7b731; }
+
+
+
+/*
+
+CSS para la visualizacion de datos del usuario 
+
+*/
+
+.share-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+.data-card {
+        background: #ffffff; /* O el color de fondo de tus tarjetas */
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+
+.data-card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 1rem;
+    }
+
+.bank-logo-placeholder {
+        width: 48px;
+        height: 48px;
+        background-color: #4A90E2; /* Color principal de tu marca */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-right: 1rem;
+    }
+
+.bank-info h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+.bank-info p {
+        margin: 0;
+        color: #777;
+        font-size: 0.9rem;
+    }
+
+    .data-row {
+        margin-bottom: 1.2rem;
+    }
+
+.data-label {
+        font-size: 0.8rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
+.data-value-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f9f9f9;
+        padding: 0.8rem;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+.data-value {
+        font-family: 'Courier New', monospace; /* Fuente monoespaciada para números */
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+        word-break: break-all;
+    }
+
+.btn-copy {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #4A90E2;
+        padding: 5px;
+        transition: transform 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+.btn-copy:hover {
+        transform: scale(1.1);
+        color: #2c5f9b;
+    }
+
+.btn-copy svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Mensaje Toast temporal */
+.copy-feedback {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+.copy-feedback.show {
+        opacity: 1;
+    }
+
+
+    /*
+    
+    Modo oscuro de datos
+    
+    */
+    /* 1. Fondo de la tarjeta y bordes */
+    .dark .data-card {
+        background: #1e1e24; /* Gris muy oscuro/azulado */
+        border-color: #333;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Sombra más intensa */
+    }
+
+    /* 2. Textos principales (Títulos y valores) */
+    .dark .header-section h2,
+    .dark .bank-info h3,
+    .dark .data-value {
+        color: #e0e0e0; /* Blanco suave */
+    }
+
+    /* 3. Textos secundarios (Subtítulos y etiquetas) */
+    .dark .header-section p,
+    .dark .bank-info p,
+    .dark .data-label {
+        color: #a0a0a0; /* Gris claro */
+    }
+
+    /* 4. Cajas internas de datos */
+    .dark .data-value-group {
+        background: #25252b; /* Un poco más claro que la tarjeta */
+        border-color: #383840;
+    }
+
+    /* 5. Líneas separadoras */
+    .dark .data-card-header {
+        border-bottom-color: #333;
+    }
+
+    /* 6. Ajuste del botón copiar para mejor contraste */
+    .dark .btn-copy {
+        color: #6ab0ff; /* Azul más brillante para resaltar sobre negro */
+        background: rgba(106, 176, 255, 0.1); /* Fondo sutil al botón */
+        border-radius: 4px;
+    }
+    
+    .dark .btn-copy:hover {
+        color: #9ecbff;
+        background: rgba(106, 176, 255, 0.2);
+    }

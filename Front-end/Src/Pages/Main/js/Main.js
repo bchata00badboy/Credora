@@ -47,7 +47,9 @@ const controladores = {
     '../Main_Parts/main_profile.html': iniciarPerfil,
     '../Main_Parts/main_notif.html': iniciarNotificaciones,
     '../Main_Parts/main_transf1.html': iniciarTransferencias,
-    '../Main_Parts/main_mov.html': iniciarMovimientos
+    '../Main_Parts/main_mov.html': iniciarMovimientos,
+    '../Main_Parts/main_mov_data.html': iniciardatamov,
+    '../Main_Parts/main_mov_credora.html': iniciarcredoramov
 };
 
 /* =========================================
@@ -438,3 +440,27 @@ function iniciarMovimientos() {
     // Inicializaciones específicas de movimientos pueden añadirse aquí
 }
 
+// --- STUB: Data Movimientos (Nueva ruta) ---
+function iniciardatamov() {
+    console.log('Vista Data Movimientos cargada');
+
+    function copiarAlPortapapeles(texto) {
+        navigator.clipboard.writeText(texto).then(() => {
+            // Mostrar feedback visual
+            const toast = document.getElementById('toast-copiado');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }).catch(err => {
+            console.error('Error al copiar: ', err);
+        });
+    }
+    
+}
+
+// --- STUB: Credora Movimientos (Nueva ruta) ---
+function iniciarcredoramov() {
+    console.log('Vista Credora Movimientos cargada');
+    // Aquí iría la lógica específica para main_mov_credora.html
+}

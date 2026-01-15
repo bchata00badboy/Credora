@@ -1,0 +1,198 @@
+/* =======================================================
+   1. VARIABLES GLOBALES Y RESET
+   ======================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+/* =======================================================
+   2. ESTILOS CHATBOT FLOTANTE
+   ======================================================= */
+
+/* Botón Flotante */
+.chatbot-toggler {
+    position: fixed;
+    bottom: 20px;
+    right: 35px;
+    outline: none;
+    border: none;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #003049 0%, #cb0523 100%);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.chatbot-toggler i { color: #fff; font-size: 1.4rem; transition: all 0.3s ease; }
+body.show-chatbot .chatbot-toggler { transform: scale(0) rotate(180deg); opacity: 0; pointer-events: none; }
+
+/* Ventana Principal */
+.chatbot-interface {
+    position: fixed;
+    right: 35px;
+    bottom: 20px;
+    width: 380px;
+    background: #0d1620;
+    border-radius: 15px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+    transform-origin: bottom right;
+    box-shadow: 0 0 128px 0 rgba(0,0,0,0.1), 0 32px 64px -48px rgba(0,0,0,0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 9998;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+body.show-chatbot .chatbot-interface { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+/* Header */
+.ai-header {
+    background: linear-gradient(135deg, #003049 0%, #cb0523 100%);;
+    padding: 16px 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.header-info { display: flex; align-items: center; gap: 12px; }
+.ai-avatar {
+    width: 38px; height: 38px;
+    background: #725524;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(76, 161, 175, 0.3);
+}
+.ai-text h3 { margin: 0; font-size: 0.95rem; color: #fff; font-weight: 600; }
+.ai-text p { margin: 0; font-size: 0.75rem; color: #8899a6; }
+.dot-online { height: 7px; width: 7px; background-color: #00d26a; border-radius: 50%; display: inline-block; margin-right: 3px; }
+
+.close-btn {
+    position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: #8899a6; cursor: pointer;
+    font-size: 1.1rem; transition: all 0.3s; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; border-radius: 50%;
+}
+.close-btn:hover { color: #e74c3c; background-color: rgba(231, 76, 60, 0.15); transform: translateY(-50%) rotate(90deg); }
+
+/* --- SCROLLBAR INVISIBLE: completamente ocultas (chat y sugerencias) --- */
+
+/* 1. Área de mensajes */
+.chat-box {
+    overflow-y: auto;
+    height: 320px;
+    padding: 20px;
+    background: #152232;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    /* Firefox */
+    scrollbar-width: none;
+    /* IE/Edge */
+    -ms-overflow-style: none;
+}
+
+/* WebKit: ocultar completamente la barra */
+#chatBox::-webkit-scrollbar { display: none; width: 0; height: 0; background: transparent; }
+
+/* 2. Área de sugerencias (Chips) */
+.suggestions-bar {
+    display: flex; gap: 8px; overflow-x: auto;
+    padding: 0 20px 10px 20px;
+    background: #0d1620;
+
+    /* Firefox */
+    scrollbar-width: none;
+    /* IE/Edge */
+    -ms-overflow-style: none;
+}
+
+.suggestions-bar::-webkit-scrollbar { display: none; width: 0; height: 0; background: transparent; }
+
+/* --- FIN SCROLLBAR INVISIBLE --- */
+
+.chat { display: flex; list-style: none; }
+.chat .msg-content {
+    max-width: 85%; padding: 10px 14px; font-size: 0.9rem;
+    border-radius: 10px; line-height: 1.4; color: #e6e6e6;
+}
+.chat.incoming .msg-content { background: #1c2a3a; border-bottom-left-radius: 2px; }
+.chat.outgoing { justify-content: flex-end; }
+.chat.outgoing .msg-content { background: #003049; color: #fff; border-bottom-right-radius: 2px; }
+
+.chip {
+    padding: 6px 12px; font-size: 0.75rem; background: transparent;
+    border: 1px solid #2c3e50; border-radius: 20px; color: #8899a6;
+    cursor: pointer; white-space: nowrap; transition: 0.2s;
+}
+.chip:hover { background: #003049; color: #fff; border-color: #003049; }
+
+/* Input Area */
+.chat-input {
+    display: flex; gap: 8px; align-items: center; padding: 15px 20px;
+    border-top: 1px solid rgba(255,255,255,0.05); background: #152232;
+}
+.chat-input textarea {
+    height: 45px; width: 100%; border: none; outline: none; resize: none;
+    padding: 12px 15px; font-size: 0.9rem; border-radius: 25px;
+    background: #0d1620; color: #fff; font-family: inherit;
+}
+
+/* Ocultar scrollbar del textarea de entrada (cross-browser) */
+.chat-input textarea {
+    /* Firefox */
+    scrollbar-width: none;
+}
+.chat-input textarea::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.chat-input button {
+    align-self: flex-end; color: #fff; height: 40px; width: 40px; border: none;
+    background: #003049; border-radius: 50%; font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 2px;
+    transition: background 0.3s;
+}
+.chat-input button:hover { background: #005f8f; }
+
+@media (max-width: 490px) {
+    .chatbot-interface { right: 0; bottom: 0; height: 100%; width: 100%; border-radius: 0; }
+    .chatbot-interface .chat-box { height: calc(100% - 140px); }
+    .chatbot-toggler { bottom: 20px; right: 20px; }
+}
+
+/* Animación de 3 Puntos (Typing) */
+.typing-animation {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 0;
+    min-height: 20px; /* Asegura altura mínima */
+}
+
+.typing-animation .dot {
+    height: 7px;
+    width: 7px;
+    border-radius: 50%;
+    background-color: #b0b3b8;
+    opacity: 0.6;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-animation .dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-animation .dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-animation .dot:nth-child(3) { animation-delay: 0; }
+
+@keyframes typingBounce {
+    0%, 70%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}

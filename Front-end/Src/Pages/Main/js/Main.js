@@ -42,14 +42,14 @@ menuItemsDropDown.forEach((menuItem) => {
    DICCIONARIO DE CONTROLADORES
    ========================================= */
 const controladores = {
-    // Rutas ajustadas para coincidir con los archivos en Main_Parts
-    '../Main_Parts/main_home.html': iniciarInicio,
-    '../Main_Parts/main_profile.html': iniciarPerfil,
-    '../Main_Parts/main_notif.html': iniciarNotificaciones,
-    '../Main_Parts/main_transf1.html': iniciarTransferencias,
-    '../Main_Parts/main_mov.html': iniciarMovimientos,
-    '../Main_Parts/main_mov_data.html': iniciardatamov,
-    '../Main_Parts/main_mov_credora.html': iniciarcredoramov
+    // CORRECCIÓN: Quitamos los puntos de retroceso "../"
+    './Main_Parts/main_home.html': iniciarInicio,
+    './Main_Parts/main_profile.html': iniciarPerfil,
+    './Main_Parts/main_notif.html': iniciarNotificaciones,
+    './Main_Parts/main_transf1.html': iniciarTransferencias,
+    './Main_Parts/main_mov.html': iniciarMovimientos,
+    './Main_Parts/main_mov_data.html': iniciardatamov,
+    './Main_Parts/main_mov_credora.html': iniciarcredoramov
 };
 
 /* =========================================
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar Inicio por defecto (activo): carga la vista de inicio dentro de `contenedor-dinamico`
     // Si prefieres contenido estático en `Main.html`, comenta esta línea.
-    cargarVista('../Main_Parts/main_home.html');
+    cargarVista('./Main_Parts/main_home.html');
 });
 
 /* =========================================
@@ -234,8 +234,8 @@ function iniciarInicio() {
     }
 
     // Rutas relativas desde Main.html hacia Front-end/Src/Main/ia/
-    const graficaCssPath = '../../Main/ia/grafica.css';
-    const graficaJsPath = '../../Main/ia/grafica.js';
+    const graficaCssPath = '/grafica.css';
+    const graficaJsPath = 'grafica.js';
     const chartJsCdn = 'https://cdn.jsdelivr.net/npm/chart.js';
 
     // Inyectamos CSS (si no existe)

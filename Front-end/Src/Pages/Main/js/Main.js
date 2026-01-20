@@ -142,6 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 200);
     }
 
+    // Exponer la función de navegación para que vistas cargadas dinámicamente
+    // puedan solicitar cambios de vista de forma centralizada.
+    window.cargarVista = cargarVista;
+
     // Helper: activar visualmente el item de menú
     function setActiveMenu(linkEl) {
         try {

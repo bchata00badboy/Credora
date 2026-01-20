@@ -1,0 +1,368 @@
+<style>
+    /* --- VARIABLES Y TEMAS --- */
+    :root {
+        /* PALETA DE IDENTIDAD (FIJA) */
+        --primary-blue: #002845;
+        --accent-blue: #3498db;
+        --success-green: #2ecc71;
+        --warning-orange: #f39c12;
+        --danger-red: #e74c3c;
+
+        /* VARIABLES DINÁMICAS (Modo Claro por defecto) */
+        --bg-body: #f4f7f6;
+        --bg-card: #ffffff;         
+        --bg-secondary: #f8f9fa;    
+        --text-title: #002845;      
+        --text-main: #333333;       
+        --text-muted: #555555;      
+        --line-color: #000000;      
+        --border-color: rgba(0,0,0,0.1);
+        --shadow: rgba(0,0,0,0.05);
+        --btn-bg: #ffffff;
+    }
+
+    /* MODO OSCURO */
+    body.dark {
+        --bg-body: #111827;
+        --bg-card: #1f2937;         /* Gris oscuro */
+        --bg-secondary: #374151;    /* Gris medio */
+        --text-title: #f3f4f6;      /* Blanco */
+        --text-main: #e5e7eb;       /* Gris claro */
+        --text-muted: #9ca3af;      
+        --line-color: #4b5563;      /* Línea gris */
+        --border-color: rgba(255,255,255,0.1);
+        --shadow: rgba(0,0,0,0.3);
+        --btn-bg: #374151;
+    }
+
+    /* --- ESTILOS GENERALES --- */
+    .lesson-container {
+        width: 100%;
+        padding: 10px 20px 40px 20px;
+        font-family: 'Segoe UI', sans-serif;
+        animation: fadeIn 0.4s ease-in;
+        max-width: 1000px;
+        margin: 0 auto;
+        transition: color 0.3s, background-color 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- HEADER --- */
+    .lesson-header {
+        width: 100%;
+        border-bottom: 3px solid var(--line-color);
+        padding-bottom: 25px;
+        margin-bottom: 30px;
+        transition: border-color 0.3s;
+    }
+
+    .header-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-left: -20px;
+    }
+
+    .back-btn-circle {
+        width: 45px;
+        height: 45px;
+        background-color: var(--btn-bg);
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 3px 6px var(--shadow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: var(--text-title);
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .back-btn-circle:hover { transform: scale(1.1); }
+
+    .header-texts { display: flex; flex-direction: column; }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-title);
+        margin: 0;
+        line-height: 1;
+        transition: color 0.3s;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin: 5px 0 0 0;
+        font-weight: 400;
+        transition: color 0.3s;
+    }
+
+    /* --- CONTENIDO --- */
+    
+    .section-title {
+        font-size: 1.4rem;
+        color: var(--text-title);
+        font-weight: 700;
+        margin: 40px 0 20px 0;
+        border-left: 5px solid var(--accent-blue);
+        padding-left: 15px;
+    }
+
+    .concept-box {
+        background: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        color: var(--text-main);
+        font-size: 1.05rem;
+        line-height: 1.6;
+        border: 1px solid var(--border-color);
+        transition: background 0.3s, color 0.3s;
+    }
+
+    /* Grid de Pilares del Ahorro */
+    .rule-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .rule-card {
+        background: var(--bg-card);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px var(--shadow);
+        text-align: center;
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s, background 0.3s;
+    }
+
+    .rule-card:hover { transform: translateY(-5px); }
+
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .rule-title { 
+        font-size: 1.2rem; 
+        font-weight: 700; 
+        /* Usamos la variable de texto general, pero abajo la sobrescribimos con el color específico */
+        color: var(--text-title); 
+        margin-bottom: 10px; 
+    }
+    
+    .rule-desc { 
+        font-size: 0.9rem; 
+        color: var(--text-muted); 
+        line-height: 1.4; 
+    }
+
+    /* COLORES TEMÁTICOS (Fijos en ambos modos) */
+    /* Emergencia: Rojo */
+    .card-emergency .card-icon, 
+    .card-emergency .rule-title { color: var(--danger-red); }
+    
+    /* Metas: Azul */
+    .card-goals .card-icon, 
+    .card-goals .rule-title { color: var(--accent-blue); }
+    
+    /* Libertad: Verde */
+    .card-freedom .card-icon, 
+    .card-freedom .rule-title { color: var(--success-green); }
+
+    /* --- TABLA DE MÉTODOS --- */
+    .example-table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px var(--shadow);
+    }
+
+    .example-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-card);
+    }
+
+    .example-table th {
+        background-color: var(--primary-blue);
+        color: #fff;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .example-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+    }
+
+    .example-table tr:last-child td { border-bottom: none; }
+    .example-table tr:nth-child(even) { background-color: var(--bg-secondary); }
+
+    /* --- ERRORES COMUNES --- */
+    .mistakes-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .mistake-item {
+        background: var(--bg-card);
+        border-left: 4px solid var(--warning-orange); /* Borde Naranja Fijo */
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        border-radius: 0 8px 8px 0;
+        box-shadow: 0 2px 5px var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: background 0.3s;
+    }
+
+    .mistake-icon {
+        color: var(--warning-orange); /* Icono Naranja Fijo */
+        font-size: 1.5rem;
+    }
+
+    .mistake-text strong { 
+        display: block; 
+        color: var(--text-title); 
+        margin-bottom: 4px; 
+    }
+    .mistake-text span { 
+        font-size: 0.95rem; 
+        color: var(--text-muted); 
+    }
+
+    /* --- PRO TIP BOX --- */
+    .pro-tip {
+        background: linear-gradient(135deg, #002845 0%, #004e85 100%);
+        color: white; /* Siempre blanco */
+        padding: 25px;
+        border-radius: 15px;
+        margin-top: 40px;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        box-shadow: 0 5px 15px rgba(0, 40, 69, 0.2);
+    }
+
+    .pro-tip i {
+        font-size: 2rem;
+        color: var(--accent-blue);
+    }
+
+    .pro-tip-content h4 { margin: 0 0 10px 0; font-size: 1.2rem; }
+    .pro-tip-content p { margin: 0; opacity: 0.9; line-height: 1.5; font-size: 0.95rem; }
+
+</style>
+
+<div class="lesson-container">
+
+    <div class="lesson-header">
+        <div class="header-row">
+            <button class="back-btn-circle" onclick="window.cargarVista('Main_Parts/main_educ.html')">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="header-texts">
+                <h1 class="page-title">Metas de Ahorro</h1>
+                <p class="page-subtitle">El arte de pagarte a ti primero</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="concept-box">
+        <p><strong>Ahorrar no es guardar lo que sobra.</strong> Es separar una parte de tus ingresos apenas los recibes. El ahorro no es un sacrificio, es comprar tranquilidad y libertad para tu futuro.</p>
+    </div>
+
+    <div class="rule-grid">
+        <div class="rule-card card-emergency">
+            <i class="fa-solid fa-umbrella card-icon"></i>
+            <div class="rule-title">Fondo de Emergencia</div>
+            <p class="rule-desc">Tu "colchón" de seguridad. Debe cubrir de 3 a 6 meses de tus gastos básicos para imprevistos.</p>
+        </div>
+
+        <div class="rule-card card-goals">
+            <i class="fa-solid fa-bullseye card-icon"></i>
+            <div class="rule-title">Metas SMART</div>
+            <p class="rule-desc">Ahorro con propósito: Un viaje, un auto nuevo o la prima de una casa. Ponle nombre y fecha.</p>
+        </div>
+
+        <div class="rule-card card-freedom">
+            <i class="fa-solid fa-seedling card-icon"></i>
+            <div class="rule-title">Libertad Financiera</div>
+            <p class="rule-desc">Dinero destinado a inversión. Este capital no se toca, se multiplica para tu retiro.</p>
+        </div>
+    </div>
+
+    <h3 class="section-title">Métodos Efectivos para Empezar</h3>
+    <div class="example-table-container">
+        <table class="example-table">
+            <thead>
+                <tr>
+                    <th>Método</th>
+                    <th>¿Cómo funciona?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>⚡ Págate Primero</strong></td>
+                    <td>Programa una transferencia automática a tu cuenta de ahorros el mismo día que recibes tu sueldo.</td>
+                </tr>
+                <tr>
+                    <td><strong>📅 Reto 52 Semanas</strong></td>
+                    <td>Ahorra $1 la semana 1, $2 la semana 2... Al final del año tendrás casi $1,400 acumulados.</td>
+                </tr>
+                <tr>
+                    <td><strong>🇯🇵 Kakeibo</strong></td>
+                    <td>Método japonés manual. Escribes tus gastos y reflexionas: "¿Esto es necesario o es un impulso?"</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="section-title">Enemigos del Ahorro</h3>
+    <ul class="mistakes-list">
+        <li class="mistake-item">
+            <i class="fa-solid fa-hourglass-half mistake-icon"></i>
+            <div class="mistake-text">
+                <strong>La Inflación Silenciosa</strong>
+                <span>Dejar el dinero bajo el colchón hace que pierda valor. Busca cuentas que den rendimientos.</span>
+            </div>
+        </li>
+        <li class="mistake-item">
+            <i class="fa-solid fa-shop mistake-icon"></i>
+            <div class="mistake-text">
+                <strong>Gastos Hormiga</strong>
+                <span>El café diario, el snack o la propina excesiva. Pequeñas fugas hunden grandes barcos.</span>
+            </div>
+        </li>
+        <li class="mistake-item">
+            <i class="fa-solid fa-hand-holding-dollar mistake-icon"></i>
+            <div class="mistake-text">
+                <strong>Ahorrar "lo que sobre"</strong>
+                <span>Error fatal. Generalmente nunca sobra nada. Cambia la ecuación: Ingreso - Ahorro = Gasto.</span>
+            </div>
+        </li>
+    </ul>
+
+    <div class="pro-tip">
+        <i class="fa-solid fa-rocket"></i>
+        <div class="pro-tip-content">
+            <h4>Consejo Credora</h4>
+            <p>Si te cuesta ahorrar, "escóndete" el dinero. Abre una cuenta en otro banco sin tarjeta de débito física, transfiere ahí tu ahorro y olvida que existe hasta que cumplas tu meta.</p>
+        </div>
+    </div>
+
+</div>

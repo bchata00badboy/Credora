@@ -1,0 +1,363 @@
+<style>
+    /* --- VARIABLES Y TEMAS --- */
+    :root {
+        /* PALETA DE IDENTIDAD (FIJA) */
+        --primary-blue: #002845;
+        --accent-blue: #3498db;
+        --success-green: #2ecc71;
+        --warning-orange: #f39c12;
+        --danger-red: #e74c3c;
+        --purple-cyber: #8e44ad; /* Color temático ciberseguridad */
+
+        /* VARIABLES DINÁMICAS (Modo Claro por defecto) */
+        --bg-body: #f4f7f6;
+        --bg-card: #ffffff;         
+        --bg-secondary: #f8f9fa;    
+        --text-title: #002845;      
+        --text-main: #333333;       
+        --text-muted: #555555;      
+        --line-color: #000000;      
+        --border-color: rgba(0,0,0,0.1);
+        --shadow: rgba(0,0,0,0.05);
+        --btn-bg: #ffffff;
+    }
+
+    /* MODO OSCURO */
+    body.dark {
+        --bg-body: #111827;
+        --bg-card: #1f2937;         /* Gris oscuro */
+        --bg-secondary: #374151;    /* Gris medio */
+        --text-title: #f3f4f6;      /* Blanco */
+        --text-main: #e5e7eb;       /* Gris claro */
+        --text-muted: #9ca3af;      
+        --line-color: #4b5563;      /* Línea gris */
+        --border-color: rgba(255,255,255,0.1);
+        --shadow: rgba(0,0,0,0.3);
+        --btn-bg: #374151;
+    }
+
+    /* --- ESTILOS GENERALES --- */
+    .lesson-container {
+        width: 100%;
+        padding: 10px 20px 40px 20px;
+        font-family: 'Segoe UI', sans-serif;
+        animation: fadeIn 0.4s ease-in;
+        max-width: 1000px;
+        margin: 0 auto;
+        transition: color 0.3s, background-color 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- HEADER --- */
+    .lesson-header {
+        width: 100%;
+        border-bottom: 3px solid var(--line-color);
+        padding-bottom: 25px;
+        margin-bottom: 30px;
+        transition: border-color 0.3s;
+    }
+
+    .header-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-left: -20px;
+    }
+
+    .back-btn-circle {
+        width: 45px;
+        height: 45px;
+        background-color: var(--btn-bg);
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 3px 6px var(--shadow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: var(--text-title);
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .back-btn-circle:hover { transform: scale(1.1); }
+
+    .header-texts { display: flex; flex-direction: column; }
+
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-title);
+        margin: 0;
+        line-height: 1;
+        transition: color 0.3s;
+    }
+
+    .page-subtitle {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin: 5px 0 0 0;
+        font-weight: 400;
+        transition: color 0.3s;
+    }
+
+    /* --- CONTENIDO --- */
+    
+    .section-title {
+        font-size: 1.4rem;
+        color: var(--text-title);
+        font-weight: 700;
+        margin: 40px 0 20px 0;
+        border-left: 5px solid var(--purple-cyber); /* Morado Fijo */
+        padding-left: 15px;
+    }
+
+    .concept-box {
+        background: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        color: var(--text-main);
+        font-size: 1.05rem;
+        line-height: 1.6;
+        border: 1px solid var(--border-color);
+        transition: background 0.3s, color 0.3s;
+    }
+
+    /* Grid de Escudos de Seguridad */
+    .rule-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .rule-card {
+        background: var(--bg-card);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px var(--shadow);
+        text-align: center;
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s, background 0.3s;
+    }
+
+    .rule-card:hover { transform: translateY(-5px); }
+
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .rule-title { 
+        font-size: 1.2rem; 
+        font-weight: 700; 
+        color: var(--text-title); 
+        margin-bottom: 10px; 
+    }
+    
+    .rule-desc { 
+        font-size: 0.9rem; 
+        color: var(--text-muted); 
+        line-height: 1.4; 
+    }
+
+    /* COLORES ICONOS (Fijos) */
+    .shield-pass i { color: var(--accent-blue); }    /* Azul */
+    .shield-2fa i { color: var(--success-green); }   /* Verde */
+    .shield-alert i { color: var(--purple-cyber); }  /* Morado */
+
+    /* --- TABLA DE AMENAZAS --- */
+    .example-table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px var(--shadow);
+    }
+
+    .example-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-card);
+    }
+
+    .example-table th {
+        background-color: var(--primary-blue);
+        color: #fff;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .example-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+    }
+
+    .example-table tr:last-child td { border-bottom: none; }
+    .example-table tr:nth-child(even) { background-color: var(--bg-secondary); }
+    
+    /* Highlight de riesgo */
+    .risk-high { border-left: 5px solid var(--danger-red); }
+
+    /* --- ERRORES --- */
+    .mistakes-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .mistake-item {
+        background: var(--bg-card);
+        border-left: 4px solid var(--danger-red); /* Rojo Fijo */
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        border-radius: 0 8px 8px 0;
+        box-shadow: 0 2px 5px var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: background 0.3s;
+    }
+
+    .mistake-icon {
+        color: var(--danger-red); /* Rojo Fijo */
+        font-size: 1.5rem;
+    }
+
+    .mistake-text strong { 
+        display: block; 
+        color: var(--text-title); 
+        margin-bottom: 4px; 
+    }
+    .mistake-text span { 
+        font-size: 0.95rem; 
+        color: var(--text-muted); 
+    }
+
+    /* --- PRO TIP --- */
+    .pro-tip {
+        background: linear-gradient(135deg, #002845 0%, #004e85 100%);
+        color: white; /* Siempre blanco */
+        padding: 25px;
+        border-radius: 15px;
+        margin-top: 40px;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        box-shadow: 0 5px 15px rgba(0, 40, 69, 0.2);
+    }
+
+    .pro-tip i {
+        font-size: 2rem;
+        color: var(--success-green); /* Verde */
+    }
+
+    .pro-tip-content h4 { margin: 0 0 10px 0; font-size: 1.2rem; }
+    .pro-tip-content p { margin: 0; opacity: 0.9; line-height: 1.5; font-size: 0.95rem; }
+
+</style>
+
+<div class="lesson-container">
+
+    <div class="lesson-header">
+        <div class="header-row">
+            <button class="back-btn-circle" onclick="window.cargarVista('Main_Parts/main_educ.html')">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="header-texts">
+                <h1 class="page-title">Seguridad Digital</h1>
+                <p class="page-subtitle">Protege tu dinero en la era digital</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="concept-box">
+        <p><strong>Tu primera línea de defensa eres tú.</strong> Los ciberdelincuentes no necesitan hackear los servidores del banco si pueden engañarte para que les entregues tus claves. Aprende a blindar tu identidad digital.</p>
+    </div>
+
+    <div class="rule-grid">
+        <div class="rule-card shield-pass">
+            <i class="fa-solid fa-key card-icon"></i>
+            <div class="rule-title">Contraseñas Fuertes</div>
+            <p class="rule-desc">Usa frases largas (ej. "MiPerroComePizza2025!"). Nunca uses fechas de cumpleaños ni "123456".</p>
+        </div>
+
+        <div class="rule-card shield-2fa">
+            <i class="fa-solid fa-mobile-screen-button card-icon"></i>
+            <div class="rule-title">Doble Factor (2FA)</div>
+            <p class="rule-desc">Activa siempre la verificación en dos pasos. Aunque roben tu clave, no podrán entrar sin tu celular.</p>
+        </div>
+
+        <div class="rule-card shield-alert">
+            <i class="fa-solid fa-user-secret card-icon"></i>
+            <div class="rule-title">Desconfianza Sana</div>
+            <p class="rule-desc">Ningún banco te pedirá claves o códigos por correo, SMS o llamadas. Si te los piden, es estafa.</p>
+        </div>
+    </div>
+
+    <h3 class="section-title">Diccionario de Estafas</h3>
+    <div class="example-table-container">
+        <table class="example-table">
+            <thead>
+                <tr>
+                    <th>Amenaza</th>
+                    <th>¿Cómo identificarla?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="risk-high">
+                    <td><strong>🎣 Phishing (Correo)</strong></td>
+                    <td>Emails urgentes ("Tu cuenta será bloqueada") con enlaces extraños. Revisa siempre el remitente.</td>
+                </tr>
+                <tr class="risk-high">
+                    <td><strong>📞 Vishing (Llamadas)</strong></td>
+                    <td>Te llaman fingiendo ser del banco ("Detectamos un cargo sospechoso"). Cuelga y llama tú al número oficial.</td>
+                </tr>
+                <tr class="risk-high">
+                    <td><strong>📱 Smishing (SMS)</strong></td>
+                    <td>Mensajes de texto con links cortos ("Paquete retenido", "Bono aprobado"). Nunca hagas clic.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="section-title">Prácticas Peligrosas</h3>
+    <ul class="mistakes-list">
+        <li class="mistake-item">
+            <i class="fa-solid fa-wifi mistake-icon"></i>
+            <div class="mistake-text">
+                <strong>Usar Wi-Fi Público</strong>
+                <span>Nunca entres a tu banco conectado al Wi-Fi de un café o aeropuerto. Los hackers pueden interceptar tus datos.</span>
+            </div>
+        </li>
+        <li class="mistake-item">
+            <i class="fa-solid fa-rotate-right mistake-icon"></i>
+            <div class="mistake-text">
+                <strong>Repetir Contraseñas</strong>
+                <span>Si usas la misma clave para Facebook y el Banco, y hackean Facebook, perderás tu dinero.</span>
+            </div>
+        </li>
+        <li class="mistake-item">
+            <i class="fa-solid fa-download mistake-icon"></i>
+            <div class="mistake-text">
+                <strong>Apps No Oficiales</strong>
+                <span>Descargar APKs o programas piratas puede instalar virus que leen lo que escribes en tu teclado.</span>
+            </div>
+        </li>
+    </ul>
+
+    <div class="pro-tip">
+        <i class="fa-solid fa-shield-cat"></i>
+        <div class="pro-tip-content">
+            <h4>Consejo Credora</h4>
+            <p>Revisa la URL. Antes de meter tus datos, asegúrate que la dirección empiece con <strong>https://</strong> y tenga el candado cerrado. Si la web se ve "rara" o mal escrita, sal de inmediato.</p>
+        </div>
+    </div>
+
+</div>

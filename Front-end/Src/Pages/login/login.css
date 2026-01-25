@@ -77,11 +77,11 @@ body {
     position: relative;
     width: 750px;
     height: 500px;
-    background: rgba(171, 15, 15, 0.726);
+    background-color: rgba(0, 0, 0, 0.5);
     border: 2px solid rgba(255, 255, 255, .2);
-    box-shadow: 0 0 20px rgba(232, 4, 4, 0.493);
+    box-shadow: 0 0 20px rgba(232, 19, 4, 0.493);
     border-radius: 20px;
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -165,7 +165,7 @@ body {
     width: 50%;
     height: 100%;
     border-radius: 20px;
-    background: #003049;
+    background-color: rgba(100, 17, 17, 0.5);
     border: 2px solid rgba(255, 255, 255, 0.1); 
     transform-style: preserve-3d;
     transition: transform 0.8s ease-in-out;

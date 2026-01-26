@@ -1,3 +1,5 @@
+# app/routers/rutas_kyc.py
+
 from fastapi import APIRouter, File, UploadFile, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer

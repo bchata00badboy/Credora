@@ -1,3 +1,6 @@
+// /Front-end/Src/Pages/Main/js/theme.js
+
+
 /* theme.js - Transición Rápida y del Mismo Color (Soporta Degradados) */
 (function(){
     const STORAGE_KEY = 'credora-theme';

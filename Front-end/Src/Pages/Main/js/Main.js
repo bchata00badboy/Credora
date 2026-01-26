@@ -1,86 +1,105 @@
+/* /Front-end/Src/Pages/Main/js/Main.js */
+
 /* =========================================
-   1. LOGICA DEL SIDEBAR (Visual)
+   1. LOGICA GLOBAL (DOM READY)
    ========================================= */
-const menuItemsDropDown = document.querySelectorAll('.menu-item-dropdown');
-const sidebar = document.getElementById('sidebar');
-const menuBtn = document.getElementById('menu-btn');
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM cargado: inicializando Main.js');
 
-// Minimizar sidebar
-menuBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('minimize');
-});
-
-// Lógica de menús desplegables
-menuItemsDropDown.forEach((menuItem) => {
-    menuItem.addEventListener('click', (e) => {
-        if (sidebar.classList.contains('minimize')) return;
-
-        const subMenu = menuItem.querySelector('.sub-menu');
-        const isActive = menuItem.classList.toggle('sub-menu-toggle');
-        
-        if (subMenu) {
-            subMenu.style.height = isActive ? `${subMenu.scrollHeight + 6}px` : '0';
-            subMenu.style.padding = isActive ? '0.2rem 0' : '0';
-        }
-        
-        // Cerrar otros menús
-        menuItemsDropDown.forEach((item) => {
-            if (item !== menuItem) {
-                const otherSubmenu = item.querySelector('.sub-menu');
-                if (otherSubmenu) {
-                    item.classList.remove('sub-menu-toggle');
-                    otherSubmenu.style.height = '0';
-                    otherSubmenu.style.padding = '0';
-                }
+    // --- A. LOGOUT DESDE EL SIDEBAR (RECUPERADO) ---
+    const btnLogoutSidebar = document.getElementById('btn-logout-sidebar');
+    if (btnLogoutSidebar) {
+        btnLogoutSidebar.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+                localStorage.removeItem('credora_token');
+                window.location.href = "../Login/login.html";
             }
         });
+    }
+
+    // --- B. LOGICA DEL SIDEBAR (Visual) ---
+    const menuItemsDropDown = document.querySelectorAll('.menu-item-dropdown');
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menu-btn');
+
+    // Minimizar sidebar
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('minimize');
+        });
+    }
+
+    // Lógica de menús desplegables
+    menuItemsDropDown.forEach((menuItem) => {
+        menuItem.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('minimize')) return;
+
+            const subMenu = menuItem.querySelector('.sub-menu');
+            const isActive = menuItem.classList.toggle('sub-menu-toggle');
+            
+            if (subMenu) {
+                subMenu.style.height = isActive ? `${subMenu.scrollHeight + 6}px` : '0';
+                subMenu.style.padding = isActive ? '0.2rem 0' : '0';
+            }
+            
+            // Cerrar otros menús
+            menuItemsDropDown.forEach((item) => {
+                if (item !== menuItem) {
+                    const otherSubmenu = item.querySelector('.sub-menu');
+                    if (otherSubmenu) {
+                        item.classList.remove('sub-menu-toggle');
+                        otherSubmenu.style.height = '0';
+                        otherSubmenu.style.padding = '0';
+                    }
+                }
+            });
+        });
     });
+
+    // Iniciar Navegación
+    iniciarNavegacionSPA();
 });
 
 
 /* =========================================
-   DICCIONARIO DE CONTROLADORES
+   2. DICCIONARIO DE CONTROLADORES
    ========================================= */
 const controladores = {
-    // CORRECCIÓN: Quitamos los puntos de retroceso "../"
-    './Main_Parts/main_home.html': iniciarInicio,
-    './Main_Parts/main_profile.html': iniciarPerfil,
-    './Main_Parts/main_notif.html': iniciarNotificaciones,
-    './Main_Parts/main_transf1.html': iniciarTransferencias,
-    './Main_Parts/main_mov.html': iniciarMovimientos,
-    './Main_Parts/main_mov_data.html': iniciardatamov,
-    './Main_Parts/main_mov_credora.html': iniciarcredoramov
+    'Main_Parts/main_home.html': iniciarInicio,
+    'Main_Parts/main_profile.html': iniciarPerfil, // Ahora sí cargará datos
+    'Main_Parts/main_notif.html': iniciarNotificaciones,
+    'Main_Parts/main_transf1.html': iniciarTransferencias,
+    'Main_Parts/main_mov.html': iniciarMovimientos,
+    'Main_Parts/main_mov_data.html': iniciardatamov,
+    'Main_Parts/main_config.html': iniciarConfiguracion,
+    'Main_Parts/main_educ.html': iniciarEducacion
 };
 
 /* =========================================
    3. LOGICA DE NAVEGACIÓN (SPA)
    ========================================= */
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM cargado: inicializando Main.js');
+function iniciarNavegacionSPA() {
     const menuLinks = document.querySelectorAll('.menu-link, .sub-menu-link');
     const contenedor = document.getElementById('contenedor-dinamico');
     if (!contenedor) console.error('No se encontró #contenedor-dinamico');
 
-    // Tema: delegado por theme.js (CredoraTheme). Al cargar vistas dinámicas sincronizamos.
-
     // Función principal de carga
-    function cargarVista(rutaArchivo) {
-        
-        // Efecto visual de carga
+    window.cargarVista = function(rutaArchivo) {
+        const rutaLimpia = rutaArchivo.replace('./', '');
         contenedor.style.opacity = '0';
 
         setTimeout(() => {
-            fetch(rutaArchivo)
+            fetch(rutaLimpia)
                 .then(respuesta => {
-                    if (!respuesta.ok) throw new Error('No se encontró el archivo');
+                    if (!respuesta.ok) throw new Error('No se encontró el archivo: ' + rutaLimpia);
                     return respuesta.text();
                 })
                 .then(html => {
-                    // Parseamos el HTML recibido para extraer <link> y <script>
                     const temp = document.createElement('div');
                     temp.innerHTML = html;
 
-                    // 1) Inyectar hojas de estilo en <head> (si no existen)
+                    // 1) Inyectar hojas de estilo
                     temp.querySelectorAll('link[rel="stylesheet"]').forEach(l => {
                         const href = l.getAttribute('href');
                         if (!href) return;
@@ -92,331 +111,357 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
 
-                    // 2) Insertamos el HTML en el contenedor
+                    // 2) Insertar HTML
                     contenedor.innerHTML = temp.innerHTML;
 
-                    // 3) Re-ejecutar scripts de forma ordenada
+                    // 3) Re-ejecutar scripts
                     const scripts = Array.from(contenedor.querySelectorAll('script'));
-                    // Eliminamos los <script> insertados (no se ejecutan al setear innerHTML)
                     scripts.forEach(s => s.remove());
 
-                    function runScriptsSequentially(list, i = 0) {
+                    function runScripts(list, i = 0) {
                         if (i >= list.length) {
-                            afterScripts();
-                            return;
+                            afterScripts(); return;
                         }
                         const s = list[i];
                         const newS = document.createElement('script');
                         if (s.src) {
                             newS.src = s.src;
-                            newS.onload = () => runScriptsSequentially(list, i + 1);
-                            newS.onerror = () => runScriptsSequentially(list, i + 1);
+                            newS.onload = () => runScripts(list, i + 1);
                             document.body.appendChild(newS);
                         } else {
-                            try { newS.text = s.textContent; } catch (e) { /* fallback */ }
+                            newS.textContent = s.textContent;
                             document.body.appendChild(newS);
-                            runScriptsSequentially(list, i + 1);
+                            runScripts(list, i + 1);
                         }
                     }
 
                     function afterScripts() {
                         contenedor.style.opacity = '1';
-                        // Sincronizar tema en contenido cargado dinámicamente
                         try { if(window.CredoraTheme) window.CredoraTheme.setTheme(document.body.classList.contains('dark'), false); } catch(e) {}
 
-                        // Ejecutar controlador si existe
-                        if (controladores[rutaArchivo]) {
-                            console.log(`Ejecutando controlador para: ${rutaArchivo}`);
-                            controladores[rutaArchivo]();
+                        if (controladores[rutaLimpia]) {
+                            console.log(`Ejecutando controlador para: ${rutaLimpia}`);
+                            controladores[rutaLimpia]();
                         }
                     }
-
-                    // Iniciar la ejecución de scripts
-                    runScriptsSequentially(scripts);
+                    runScripts(scripts);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    contenedor.innerHTML = `<div style="padding:2rem;"><h2>Error 404</h2><p>No pudimos cargar la sección solicitada.</p></div>`;
+                    contenedor.innerHTML = `<div style="padding:2rem;"><h2>Error 404</h2><p>No se pudo cargar la vista.</p></div>`;
                     contenedor.style.opacity = '1';
                 });
         }, 200);
     }
 
-    // Exponer la función de navegación para que vistas cargadas dinámicamente
-    // puedan solicitar cambios de vista de forma centralizada.
-    window.cargarVista = cargarVista;
-
-    // Helper: activar visualmente el item de menú
-    function setActiveMenu(linkEl) {
-        try {
-            document.querySelectorAll('.menu .menu-item').forEach(i => i.classList.remove('active'));
-            if (!linkEl) return;
-            const item = linkEl.closest('.menu-item');
-            if (item) item.classList.add('active');
-
-            // Si el link es sub-menu-link, aseguramos que el dropdown padre esté abierto
-            const sub = linkEl.closest('.sub-menu');
-            if (sub) {
-                const parent = sub.closest('.menu-item-dropdown');
-                if (parent) {
-                    parent.classList.add('sub-menu-toggle');
-                    const sm = parent.querySelector('.sub-menu');
-                    if (sm) {
-                        sm.style.height = `${sm.scrollHeight + 6}px`;
-                        sm.style.padding = '0.2rem 0';
-                    }
-                }
-            }
-        } catch (e) { console.error('setActiveMenu error', e); }
-    }
-
-    // Helper: activa por ruta (data-vista)
-    function setActiveByRoute(ruta) {
-        if (!ruta) return;
-        const selector = `.menu-link[data-vista="${ruta}"], .sub-menu-link[data-vista="${ruta}"]`;
-        const link = document.querySelector(selector);
-        if (link) setActiveMenu(link);
-    }
-
     // Eventos Click en el menú
-    try {
-        if (menuLinks && menuLinks.length) {
-            menuLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    const ruta = link.getAttribute('data-vista');
-                    console.log('Clic en menú, data-vista=', ruta);
+    if (menuLinks && menuLinks.length) {
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Ignorar botón de logout del sidebar
+                if (link.id === 'btn-logout-sidebar') return;
 
-                    // Si es un dropdown o no tiene ruta, ignoramos la navegación pero permitimos toggle
-                    if (!ruta || ruta === '#') return;
+                const ruta = link.getAttribute('data-vista');
+                if (!ruta || ruta === '#') return;
 
-                    e.preventDefault();
-                    // Activamos visualmente el item
-                    setActiveMenu(link);
-                    cargarVista(ruta);
-                });
+                e.preventDefault();
+                
+                // Active Class Logic
+                document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
+                link.classList.add('active');
+                if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
+
+                window.cargarVista(ruta);
             });
-        } else {
-            console.warn('No se encontraron enlaces de menú (.menu-link, .sub-menu-link)');
-        }
-    } catch (err) {
-        console.error('Error al asignar eventos de menú:', err);
+        });
     }
 
-    // Cargar Inicio por defecto (activo): carga la vista de inicio dentro de `contenedor-dinamico`
-    // Si prefieres contenido estático en `Main.html`, comenta esta línea.
-    cargarVista('./Main_Parts/main_home.html');
-});
+    // Cargar Inicio por defecto
+    window.cargarVista('Main_Parts/main_home.html');
+}
+
 
 /* =========================================
-   4. FUNCIONES ESPECÍFICAS (Lógica por pantalla)
+   4. FUNCIONES ESPECÍFICAS (CONTROLADORES)
    ========================================= */
 
-// --- LÓGICA DE INICIO (Con Carga Perezosa) ---
-function iniciarInicio() {
-    console.log("Inicio cargado. Esperando interacción...");
+// --- A. INICIO (DASHBOARD) ---
+async function iniciarInicio() {
+    console.log("⚡ Cargando Dashboard...");
 
-    // --- CARGA DINÁMICA: CSS y JS DE LA GRÁFICA ---
-        function loadCssOnce(href) {
-            if (document.querySelector(`link[href="${href}"]`)) return;
-        const l = document.createElement('link');
-        l.rel = 'stylesheet';
-        l.href = href;
+    // 1. Cargar dependencias de gráficas
+    const graficaCssPath = 'css/grafica.css';
+    const graficaJsPath = 'js/grafica.js';
+    const chartJsCdn = 'https://cdn.jsdelivr.net/npm/chart.js';
+
+    if (!document.querySelector(`link[href*="grafica.css"]`)) {
+        const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = graficaCssPath;
         document.head.appendChild(l);
     }
 
-    function loadScriptOnce(src, cb) {
-            if (document.querySelector(`script[src="${src}"]`)) {
-            if (cb) cb();
-            return;
+    function loadScripts() {
+        if (typeof Chart === 'undefined') {
+            const s1 = document.createElement('script'); s1.src = chartJsCdn;
+            s1.onload = () => {
+                const s2 = document.createElement('script'); s2.src = graficaJsPath;
+                document.body.appendChild(s2);
+            };
+            document.body.appendChild(s1);
+        } else if (typeof window.renderMainChart !== 'function') {
+            const s2 = document.createElement('script'); s2.src = graficaJsPath;
+            document.body.appendChild(s2);
+        } else {
+            window.renderMainChart();
+            window.renderUsageChart();
         }
-        const s = document.createElement('script');
-        s.src = src;
-        s.defer = false;
-        s.onload = () => { if (cb) cb(); };
-        s.onerror = () => console.error('No se pudo cargar script:', src);
-        document.body.appendChild(s);
     }
+    loadScripts();
 
-    // Rutas relativas desde Main.html hacia Front-end/Src/Main/ia/
-    const graficaCssPath = '/grafica.css';
-    const graficaJsPath = 'grafica.js';
-    const chartJsCdn = 'https://cdn.jsdelivr.net/npm/chart.js';
+    // 2. CONEXIÓN API
+    try {
+        if (window.CredoraAPI) {
+            const datos = await window.CredoraAPI.request('/billetera/saldo');
+            
+            if (datos) {
+                // Dashboard Central
+                const saldoEl = document.querySelector('.saldo-amount');
+                if(saldoEl) saldoEl.innerHTML = `$${datos.saldo_actual.toLocaleString('en-US', {minimumFractionDigits: 2})} <span class="currency">${datos.moneda}</span>`;
+                
+                const cardNumEl = document.querySelector('.card-number');
+                if(cardNumEl) cardNumEl.textContent = `**** **** **** ${datos.tarjeta_ultimos_4}`;
+                
+                const cardHolderEl = document.querySelector('.card-holder');
+                if(cardHolderEl) cardHolderEl.textContent = datos.titular;
 
-    // Inyectamos CSS (si no existe)
-    loadCssOnce(graficaCssPath);
+                const cuentaFooter = document.querySelector('.saldo-footer');
+                if(cuentaFooter) cuentaFooter.textContent = `Número de Cuenta: ${datos.numero_cuenta}`;
 
-    // Aseguramos Chart.js antes de cargar grafica.js
-    function ensureGraficaLoaded() {
-        try {
-            if (typeof renderChart === 'function') {
-                // Si las funciones ya están disponibles, inicializamos
-                try { renderChart('dia'); } catch(e){}
-                try { renderUsageChart(); } catch(e){}
-                return;
+                // --- SIDEBAR (Nombre Corto) ---
+                const sidebarName = document.querySelector('.sidebar .user-data .name');
+                const sidebarEmail = document.querySelector('.sidebar .user-data .email');
+                
+                if (sidebarName) {
+                    const nombreCompleto = datos.titular || "Usuario";
+                    const nombreCorto = nombreCompleto.split(' ').slice(0, 2).join(' ');
+                    sidebarName.textContent = nombreCorto;
+                }
+                
+                if (sidebarEmail) sidebarEmail.textContent = datos.email;
+
+                // Avatar Sidebar
+                const userImgContainer = document.querySelector('.sidebar .user-img');
+                if (userImgContainer) {
+                    const nombreLimpio = datos.titular || "Usuario";
+                    const iniciales = nombreLimpio.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                    
+                    userImgContainer.innerHTML = `
+                        <div style="
+                            width: 100%; height: 100%; 
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                            color: white; display: flex; align-items: center; justify-content: center; 
+                            font-weight: bold; border-radius: 50%; font-size: 1.1rem; border: 2px solid white;">
+                            ${iniciales}
+                        </div>
+                    `;
+                }
+
+                if (window.actualizarGraficasDesdeAPI && datos.historial) {
+                    window.actualizarGraficasDesdeAPI(datos.historial);
+                }
             }
-
-            // Cargamos grafica.js y luego inicializamos
-            loadScriptOnce(graficaJsPath, () => {
-                try { if (typeof renderChart === 'function') renderChart('dia'); } catch(e){}
-                try { if (typeof renderUsageChart === 'function') renderUsageChart(); } catch(e){}
-            });
-        } catch (e) { console.error(e); }
+        }
+    } catch (err) {
+        console.error("Error cargando datos:", err);
     }
 
-    if (typeof Chart === 'undefined') {
-        loadScriptOnce(chartJsCdn, ensureGraficaLoaded);
-    } else {
-        ensureGraficaLoaded();
-    }
-
-    // === LÓGICA TARJETA FLIP (NUEVA, robusta) ===
-    // Buscamos la tarjeta dentro del contenedor visual para asegurarnos de seleccionar la correcta
     const flipCard = document.querySelector('.tarjeta-visual-container .bank-card');
     if (flipCard) {
-        // click normal
-        flipCard.addEventListener('click', function (e) {
-            this.classList.toggle('flip');
-            console.log('Tarjeta flip toggled:', this.classList.contains('flip'));
-        });
-        // soporte táctil para móviles (touchend evita doble activación en algunos navegadores)
-        flipCard.addEventListener('touchend', function (e) {
-            this.classList.toggle('flip');
-            e.preventDefault();
-        });
-
-        // Botón explícito para voltear la tarjeta (útil en móviles)
-        const flipBtn = document.getElementById('btn-voltear-tarjeta');
-        if (flipBtn) {
-            flipBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                flipCard.classList.toggle('flip');
-                console.log('Flip button clicked.');
-            });
-            flipBtn.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                flipCard.classList.toggle('flip');
-            });
-        }
-    } else {
-        console.log('No se encontró .tarjeta-visual-container .bank-card para el flip');
-    }
-
-    const btnRiesgo = document.getElementById('btn-simular-riesgo');
-    const btnConsejo = document.getElementById('btn-simular-consejo');
-
-    // --- FUNCIÓN AUXILIAR PARA CARGAR MICRO-ARCHIVOS ---
-    // idElemento: El ID del div principal del archivo (ej: 'modal-riesgo')
-    // rutaArchivo: Dónde está el HTML
-    async function cargarComponente(idElemento, rutaArchivo) {
-        
-        // 1. Verificamos si ya existe en el DOM (para no cargarlo 2 veces)
-        let elemento = document.getElementById(idElemento);
-        
-        if (!elemento) {
-            console.log(`Descargando componente: ${rutaArchivo}...`);
-            try {
-                const respuesta = await fetch(rutaArchivo);
-                if(!respuesta.ok) throw new Error("Error cargando componente");
-                
-                const html = await respuesta.text();
-                
-                // 2. Lo inyectamos al final del body (fuera del contenedor dinámico para evitar conflictos de z-index)
-                document.body.insertAdjacentHTML('beforeend', html);
-                
-                // 3. Actualizamos la referencia
-                elemento = document.getElementById(idElemento);
-                
-                // 4. Activamos sus botones de cerrar (Solo la primera vez que se carga)
-                activarListenersComponente(idElemento);
-                
-            } catch (error) {
-                console.error(error);
-                return null;
-            }
-        } else {
-            console.log("El componente ya estaba en memoria.");
-        }
-        return elemento;
-    }
-
-    // --- MANEJADORES DE CLIC ---
-
-    // A) BOTÓN RIESGO
-    if (btnRiesgo) {
-        btnRiesgo.addEventListener('click', async () => {
-            // Llamamos a la carga bajo demanda
-            const modal = await cargarComponente('modal-riesgo', '../../../pop_ups/index_tips.html');
-            
-            if (modal) {
-                modal.classList.remove('hidden'); // Mostrar
-            }
-        });
-    }
-
-    // B) BOTÓN CONSEJO
-    if (btnConsejo) {
-        btnConsejo.addEventListener('click', async () => {
-            const toast = await cargarComponente('toast-consejo', '../../../pop_ups/index_tips.html');
-            
-            if (toast) {
-                toast.classList.remove('hidden');
-                setTimeout(() => {
-                    if(document.body.contains(toast)) toast.classList.add('hidden');
-                }, 5000);
-            }
-        });
+        const newFlip = flipCard.cloneNode(true);
+        flipCard.parentNode.replaceChild(newFlip, flipCard);
+        newFlip.addEventListener('click', function () { this.classList.toggle('flip'); });
     }
 }
 
-//Función extra para dar vida a los botones de "Cerrar" de los elementos inyectados
-function activarListenersComponente(idElemento) {
-    const elemento = document.getElementById(idElemento);
-    if (!elemento) return;
+// --- B. PERFIL (CORREGIDO - AHORA CARGA DATOS) ---
+async function iniciarPerfil() {
+    console.log("👤 Cargando Perfil...");
 
-    // === LÓGICA PARA EL MODAL DE RIESGO ===
-    if (idElemento === 'modal-riesgo') {
-        
-        // A. Buscamos el botón "Ignorar" por su clase
-        const btnCerrar = elemento.querySelector('.btn-cerrar-modal');
-        
-        // B. Le damos la orden de cerrar
-        if (btnCerrar) {
-            btnCerrar.addEventListener('click', () => {
-                console.log("Cerrando modal...");
-                elemento.classList.add('hidden'); // Vuelve a ocultarlo
-            });
-        }
-
-        // C. (Extra) Cerrar si hacen clic en el fondo oscuro (overlay)
-        elemento.addEventListener('click', (e) => {
-            // Si el clic fue directo en el fondo oscuro y no en la tarjeta blanca
-            if (e.target === elemento) {
-                elemento.classList.add('hidden');
-            }
-        });
-    }
-
-    // Lógica específica para el TOAST
-    if (idElemento === 'toast-consejo') {
-        const btnCerrar = elemento.querySelector('.toast-close');
-        if (btnCerrar) btnCerrar.addEventListener('click', () => elemento.classList.add('hidden'));
-    }
-
-    
-}
-// --- LÓGICA DE PERFIL (Formularios) ---
-function iniciarPerfil() {
+    // 1. Manejo del formulario de contraseña (existente)
     const formPassword = document.getElementById('form-password');
     if (formPassword) {
         formPassword.addEventListener('submit', (e) => {
             e.preventDefault();
-            alert('¡Contraseña actualizada correctamente!');
+            alert('Funcionalidad de cambio de contraseña en desarrollo.');
             formPassword.reset();
         });
     }
+
+    // 2. CARGA DE DATOS DEL USUARIO (LO QUE FALTABA)
+    if (!window.CredoraAPI) return;
+
+    try {
+        const datos = await window.CredoraAPI.request('/billetera/saldo');
+        if (datos) {
+            // Nombre Completo
+            const elName = document.getElementById('profile-name');
+            if (elName) elName.textContent = datos.titular; 
+
+            // Correo
+            const elEmail = document.getElementById('profile-email');
+            if (elEmail) elEmail.textContent = datos.email;
+
+            // Cuenta
+            const elAccount = document.getElementById('profile-account');
+            if (elAccount) elAccount.textContent = datos.numero_cuenta;
+
+            // Avatar Grande
+            const elAvatar = document.getElementById('profile-avatar');
+            if (elAvatar) {
+                const iniciales = (datos.titular || "U").split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                elAvatar.innerHTML = `
+                    <div style="
+                        width: 100%; height: 100%; 
+                        background: linear-gradient(135deg, #003049 0%, #005f73 100%); 
+                        color: white; display: flex; align-items: center; justify-content: center; 
+                        font-weight: bold; font-size: 2.5rem; border-radius: 50%;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        ${iniciales}
+                    </div>
+                `;
+            }
+        }
+    } catch (err) {
+        console.error("Error cargando perfil:", err);
+    }
 }
 
-// --- LÓGICA DE NOTIFICACIONES ---
+
+// --- C. MOVIMIENTOS ---
+async function iniciarMovimientos() {
+    console.log("📂 Cargando historial...");
+    const tbody = document.querySelector('table tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">Cargando movimientos...</td></tr>';
+
+    try {
+        if (!window.CredoraAPI) throw new Error("API no disponible");
+
+        const movimientos = await window.CredoraAPI.request('/billetera/movimientos?limite=20');
+
+        if (!movimientos || movimientos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">No tienes movimientos recientes.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = ''; 
+
+        movimientos.forEach(mov => {
+            const fechaObj = new Date(mov.fecha);
+            const fechaStr = fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            const esIngreso = mov.tipo === 'INGRESO';
+            const claseMonto = esIngreso ? 'monto-positivo' : 'monto-negativo';
+            const signo = esIngreso ? '+' : '-';
+            
+            let iconoEstado = "<i class='bx bxs-check-circle success'></i> Completado";
+            if (mov.estado === 'PENDIENTE') iconoEstado = "<i class='bx bxs-time-five pending'></i> Pendiente";
+            if (mov.estado === 'FALLIDO') iconoEstado = "<i class='bx bxs-x-circle' style='color:red'></i> Fallido";
+
+            let catClass = 'compras';
+            if (mov.categoria === 'Transferencia' || mov.categoria === 'Ingreso') catClass = 'ingreso';
+            if (mov.categoria === 'Servicios') catClass = 'entretenimiento';
+
+            const row = `
+                <tr>
+                    <td>${fechaStr}</td>
+                    <td>
+                        <span class="titulo-transaccion">${mov.descripcion || 'Transacción'}</span><br>
+                        <span class="subtitulo">${mov.referencia || ''}</span>
+                    </td>
+                    <td><span class="badge ${catClass}">${mov.categoria || 'General'}</span></td>
+                    <td>${iconoEstado}</td>
+                    <td class="text-right ${claseMonto}">${signo} $${parseFloat(mov.monto).toFixed(2)}</td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding: 2rem;">Error al cargar datos. Intenta nuevamente.</td></tr>';
+    }
+}
+
+
+// --- D. TRANSFERENCIAS (CORREGIDO - CAMPO IDENTIFICADOR) ---
+async function iniciarTransferencias() {
+    console.log("💸 Módulo Transferencias");
+
+    try {
+        if (window.CredoraAPI) {
+            const datos = await window.CredoraAPI.request('/billetera/saldo');
+            if (datos) {
+                const balanceDisplay = document.querySelector('.acc-balance strong');
+                if (balanceDisplay) balanceDisplay.textContent = `$${datos.saldo_actual.toFixed(2)}`;
+            }
+        }
+    } catch (e) { console.error("Error cargando saldo para transferencia", e); }
+
+    const btnConfirmar = document.querySelector('.btn-confirmar');
+    if (btnConfirmar) {
+        const newBtn = btnConfirmar.cloneNode(true);
+        btnConfirmar.parentNode.replaceChild(newBtn, btnConfirmar);
+
+        newBtn.addEventListener('click', async (e) => {
+            e.preventDefault(); 
+            
+            // OJO: Selectores actualizados para buscar inputs dentro de la vista
+            const destinoInput = document.getElementById('input-destino'); // Busca por ID
+            const montoInput = document.querySelector('.input-monto');
+            const motivoInput = document.getElementById('input-motivo');
+
+            // Fallback si no encuentra por ID (por si el HTML no se actualizó)
+            const identificador = (destinoInput ? destinoInput.value : document.querySelector('.input-with-icon input[type="text"]').value).trim();
+            const monto = montoInput ? parseFloat(montoInput.value) : 0;
+            const motivo = motivoInput ? motivoInput.value.trim() : 'Transferencia';
+
+            if (!identificador || monto <= 0) {
+                alert("Por favor ingresa un destinatario válido (correo o cuenta) y un monto mayor a 0.");
+                return;
+            }
+
+            const textoOriginal = newBtn.textContent;
+            newBtn.disabled = true;
+            newBtn.textContent = "Procesando...";
+
+            try {
+                // NOTA IMPORTANTE: Usamos 'identificador' para coincidir con el backend inteligente
+                const resultado = await window.CredoraAPI.request('/billetera/transferir', 'POST', {
+                    identificador: identificador, 
+                    monto: monto,
+                    motivo: motivo
+                });
+
+                if (resultado) {
+                    alert(`✅ ¡Transferencia Exitosa!\nEnviado a: ${resultado.destinatario}\nNuevo Saldo: $${resultado.nuevo_saldo}`);
+                    window.cargarVista('Main_Parts/main_home.html');
+                }
+            } catch (err) {
+                alert("❌ Falló la transferencia:\n" + err.message);
+                newBtn.disabled = false;
+                newBtn.textContent = textoOriginal;
+            }
+        });
+    }
+    
+    const btnCancelar = document.querySelector('.btn-cancelar');
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', () => { window.cargarVista('Main_Parts/main_home.html'); });
+    }
+}
+
+// --- E. NOTIFICACIONES ---
 function iniciarNotificaciones() {
     const btnMarcar = document.getElementById('btn-marcar-leidas');
     const notificaciones = document.querySelectorAll('.notificacion-item.no-leida');
@@ -432,39 +477,33 @@ function iniciarNotificaciones() {
     }
 }
 
-// --- STUB: Transferencias ---
-function iniciarTransferencias() {
-    console.log('Vista Transferencias cargada');
-    // Inicializaciones específicas de transferencia pueden añadirse aquí
-}
-
-// --- STUB: Movimientos ---
-function iniciarMovimientos() {
-    console.log('Vista Movimientos cargada');
-    // Inicializaciones específicas de movimientos pueden añadirse aquí
-}
-
-// --- STUB: Data Movimientos (Nueva ruta) ---
+// --- F. DATA MOVIMIENTOS ---
 function iniciardatamov() {
-    console.log('Vista Data Movimientos cargada');
-
-    function copiarAlPortapapeles(texto) {
+    window.copiarAlPortapapeles = function(texto) {
         navigator.clipboard.writeText(texto).then(() => {
-            // Mostrar feedback visual
             const toast = document.getElementById('toast-copiado');
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-        }).catch(err => {
-            console.error('Error al copiar: ', err);
+            if(toast) {
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+        });
+    };
+    // Cargar datos para mostrar "Mi cuenta"
+    if (window.CredoraAPI) {
+        window.CredoraAPI.request('/billetera/saldo').then(datos => {
+            if (datos) {
+                const valCuenta = document.getElementById('val-cuenta');
+                if (valCuenta) valCuenta.innerText = datos.numero_cuenta;
+            }
         });
     }
-    
 }
 
-// --- STUB: Credora Movimientos (Nueva ruta) ---
-function iniciarcredoramov() {
-    console.log('Vista Credora Movimientos cargada');
-    // Aquí iría la lógica específica para main_mov_credora.html
+// --- G. CONFIGURACIÓN ---
+function iniciarConfiguracion() {
+    const themeToggle = document.getElementById('config-theme-toggle');
+    if(themeToggle) themeToggle.checked = document.body.classList.contains('dark');
 }
+
+function iniciarEducacion() { console.log("Módulo educativo cargado"); }
+function iniciarcredoramov() { console.log('Vista Credora Movimientos cargada'); }

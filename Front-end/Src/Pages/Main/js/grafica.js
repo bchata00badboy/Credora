@@ -1,23 +1,38 @@
+// /Front-end/Src/Pages/Main/js/grafica.js
+
 /* ==========================================
-   LOGICA DE GRÁFICAS - SPA + CAMBIO DE COLOR
+   LOGICA DE GRÁFICAS - SPA + CONEXIÓN API
    ========================================== */
 
 (function() {
     console.log('>>> Sistema de Gráficas: Iniciado y vigilando...');
 
-    // --- 1. CONFIGURACIÓN Y DATOS ---
+    // --- 1. CONFIGURACIÓN Y DATOS INICIALES (Placeholders) ---
+    // Estos datos se mostrarán mientras carga la API o si falla la conexión
     const walletData = {
-        dia: { labels: ["08:00", "12:00", "16:00", "20:00", "00:00"], data: [120, 150, 180, 220, 260], total: "$260.00" },
-        mes: { labels: ["Sem 1", "Sem 2", "Sem 3", "Sem 4"], data: [1500, 2100, 1800, 2900], total: "$2,900.00" },
-        anio: { labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"], data: [4500, 5200, 4800, 6100, 7500, 8200, 7800, 9500, 11000, 10500, 12800, 15400], total: "$15,400.00" }
+        dia: { 
+            labels: ["08:00", "12:00", "16:00", "20:00", "00:00"], 
+            data: [0, 0, 0, 0, 0], 
+            total: "$0.00" 
+        },
+        mes: { 
+            labels: ["Sem 1", "Sem 2", "Sem 3", "Sem 4"], 
+            data: [0, 0, 0, 0], 
+            total: "$0.00" 
+        },
+        anio: { 
+            labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"], 
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+            total: "$0.00" 
+        }
     };
 
     // Variables de Estado
     let periodoActual = 'dia'; 
     
-    // Configuración de Colores (Restaurada)
+    // Configuración de Colores
     const colorOptions = ['#003049', '#00d26a', '#f7b731', '#8854d0', '#eb3b5a'];
-    let colorIndex = 1; // Empezamos con el verde (índice 1) por defecto
+    let colorIndex = 1; // Verde por defecto
     let currentColor = colorOptions[colorIndex];
 
     // Variables para las instancias de Chart.js
@@ -25,8 +40,6 @@
     window.chartInstanceUsage = null;
 
     // --- 2. UTILIDADES ---
-    
-    // Función necesaria para crear el degradado transparente bajo la línea
     function hexToRgba(hex, alpha) {
         let c = hex.substring(1).split('');
         if(c.length === 3) c = [c[0], c[0], c[1], c[1], c[2], c[2]];
@@ -41,21 +54,19 @@
         const canvas = document.getElementById('credoraChart');
         if (!canvas) return; 
 
-        // Destruir anterior si existe
+        // Destruir anterior si existe para evitar superposiciones
         if (window.chartInstanceMain instanceof Chart) {
             window.chartInstanceMain.destroy();
         }
 
         const ctx = canvas.getContext('2d');
         const selectedData = walletData[periodo];
-
-        // Usamos el color actual seleccionado
         const colorPrincipal = currentColor; 
 
-        // Crear degradado dinámico basado en el color actual
+        // Crear degradado dinámico
         let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, hexToRgba(colorPrincipal, 0.5)); // 50% opacidad
-        gradient.addColorStop(1, hexToRgba(colorPrincipal, 0.0)); // 0% opacidad (transparente)
+        gradient.addColorStop(0, hexToRgba(colorPrincipal, 0.5));
+        gradient.addColorStop(1, hexToRgba(colorPrincipal, 0.0));
 
         window.chartInstanceMain = new Chart(ctx, {
             type: 'line',
@@ -64,11 +75,11 @@
                 datasets: [{
                     label: 'Balance',
                     data: selectedData.data,
-                    borderColor: colorPrincipal,       // Borde del color seleccionado
-                    backgroundColor: gradient,         // Fondo degradado del color seleccionado
+                    borderColor: colorPrincipal,
+                    backgroundColor: gradient,
                     borderWidth: 2,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: colorPrincipal,  // Puntos del color seleccionado
+                    pointBorderColor: colorPrincipal,
                     fill: true,
                     tension: 0.4
                 }]
@@ -78,19 +89,18 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: { x: { display: false }, y: { display: false } },
-                animation: { duration: 500 } // Animación suave al cambiar
+                animation: { duration: 500 }
             }
         });
 
-        // Actualizar texto de dinero
+        // Actualizar texto de dinero en la tarjeta
         const totalDisplay = document.getElementById('totalDisplay');
         if(totalDisplay) totalDisplay.innerText = selectedData.total;
         
-        // Marcar canvas como "iniciado"
         canvas.classList.add('chart-initialized');
     };
 
-    // B) Gráfica Secundaria (Dona)
+    // B) Gráfica Secundaria (Dona - Gastos)
     window.renderUsageChart = function() {
         const canvas = document.getElementById('usageChart');
         if (!canvas) return;
@@ -100,8 +110,6 @@
         }
 
         const ctx = canvas.getContext('2d');
-        
-        // Colores de la dona (fijos o puedes hacerlos dinámicos también si gustas)
         const donutColors = ['#00d26a', '#003049', '#f7b731'];
 
         window.chartInstanceUsage = new Chart(ctx, {
@@ -109,7 +117,7 @@
             data: {
                 labels: ['Servicios', 'Comida', 'Ocio'],
                 datasets: [{
-                    data: [45, 30, 25],
+                    data: [45, 30, 25], // Valores por defecto
                     backgroundColor: donutColors,
                     borderWidth: 0,
                     hoverOffset: 4
@@ -126,9 +134,8 @@
         canvas.classList.add('chart-initialized');
     };
 
-    // --- 4. BOTONES (GLOBALES) ---
+    // --- 4. INTERACCIÓN GLOBAL ---
     
-    // Cambiar Periodo (Día/Mes/Año)
     window.cambiarPeriodo = function(nuevoPeriodo, btn) {
         periodoActual = nuevoPeriodo;
         if(btn) {
@@ -138,25 +145,44 @@
         window.renderMainChart(periodoActual);
     };
     
-    // Cambiar Color (La función que pediste restaurar)
     window.cambiarColorGrafica = function() {
-        // 1. Avanzar al siguiente color en la lista
         colorIndex = (colorIndex + 1) % colorOptions.length;
-        
-        // 2. Actualizar la variable de color actual
         currentColor = colorOptions[colorIndex];
-        
-        console.log('Cambiando color a:', currentColor);
-
-        // 3. (Opcional) Actualizar variable CSS si tienes botones que dependen de ella
+        // Opcional: Actualizar variable CSS si se usa en otros elementos
         document.documentElement.style.setProperty('--chart-primary', currentColor);
-
-        // 4. Redibujar la gráfica con el nuevo color
-        // Nota: Al llamar a renderMainChart, este destruirá la vieja y creará la nueva con el nuevo color
         window.renderMainChart(periodoActual);
     };
 
-    // --- 5. EL VIGILANTE (MUTATION OBSERVER) ---
+    // --- 5. PUENTE DE DATOS (NUEVO) ---
+    // Esta función será llamada por Main.js cuando reciba datos del backend
+    window.actualizarGraficasDesdeAPI = function(datosBackend) {
+        console.log("📊 Actualizando gráficas con datos reales...", datosBackend);
+        
+        if (!datosBackend) return;
+
+        // 1. Actualizar Gráfica Lineal (Historial)
+        // Se asume que el backend envía una estructura compatible o un array de movimientos
+        if (datosBackend.lineal) {
+            // Actualizamos los datos locales
+            walletData.dia.data = datosBackend.lineal.valores || walletData.dia.data;
+            walletData.dia.labels = datosBackend.lineal.etiquetas || walletData.dia.labels;
+            walletData.dia.total = datosBackend.lineal.total_fmt || walletData.dia.total;
+            
+            // Renderizamos de nuevo con los datos frescos
+            window.renderMainChart(periodoActual);
+        }
+
+        // 2. Actualizar Gráfica de Dona (Distribución de Gastos)
+        if (datosBackend.categorias && window.chartInstanceUsage) {
+            // Ejemplo: datosBackend.categorias = { valores: [10, 50, 40], etiquetas: [...] }
+            window.chartInstanceUsage.data.datasets[0].data = datosBackend.categorias.valores;
+            // Opcional: actualizar etiquetas si el diseño tuviera leyenda dinámica
+            window.chartInstanceUsage.update();
+        }
+    };
+
+    // --- 6. EL VIGILANTE (OBSERVER) ---
+    // Detecta cuando el HTML de las gráficas se inyecta en el DOM
     const observer = new MutationObserver((mutations) => {
         const mainCanvas = document.getElementById('credoraChart');
         const usageCanvas = document.getElementById('usageChart');
@@ -172,7 +198,7 @@
 
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Intento inicial
+    // Intento inicial por si ya existen los elementos
     setTimeout(() => {
         window.renderMainChart();
         window.renderUsageChart();

@@ -1,3 +1,5 @@
+<!-- Front-end/Src/Pages/login/login.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,25 +7,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Credora Login</title>
     <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="lo<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a Credora</title>
+    <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="login.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
 
     <div class="background"></div>
-
     <a href="../Home/Home.html" class="back-home" style="position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.95);color:#003049;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600;z-index:1000;">← Volver al Home</a>
 
     <div class="bubbles" id="wallet-container"></div>
 
     <div class="container">
-        
         <div class="content-box">
             <div class="brand-section">
-                <img src="credora2.0.png" alt="Credora Logo" class="logo-welcome">
+                <img src="../../Assets/Images/credora2.0.png" alt="Credora Logo" class="logo-welcome">
                 <h1 class="brand-name"></h1>
             </div>
-
             <div class="text-sci">
                 <h2>Bienvenido <br><span>A Nuestra Plataforma</span></h2>
                 <p class="expanded-text">Conéctate con tu futuro financiero de manera segura y rápida.</p>
@@ -32,16 +39,16 @@
 
         <div class="logreg-box">
             <div class="form-box login">
-                <form action="#">
+                <form action="#" id="formLogin">
                     <h2>Iniciar Sesión</h2>
                     <div class="input-box">
                         <span class="icon"><i class='bx bxs-envelope'></i></span>
-                        <input type="email" placeholder=" " required>
+                        <input type="email" id="loginEmail" placeholder=" " required>
                         <label>Email</label>
                     </div>
                     <div class="input-box">
                         <span class="icon"><i class='bx bxs-lock-alt'></i></span>
-                        <input type="password" placeholder=" " required>
+                        <input type="password" id="loginPass" placeholder=" " required>
                         <label>Contraseña</label>
                     </div>
                     <div class="remember-forgot">
@@ -56,25 +63,25 @@
             </div>
 
             <div class="form-box register">
-                <form action="#">
+                <form action="#" id="formRegister">
                     <h2>Regístrate</h2>
                     <div class="input-box">
                         <span class="icon"><i class='bx bxs-user'></i></span>
-                        <input type="text" placeholder=" " required>
+                        <input type="text" id="regNombre" placeholder=" " required>
                         <label>Nombre</label>
                     </div>
                     <div class="input-box">
                         <span class="icon"><i class='bx bxs-envelope'></i></span>
-                        <input type="email" placeholder=" " required>
+                        <input type="email" id="regEmail" placeholder=" " required>
                         <label>Email</label>
                     </div>
                     <div class="input-box">
                         <span class="icon"><i class='bx bxs-lock-alt'></i></span>
-                        <input type="password" placeholder=" " required>
+                        <input type="password" id="regPass" placeholder=" " required>
                         <label>Contraseña</label>
                     </div>
                     <div class="remember-forgot">
-                        <label><input type="checkbox"> Acepto términos y condiciones</label>
+                        <label><input type="checkbox" required> Acepto términos y condiciones</label>
                     </div>
                     <button type="submit" class="btn">Registrar</button>
                     <div class="login-register">
@@ -85,6 +92,6 @@
         </div>
     </div>
 
-    <script src="login.js"></script>
+    <script src="conexion.js"></script>
 </body>
-</html> 
+</html>

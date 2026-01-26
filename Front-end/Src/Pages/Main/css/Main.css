@@ -572,11 +572,11 @@ body:not(.dark) .sub-menu .sub-menu-link {
 }
 
 .card {
-    background-color: #fff;
+    background-color: rgba(5, 5, 5, 0.95);
     padding: 1.5rem;
-    border-radius: 1rem;
+    border-radius: 20px;
     box-shadow: 0 4px 6px var(--shadow-border);
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--color-text-primary);
 }
 
@@ -846,6 +846,106 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     padding: 0 !important; margin: 0 auto; perspective: 1000px; cursor: pointer;
 }
 
+.bank-top {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: -10px;              /* Un poco de espacio real ayuda a que no se monten */
+    margin-bottom: 20px;   /* AUMENTADO: Espacio vital para que no choque con el chip */
+    position: relative;
+    z-index: 10;           /* Asegura que esté por encima del fondo */
+}
+
+/* Forzar tamaño del logo */
+.tarjeta-visual-container .card-front .bank-top .credora-logo {
+    width: 60px !important;
+    max-width: none !important;
+    height: auto !important;
+    display: block;
+}
+
+/* Texto Credora */
+.bank-name {
+    color: #ffffff !important; /* VITAL: Si no pones esto, el texto es negro y no se ve */
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin: 0;
+    margin-left: -5px;      /* Ajuste para acercarlo al logo */
+    position: relative;
+    top: 1px;
+    z-index: 10;
+}
+
+/* =========================================
+   CORRECCIÓN: CHIP (Error de '30x' arreglado)
+   ========================================= */
+
+.card-chip {
+    width: 50px;           /* CORREGIDO: Decía '30x', debe ser 'px'. Aumenté a 50px para realismo */
+    height: 35px;
+    background: linear-gradient(135deg, #e6c263 0%, #b38522 50%, #e6c263 100%) !important;
+    border-radius: 6px;    /* Bordes un poco más suaves */
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ffeebc;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    
+    /* Espaciado corregido */
+    margin-top: 0px; 
+    margin-bottom: -15px;   /* Espacio debajo del chip para que no choque con los números */
+}
+
+/* Líneas del chip (Sin cambios, solo asegurando que estén) */
+.card-chip::before {
+    content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px;
+    background: rgba(0,0,0,0.3);
+    box-shadow: 0 -12px 0 rgba(0,0,0,0.3), 0 12px 0 rgba(0,0,0,0.3);
+}
+
+.card-chip::after {
+    content: ''; position: absolute; left: 35%; top: 0; width: 1px; height: 100%;
+    background: rgba(0,0,0,0.3);
+    box-shadow: 15px 0 0 rgba(0,0,0,0.3);
+}
+
+/* =========================================
+   CORRECCIÓN: NÚMERO DE TARJETA
+   ========================================= */
+/* =========================================
+   CORRECCIÓN FINAL: NÚMERO DE TARJETA (SUBIDO A LA FUERZA)
+   ========================================= */
+.card-number {
+    /* 1. Fuente y Tamaño */
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 1.2rem !important; /* Un poco más grande para legibilidad */
+    font-weight: 600 !important;
+    color: #ffffff !important;
+
+    /* 2. Espaciado y Alineación */
+    letter-spacing: 2px !important;
+    word-spacing: 4px;
+    white-space: nowrap;
+    text-align: left;
+    
+    /* 3. POSICIONAMIENTO (EL TRUCO INFALIBLE) */
+    display: block;
+    position: relative;       /* Permite moverlo libremente */
+    left: -10px !important;
+    
+    /* CAMBIA ESTE NÚMERO: Cuanto más negativo, más sube */
+    top: -25px !important;    
+    
+    margin: 0 !important;     /* Quitamos márgenes para que no estorben */
+    align-self: flex-start;
+    
+    /* 4. Efecto Visual */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    z-index: 10;
+}
+
 /* CORRECCIÓN VITAL: El contenedor interno debe tener 100% de altura para que las caras absolutas se posicionen bien */
 .bank-card .card-inner {
     position: relative; width: 100%; height: 100%;
@@ -863,10 +963,14 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
 .tarjeta-visual-container .card-back {
     position: absolute !important; top: 0; left: 0;
     width: 100%; height: 100%;
-    /* Degradado Rojo -> Azul para AMBAS caras */
-    background: linear-gradient(110deg, #b31217 0%, #1a237e 100%) !important;
-    border-radius: 14px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+    /* Fondo imagen */
+    background: url('../../../Assets/Images/rojoazul.jpeg') center/cover !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
     overflow: hidden; color: white !important;
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
     padding: 1.2rem !important; /* Padding interno reducido */

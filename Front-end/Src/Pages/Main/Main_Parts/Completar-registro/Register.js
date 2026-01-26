@@ -1,31 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. LÓGICA DE BILLETERAS (FONDO) ---
-    const bubblesContainer = document.getElementById('Wallet_back');
-    if (!bubblesContainer) return;
+   const bubblesContainer = document.querySelector('.bubbles'); 
 
+if (bubblesContainer) { // Solo si el contenedor existe
     function createWallet(isInitial = false) {
         const wallet = document.createElement('i');
         wallet.classList.add('bx', 'bxs-wallet', 'floating-wallet');
         wallet.style.left = Math.random() * 95 + '%'; 
-        const size = Math.random() * 50 + 40; 
+        const size = Math.random() * 30 + 20; // Un poco más pequeñas para mayor elegancia
         wallet.style.fontSize = size + 'px';
-        const duration = Math.random() * 15 + 10; 
+        const duration = Math.random() * 10 + 8; 
         wallet.style.animationDuration = duration + 's';
+        
         if (isInitial) {
             wallet.style.animationDelay = -(Math.random() * duration) + 's';
         }
-        wallet.style.opacity = Math.random() * 0.5 + 0.1; 
+        
+        // Un color blanco traslúcido para que se vea sobre el fondo oscuro
+        wallet.style.color = "rgba(255, 255, 255, 0.2)"; 
+        
         bubblesContainer.appendChild(wallet);
         setTimeout(() => { wallet.remove(); }, duration * 1000);
     }
 
-    for(let i = 0; i < 40; i++) { createWallet(true); }
+    for(let i = 0; i < 30; i++) { createWallet(true); }
+    
     function startLoop() {
         createWallet(false);
-        setTimeout(startLoop, Math.random() * 800 + 400);
+        setTimeout(startLoop, Math.random() * 1000 + 500);
     }
     startLoop();
+}
 
     // --- 2. REFERENCIAS PARA EL PROCESO KYC ---
     const formKyc = document.getElementById('form-kyc'); // ASEGÚRATE que el <form> tenga este ID
@@ -74,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Cuando la barra llega a 100, llamamos a la simulación de la API
                 simulacionAPI();
             }
-        }, 300);
+        }, 3000);
     });
 
     // --- 5. FUNCIONES DE RENDERIZADO Y API ---

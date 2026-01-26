@@ -6,63 +6,72 @@ from datetime import datetime
 
 # Importaciones de tu proyecto
 from app.db.sesion import get_db
-from app.db.modelos import Usuario, Transaccion  # Asegúrate de tener el modelo Transaccion
+from app.db.modelos import Usuario, Transaccion, Cuenta 
 from app.seguridad.jwt_utils import decodificar_token
 from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
 
-# Esquema de autenticación para obtener el token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
-
-# --- CONFIGURACIÓN DEL ROUTER ---
-# Prefix: /billetera (se sumará al /api/v1 del main.py -> /api/v1/billetera)
 router = APIRouter(prefix="/billetera", tags=["Billetera"])
 
-# --- DEPENDENCIA PARA OBTENER USUARIO ACTUAL ---
+# --- DEPENDENCIA ---
 def obtener_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decodificar_token(token)
     if payload is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales inválidas",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
     user_id = payload.get("sub")
-    if user_id is None:
-        raise HTTPException(status_code=401, detail="Token inválido")
-        
     usuario = db.query(Usuario).filter(Usuario.id_usuario == user_id).first()
     if usuario is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return usuario
 
 # ----------------------------------------------------------------------
-# 1. Endpoint: OBTENER SALDO
-# Ruta final: GET /api/v1/billetera/saldo
+# 1. ENDPOINT SALDO (CON AUTO-CORRECCIÓN)
 # ----------------------------------------------------------------------
 @router.get("/saldo")
-def obtener_saldo(usuario: Usuario = Depends(obtener_usuario_actual)):
+def obtener_saldo(
+    db: Session = Depends(get_db), # <--- Necesitamos la DB para guardar cambios
+    usuario: Usuario = Depends(obtener_usuario_actual)
+):
     """
-    Retorna TODOS los datos para llenar el Dashboard y la Sidebar.
+    Retorna saldo real. Si el usuario no tiene cuenta (por error previo), se la crea automáticamente.
     """
-    # Si no tienes columna 'saldo' en BD, esto devolverá 0.0
-    saldo_real = getattr(usuario, "saldo", 0.00) 
     
-    # Generamos un número de cuenta ficticio basado en el ID si no tienes columna 'cuenta'
-    # O usa: usuario.numero_cuenta si ya existe en tu modelo
-    num_cuenta = getattr(usuario, "numero_cuenta", f"0012-4567-8901-{usuario.id_usuario:04d}")
+    # --- LÓGICA DE AUTO-REPARACIÓN ---
+    if not usuario.cuenta:
+        print(f"⚠️ El usuario {usuario.correo} no tenía billetera. Creando una con bono...")
+        nueva_cuenta = Cuenta(
+            id_usuario=usuario.id_usuario,
+            saldo=100.00, # ¡Bono recuperado!
+            moneda='USD'
+        )
+        db.add(nueva_cuenta)
+        db.commit()
+        db.refresh(usuario) # Recargamos al usuario para que detecte su nueva cuenta
+    # ---------------------------------
+
+    # Ahora sí, leemos el saldo real de la tabla Cuenta
+    saldo_real = float(usuario.cuenta.saldo)
+    
+    cuenta_real = usuario.numero_cuenta
+    tarjeta_real = usuario.numero_tarjeta
+    ultimos_4 = tarjeta_real[-4:] if tarjeta_real else "0000"
 
     return {
-        "saldo_actual": float(saldo_real),
+        "saldo_actual": saldo_real,
         "moneda": "USD",
         "titular": usuario.nombre_completo,
-        "email": usuario.correo,  # <--- NUEVO: Para la sidebar
-        "numero_cuenta": num_cuenta, # <--- NUEVO: Para el dashboard
-        "tarjeta_ultimos_4": "8842", 
+        "email": usuario.correo,
+        "numero_cuenta": cuenta_real,
+        "tarjeta_ultimos_4": ultimos_4,
         "historial": {
             "lineal": {
                 "valores": [saldo_real * 0.9, saldo_real * 0.95, saldo_real, saldo_real * 1.05, saldo_real],
                 "total_fmt": f"${saldo_real:,.2f}"
-            }
+            },
+            "dia": [saldo_real], 
+            "mes": [saldo_real], 
+            "anio": [saldo_real] 
         }
     }
 # ----------------------------------------------------------------------

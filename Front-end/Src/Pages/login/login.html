@@ -1,97 +1,118 @@
-<!-- Front-end/Src/Pages/login/login.html -->
+<!-- Front-end\Src\Pages\login\login.html -->
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Meta tags para configuración de la página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credora Login</title>
-    <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="lo<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido a Credora</title>
-    <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="login.css">
+    <title>Credora - Acceso</title>
+    
+    <!-- Fuentes de Google (Poppins) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    
+    <!-- Iconos Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!-- Estilos locales -->
+    <link rel="stylesheet" href="login.css">
 </head>
 <body>
+    <!-- Contenedor de aurora boreal (fondo animado) -->
+    <div class="aurora-container">
+        <div class="aurora-blob aurora-red"></div>
+        <div class="aurora-blob aurora-blue"></div>
+    </div>
 
-    <div class="background"></div>
-    <a href="../Home/Home.html" class="back-home" style="position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.95);color:#003049;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600;z-index:1000;">← Volver al Home</a>
+    <!-- Contenedor para las billeteras animadas (copos de nieve) -->
+    <div class="snowflakes-container" id="snowflakes-container"></div>
 
-    <div class="bubbles" id="wallet-container"></div>
-
+    <!-- Contenedor principal del login/registro -->
     <div class="container">
-        <div class="content-box">
-            <div class="brand-section">
-                <img src="../../Assets/Images/credora2.0.png" alt="Credora Logo" class="logo-welcome">
-                <h1 class="brand-name"></h1>
-            </div>
-            <div class="text-sci">
-                <h2>Bienvenido <br><span>A Nuestra Plataforma</span></h2>
-                <p class="expanded-text">Conéctate con tu futuro financiero de manera segura y rápida.</p>
-            </div>
+        
+        <!-- FORMULARIO DE LOGIN -->
+        <div class="form_box login">
+            <form action="#" id="formLogin">
+                <h1>Iniciar Sesión</h1>
+                
+                <!-- Input de correo electrónico -->
+                <div class="input_box">
+                    <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+
+                <!-- Input de contraseña -->
+                <div class="input_box">
+                    <input type="password" id="loginPass" placeholder="Contraseña" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+
+                <!-- Link de contraseña olvidada -->
+                <div class="forgot_link">
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <!-- Botón de envío -->
+                <button type="submit" class="btn">Iniciar Sesión</button>
+            </form>
         </div>
 
-        <div class="logreg-box">
-            <div class="form-box login">
-                <form action="#" id="formLogin">
-                    <h2>Iniciar Sesión</h2>
-                    <div class="input-box">
-                        <span class="icon"><i class='bx bxs-envelope'></i></span>
-                        <input type="email" id="loginEmail" placeholder=" " required>
-                        <label>Email</label>
-                    </div>
-                    <div class="input-box">
-                        <span class="icon"><i class='bx bxs-lock-alt'></i></span>
-                        <input type="password" id="loginPass" placeholder=" " required>
-                        <label>Contraseña</label>
-                    </div>
-                    <div class="remember-forgot">
-                        <label><input type="checkbox"> Recordarme</label>
-                        <a href="#">¿Olvidaste tu contraseña?</a>
-                    </div>
-                    <button type="submit" class="btn">Ingresar</button>
-                    <div class="login-register">
-                        <p>¿No tienes cuenta? <a href="#" class="register-link">Regístrate</a></p>
-                    </div>
-                </form>
-            </div>
+        <!-- FORMULARIO DE REGISTRO -->
+        <div class="form_box register">
+            <form action="#" id="formRegister">
+                <h1>Registrarse</h1>
+                
+                <!-- Input de nombre y apellido -->
+                <div class="input_box">
+                    <input type="text" id="regNombre" placeholder="Nombre y Apellido" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                
+                <!-- Input de correo electrónico -->
+                <div class="input_box">
+                    <input type="email" id="regEmail" placeholder="Correo electrónico" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
 
-            <div class="form-box register">
-                <form action="#" id="formRegister">
-                    <h2>Regístrate</h2>
-                    <div class="input-box">
-                        <span class="icon"><i class='bx bxs-user'></i></span>
-                        <input type="text" id="regNombre" placeholder=" " required>
-                        <label>Nombre</label>
-                    </div>
-                    <div class="input-box">
-                        <span class="icon"><i class='bx bxs-envelope'></i></span>
-                        <input type="email" id="regEmail" placeholder=" " required>
-                        <label>Email</label>
-                    </div>
-                    <div class="input-box">
-                        <span class="icon"><i class='bx bxs-lock-alt'></i></span>
-                        <input type="password" id="regPass" placeholder=" " required>
-                        <label>Contraseña</label>
-                    </div>
-                    <div class="remember-forgot">
-                        <label><input type="checkbox" required> Acepto términos y condiciones</label>
-                    </div>
-                    <button type="submit" class="btn">Registrar</button>
-                    <div class="login-register">
-                        <p>¿Ya tienes cuenta? <a href="#" class="login-link">Inicia Sesión</a></p>
-                    </div>
-                </form>
+                <!-- Input de contraseña -->
+                <div class="input_box">
+                    <input type="password" id="regPass" placeholder="Contraseña" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+
+                <!-- Input de confirmación de contraseña -->
+                <div class="input_box">
+                    <input type="password" id="regConfirmPass" placeholder="Confirmar contraseña" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+
+                <!-- Botón de registro -->
+                <button type="submit" class="btn">Registrarse</button>
+            </form>
+        </div>
+
+        <!-- PANEL DESLIZANTE (con gradient rojo-azul y logos) -->
+        <div class="toggle_box">
+            <!-- Panel izquierdo (visible en login, se oculta en registro) -->
+            <div class="toggle_panel toggle-left">
+                <img src="../../Assets/Images/credora2.0.png" alt="Credora Logo">
+                <h1>¡Hola, Bienvenido!</h1>
+                <p>¿No tienes una cuenta aún?</p>
+                <button class="btn register-btn">Registrarse</button>
+            </div>
+            
+            <!-- Panel derecho (oculto en login, visible en registro) -->
+            <div class="toggle_panel toggle-right">
+                <img src="../../Assets/Images/credora2.0.png" alt="Credora Logo">
+                <h1>¡Bienvenido de nuevo!</h1>
+                <p>¿Ya tienes una cuenta?</p>
+                <button class="btn login-btn">Iniciar Sesión</button>
             </div>
         </div>
     </div>
 
+    <!-- Script local -->
+    <script src="login.js"></script>
     <script src="conexion.js"></script>
 </body>
 </html>

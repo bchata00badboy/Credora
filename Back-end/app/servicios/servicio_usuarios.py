@@ -1,3 +1,5 @@
+# Back-end\app\servicios\servicio_usuarios.py
+
 from sqlalchemy.orm import Session
 from typing import Optional
 
@@ -5,31 +7,66 @@ from typing import Optional
 from ..seguridad.hashing import hash_password, verificar_password
 
 # Importaciones de esquemas y modelos
-from app.db.modelos import Usuario
+from app.db.modelos import Usuario, Cuenta
 from app.esquemas.esquema_usuario import EsquemaRegistro
+
+import random
 
 # ----------------------------------------------------------------------
 # Lógica de Creación de Usuario (Registro)
 # ----------------------------------------------------------------------
 
+# --- FUNCIONES GENERADORAS ---
+def generar_numero_cuenta():
+    # Formato estilo banco: 0102 + 16 dígitos aleatorios
+    prefijo = "0102" 
+    cuerpo = ''.join([str(random.randint(0, 9)) for _ in range(16)])
+    return f"{prefijo}{cuerpo}"
+
+def generar_numero_tarjeta():
+    # Formato Visa: 4000 + 12 dígitos aleatorios
+    prefijo = "4000"
+    cuerpo = ''.join([str(random.randint(0, 9)) for _ in range(12)])
+    return f"{prefijo}{cuerpo}"
+# -----------------------------
+
 def crear_usuario(db: Session, datos_registro: EsquemaRegistro) -> Usuario:
     """
-    Hashea la contraseña y guarda un nuevo usuario en la base de datos.
+    Crea un usuario nuevo con saldo 0, cuenta y tarjeta generadas.
     """
-    # 1. Hash de la contraseña
+    # 1. Encriptar contraseña
     contrasena_hasheada = hash_password(datos_registro.contrasena)
     
-    # 2. Creación del nuevo usuario en la BD
+    # 2. Generar datos bancarios únicos
+    # (En un sistema real, validaríamos que no se repitan con un while loop)
+    nuevo_cuenta = generar_numero_cuenta()
+    nueva_tarjeta = generar_numero_tarjeta()
+
+    # 3. Crear objeto Usuario
     nuevo_usuario = Usuario(
         nombre_completo=datos_registro.nombre_completo,
         correo=datos_registro.correo,
-        # ✅ CORRECCIÓN FINAL: Usando el nombre correcto de la variable del modelo
-        hash_contrasena=contrasena_hasheada 
+        hash_contrasena=contrasena_hasheada,
+        
+        # Guardamos los nuevos datos generados
+        numero_cuenta=nuevo_cuenta,   # <--- GUARDAMOS EN BD
+        numero_tarjeta=nueva_tarjeta  # <--- GUARDAMOS EN BD
     )
     
+    # 4. Guardar en Base de Datos
     db.add(nuevo_usuario)
     db.commit()
     db.refresh(nuevo_usuario)
+    
+    nueva_billetera = Cuenta(
+        id_usuario=nuevo_usuario.id_usuario,
+        saldo=100.00, # <--- BONO DE BIENVENIDA
+        moneda='USD'
+    )
+    
+    db.add(nueva_billetera)
+    db.commit()
+    
     return nuevo_usuario
 
 # ----------------------------------------------------------------------
@@ -49,7 +86,7 @@ def autenticar_usuario(db: Session, correo: str, password: str) -> Optional[Usua
         return None # Usuario no encontrado
 
     # 2. Verificar la contraseña
-    # ✅ CORRECCIÓN FINAL: Se usa el nombre del atributo 'hash_contrasena'
+    #  CORRECCIÓN FINAL: Se usa el nombre del atributo 'hash_contrasena'
     if not verificar_password(password, usuario_bd.hash_contrasena): 
         return None # Contraseña incorrecta (el hash no coincide)
 

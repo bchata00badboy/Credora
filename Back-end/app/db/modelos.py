@@ -1,3 +1,5 @@
+# Back-end\app\db\modelos.py
+
 import enum
 from sqlalchemy import Column, Integer, String, Numeric, Text, DateTime, ForeignKey, Boolean, Enum
 from sqlalchemy.orm import relationship, declarative_base
@@ -29,17 +31,22 @@ class Usuario(Base):
     hash_contrasena = Column(String(255), nullable=False)
     fecha_registro = Column(DateTime(timezone=True), default=datetime.utcnow)
     
-    # --- CAMPO CRÍTICO PARA LA PERSISTENCIA ---
-    cedula = Column(String, unique=True) 
-    # ------------------------------------------
+    # --- NUEVOS CAMPOS ---
+    # Guardaremos estos datos al registrarse
+    numero_cuenta = Column(String(30), unique=True, nullable=True) 
+    numero_tarjeta = Column(String(20), unique=True, nullable=True)
+    # ---------------------
 
+    # ... (Resto de columnas existentes: cedula, direccion, telefono, etc.)
+    cedula = Column(String, unique=True) 
     direccion = Column(Text)
     telefono = Column(String(20))
     ocupacion = Column(String(50))
     nivel_estudio = Column(String(50))
     es_cuenta_negocio = Column(Boolean, default=False)
-    estado_kyc = Column(Enum(EstadoKYC), default=EstadoKYC.PENDIENTE_VERIFICACION, nullable=False)
-    
+    # estado_kyc ... (asegúrate de importar o definir el enum si lo usas aquí)
+
+    # Relaciones (Mantener igual)
     cuenta = relationship("Cuenta", back_populates="usuario", uselist=False)
     solicitudes_kyc = relationship("SolicitudKYC", back_populates="usuario")
 

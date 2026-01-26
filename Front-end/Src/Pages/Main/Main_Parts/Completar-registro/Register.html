@@ -11,6 +11,13 @@
 <body>
 
    <div class="background"></div>
+   <div class="aurora-container">
+    <div class="aurora-blob aurora-red"></div>
+    <div class="aurora-blue aurora-blob"></div>
+</div>
+
+<div class="bubbles" id="bubbles-container"></div>
+
 <div id="Wallet_back">
     <div class="Container">
         <div class="Reg-box">
@@ -62,18 +69,26 @@
                     </div>
                     <hr class="divisor">
                     <div class="campo-resultado">
-                        <label>Correo Electrónico</label>
-                        <input type="email" id="user-email" placeholder="ejemplo@correo.com">
+                        <label>Direccion</label>
+                        <input type="text" id="user-Direccion" placeholder="Direccion">
+                    </div>
+                    <div class="campo-resultado">
+                        <label>Tipo de Usuario</label>
+                        <select class="User-selector" name="tipe-user" id="Tipe-user">
+                            <option value="User-Persona">Persona Natural</option>
+                            <option value="User-Business">Negocio</option>
+                        </select>
                     </div>
                     <div class="campo-resultado">
                         <label>Número Telefónico</label>
                         <input type="tel" id="user-phone" placeholder="+58 412 0000000">
                     </div>
                 </div>
-                <button type="button" id="btn-finalizar" class="btn-confirmar" style="margin-top: 20px; width: 100%;">Confirmar y Registrar</button>
+                <button type="button" id="btn-finalizar" class="btn-confirmar" style="margin-top: 20px; width: 100%;">Completar Verificacion</button>
             </div>
 
-        </div> </div>
+        </div> 
+    </div>
 </div>
 
     <script src="Register.js"></script>

@@ -1,7 +1,4 @@
-/* ==========================================
-   LOGICA DE GRÁFICAS - SPA + CAMBIO DE COLOR
-   ========================================== */
-
+   // LOGICA DE GRÁFICAS - SPA + CAMBIO DE COLOR
 (function() {
     console.log('>>> Sistema de Gráficas: Iniciado y vigilando...');
 

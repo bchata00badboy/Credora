@@ -1,6 +1,4 @@
-/* =========================================
-   1. LOGICA DEL SIDEBAR (Visual)
-   ========================================= */
+// 1. LOGICA DEL SIDEBAR (Visual)
 const menuItemsDropDown = document.querySelectorAll('.menu-item-dropdown');
 const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menu-btn');
@@ -38,11 +36,9 @@ menuItemsDropDown.forEach((menuItem) => {
 });
 
 
-/* =========================================
-   DICCIONARIO DE CONTROLADORES
-   ========================================= */
+   //DICCIONARIO DE CONTROLADOR ES
 const controladores = {
-    // CORRECCIÓN: Quitamos los puntos de retroceso "../"
+    //Quitamos los puntos de retroceso "../"
     './Main_Parts/main_home.html': iniciarInicio,
     './Main_Parts/main_profile.html': iniciarPerfil,
     './Main_Parts/main_notif.html': iniciarNotificaciones,
@@ -52,9 +48,7 @@ const controladores = {
     './Main_Parts/main_mov_credora.html': iniciarcredoramov
 };
 
-/* =========================================
-   3. LOGICA DE NAVEGACIÓN (SPA)
-   ========================================= */
+//  3. LOGICA DE NAVEGACIÓN (SPA)
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM cargado: inicializando Main.js');
     const menuLinks = document.querySelectorAll('.menu-link, .sub-menu-link');
@@ -80,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const temp = document.createElement('div');
                     temp.innerHTML = html;
 
-                    // 1) Inyectar hojas de estilo en <head> (si no existen)
+                    // 1) Inyectar hojas de estilo en <head>
                     temp.querySelectorAll('link[rel="stylesheet"]').forEach(l => {
                         const href = l.getAttribute('href');
                         if (!href) return;

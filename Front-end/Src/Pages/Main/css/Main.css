@@ -19,9 +19,9 @@ html {
     --color-surface: #003049;
     --color-border: #9a9eb2;
     
-    /* CAMBIO CLAVE: Letras oscuras para que se lean en fondo blanco */
+    
     --color-text-primary: #151a24;   /* Negro suave (antes #000) */
-    --color-text-secondary: #747475; /* Gris oscuro (antes era muy claro y no se veía) */
+    --color-text-secondary: #747475; /* Gris oscuro */
 
     --menu-hover-light: rgb(0, 47, 73);
     --menu-hover-dark: rgba(255,255,255,0.06);

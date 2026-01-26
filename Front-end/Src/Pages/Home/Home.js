@@ -1,5 +1,5 @@
 /* ============================================
-   CREDORA - SCRIPT PRINCIPAL
+   CREDORA - SCRIPT Home
    ============================================
    
    Funcionalidades:

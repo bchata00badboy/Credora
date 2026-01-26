@@ -1,136 +1,147 @@
+/**
+ * CREDORA LOGIN - SCRIPT PRINCIPAL
+ * ==================================
+ * Archivo: script.js
+ * Descripción: Funcionalidades interactivas de la página de login
+ *   - Toggle entre formularios de login y registro
+ *   - Limpieza de campos al cambiar de formulario
+ *   - Generación dinámica de billeteras animadas (efecto nieve)
+ *   - Posicionamiento aleatorio y duración variable
+ */
+
+// ============================================
+// 1. REFERENCIAS A ELEMENTOS DEL DOM
+// ============================================
+
+/** Contenedor principal que cambia de estado activo */
 const container = document.querySelector('.container');
-const loginLink = document.querySelector('.login-link');
-const registerLink = document.querySelector('.register-link');
 
-// Lógica del formulario (Giro)
-registerLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    container.classList.add('active');
-});
+/** Botón de registro (en el panel deslizante) */
+const registerBtn = document.querySelector('.register-btn');
 
-loginLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    container.classList.remove('active');
-});
+/** Botón de login (en el panel deslizante) */
+const loginBtn = document.querySelector('.login-btn');
 
-// Soporte para abrir directamente la vista de registro vía hash o query
-(function openFromUrl() {
-    try {
-        const hash = window.location.hash || '';
-        const params = new URLSearchParams(window.location.search);
-        const wantRegister = hash === '#register' || params.get('tab') === 'register';
-        if (wantRegister && container) {
-            container.classList.add('active');
-        }
-    } catch (err) {
-        // ignorar errores de URL
-    }
-})();
+// ============================================
+// 2. FUNCIONES UTILITARIAS
+// ============================================
 
-// Lógica de Billeteras Dispersas
-
-function createWallet(isInitial = false) {
-    const bubblesContainer = document.getElementById('wallet-container');
-    const wallet = document.createElement('i');
-    wallet.classList.add('bx', 'bxs-wallet', 'floating-wallet');
-
-    // Posición horizontal aleatoria (0% a 100% de la pantalla)
-    wallet.style.left = Math.random() * 95 + '%'; 
-
-    // Tamaño aleatorio grande (entre 40px y 90px)
-    const size = Math.random() * 50 + 40; 
-    wallet.style.fontSize = size + 'px';
-
-    // Velocidad aleatoria (entre 10s y 25s)
-    const duration = Math.random() * 15 + 10; 
-    wallet.style.animationDuration = duration + 's';
-
-    //Si es la carga inicial, las esparcimos por toda la pantalla
-    if (isInitial) {
-        // Asignamos un retraso negativo aleatorio. 
-        wallet.style.animationDelay = -(Math.random() * duration) + 's';
-    } else {
-        wallet.style.animationDelay = '0s';
-    }
-
-    // Opacidad aleatoria para dar profundidad (unas más lejos que otras)
-    wallet.style.opacity = Math.random() * 0.5 + 0.1; 
-
-    bubblesContainer.appendChild(wallet);
-
-    //Elimina cuando termine la animación para no saturar el navegador
-    const remainingTime = isInitial ? duration * 1000 : duration * 1000;
-    
-    setTimeout(() => {
-        wallet.remove();
-    }, remainingTime);
-}
-
-// Al cargar, se crean billeteras instantáneas regadas por la pantalla
-for(let i = 0; i < 40; i++) {
-    createWallet(true);
-}
-
-// Crea nuevas billeteras con tiempos variables para que no se acumulen
-function startLoop() {
-    // Crea una billetera nueva
-    createWallet(false);
-    
-    // Espera un tiempo aleatorio entre 400ms y 1200ms antes de crear la siguiente
-    let randomInterval = Math.random() * 800 + 400;
-    setTimeout(startLoop, randomInterval);
-}
-
-startLoop();
-
-// Mostrar / Ocultar contraseña (se añade dinámicamente a cada input password)
-function enablePasswordToggles(){
-    const passwordInputs = document.querySelectorAll('input[type="password"]');
-    passwordInputs.forEach((input, idx) => {
-        // evitar duplicados
-        if (input.parentElement.querySelector('.toggle-password')) return;
-
-        const toggle = document.createElement('button');
-        toggle.type = 'button';
-        toggle.className = 'toggle-password';
-        toggle.setAttribute('aria-pressed', 'false');
-        toggle.setAttribute('title', 'Mostrar contraseña');
-        toggle.innerHTML = "<i class='bx bx-low-vision'></i>";
-
-        // estilos básicos
-        toggle.style.background = 'transparent';
-        toggle.style.border = 'none';
-        toggle.style.cursor = 'pointer';
-        toggle.style.marginLeft = '8px';
-        toggle.style.color = 'inherit';
-
-        toggle.addEventListener('click', () => {
-            const isPassword = input.type === 'password';
-            input.type = isPassword ? 'text' : 'password';
-            toggle.setAttribute('aria-pressed', String(isPassword));
-            toggle.title = isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña';
-            // cambiar icono
-            const icon = toggle.querySelector('i');
-            if(icon){
-                icon.className = isPassword ? 'bx bx-show' : 'bx bx-low-vision';
-            }
-        });
-
-        // inserta el toggle al lado del icono (candado) dentro de .input-box
-        const iconEl = input.parentElement.querySelector('.icon');
-        if (iconEl && iconEl.parentElement === input.parentElement) {
-            // insertamos justo después del icono para que quede al lado
-            if (iconEl.nextSibling) {
-                input.parentElement.insertBefore(toggle, iconEl.nextSibling);
-            } else {
-                input.parentElement.appendChild(toggle);
-            }
-        } else {
-            // fallback: append al final del parent
-            input.parentElement.appendChild(toggle);
-        }
+/**
+ * Limpia todos los campos de input del formulario
+ * Se ejecuta al cambiar entre login y registro
+ */
+function clearInputs() {
+    const inputs = container.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.value = '';
     });
 }
 
-// habilita toggles al cargar
-enablePasswordToggles();
+// ============================================
+// 3. EVENT LISTENERS - TOGGLE PANELS
+// ============================================
+
+/**
+ * Evento: Click en botón "Registrarse" (panel izquierdo)
+ * Acción: Activa la clase 'active' para mostrar formulario de registro
+ * Efecto: Panel desliza, formulario cambia, se limpian inputs
+ */
+registerBtn.addEventListener('click', () => {
+    container.classList.add('active');
+    clearInputs();
+});
+
+/**
+ * Evento: Click en botón "Iniciar Sesión" (panel derecho)
+ * Acción: Desactiva la clase 'active' para mostrar formulario de login
+ * Efecto: Panel desliza al revés, formulario cambia, se limpian inputs
+ */
+loginBtn.addEventListener('click', () => {
+    container.classList.remove('active');
+    clearInputs();
+});
+
+// ============================================
+// 4. ANIMACIÓN DE BILLETERAS (COPOS DE NIEVE)
+// ============================================
+
+/**
+ * Crea una billetera animada que cae desde la parte superior
+ * 
+ * @param {boolean} isInitial - Si es true, la animación comienza desde un punto aleatorio
+ *                             Si es false, comienza desde arriba
+ * 
+ * Características:
+ *   - Tamaño aleatorio entre 15-40px
+ *   - Duración de caída entre 10-25 segundos
+ *   - Posición horizontal aleatoria
+ *   - Opacidad variable para efecto de profundidad
+ *   - Rotación de 360 grados durante la caída
+ */
+function createWallet(isInitial = false) {
+    // Obtener contenedor de billeteras
+    const snowflakesContainer = document.getElementById('snowflakes-container');
+    
+    // Crear elemento billetera
+    const wallet = document.createElement('i');
+    wallet.className = 'bx bxs-wallet snowflake';
+    
+    // Posición horizontal aleatoria (0-95% del ancho)
+    wallet.style.left = Math.random() * 95 + '%';
+    
+    // Inicio desde arriba
+    wallet.style.top = '-50px';
+    
+    // Tamaño aleatorio entre 15-40px
+    const size = Math.random() * 25 + 15;
+    wallet.style.fontSize = size + 'px';
+    
+    // Duración de caída aleatoria entre 10-25 segundos
+    const duration = Math.random() * 15 + 10;
+    wallet.style.animationDuration = duration + 's';
+    
+    // Delay de animación
+    if (isInitial) {
+        // Para iniciales: comienzan desde puntos aleatorios de la caída
+        wallet.style.animationDelay = -(Math.random() * duration) + 's';
+    } else {
+        // Para nuevas: comienzan desde el inicio
+        wallet.style.animationDelay = '0s';
+    }
+    
+    // Opacidad aleatoria para efecto de profundidad (10-50%)
+    wallet.style.opacity = Math.random() * 0.4 + 0.1;
+    
+    // Añadir al contenedor
+    snowflakesContainer.appendChild(wallet);
+    
+    // Remover cuando termina la animación
+    setTimeout(() => {
+        wallet.remove();
+    }, duration * 1000);
+}
+
+// ============================================
+// 5. INICIALIZACIÓN
+// ============================================
+
+/**
+ * Crear 40 billeteras iniciales
+ * Estas empiezan con delay negativo para que parezca que ya estaban cayendo
+ */
+for (let i = 0; i < 40; i++) {
+    createWallet(true);
+}
+
+/**
+ * Loop continuo de generación de billeteras
+ * Crea nuevas billeteras en intervalos aleatorios (400-1200ms)
+ */
+function startLoop() {
+    createWallet(false);
+    let randomInterval = Math.random() * 800 + 400; // 400-1200ms
+    setTimeout(startLoop, randomInterval);
+}
+
+// Iniciar el loop de generación
+startLoop();

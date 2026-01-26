@@ -1,0 +1,277 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #003049 0%, #cb0523 100%); /* Degradado rojo -> azul */
+    overflow: hidden; /* Importante para que las billeteras no estiren la pantalla */
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- 1. ANIMACIÓN DEL FONDO (SCROLL INFINITO) --- */
+.background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+     /* Imagen de fondo desactivada para mostrar el degradado del body.
+         Si quieres reactivar la imagen, descomenta y ajusta la ruta */
+     /* background: url('fondo-credora.jpg') repeat; */
+     /* background-size: 400px; */
+     filter: none;
+     background: transparent;
+     z-index: -1;
+}
+
+@keyframes animateBg {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100% 100%; /* Mueve el fondo en diagonal */
+    }
+}
+
+/* --- 2. ESTILOS DE BILLETERAS FLOTANTES (BUBBLES) --- */
+.bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Detrás del formulario pero sobre el fondo borroso */
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Clase que aplicaremos con JS a cada icono */
+.floating-wallet {
+    position: absolute;
+    bottom: -50px;
+    color: rgba(255, 255, 255, 0.3); /* Blancos semitransparentes */
+    font-size: 20px;
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-120vh) rotate(360deg); /* Suben hasta salir de pantalla y giran */
+        opacity: 0;
+    }
+}
+
+.Container {
+    Color: white;
+    position: relative;
+    width: 650px;
+    min-height: 500px; /* Usa min-height en su lugar */
+    height: auto;      /* Permite que crezca con el contenido */
+    padding: 20px;     /* Añade padding para que respire */
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, .2);
+    box-shadow: 0 0 20px rgba(232, 19, 4, 0.493);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column; /* Asegura que todo se apile verticalmente */
+    align-items: center;
+    justify-content: center;
+}
+
+.Reg-box {
+    width: 100%;       /* Que ocupe el ancho de su padre */
+    max-width: 450px; 
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* CRÍTICO: Para que los elementos se apilen */
+    transition: all 0.5s ease; /* Para que la expansión sea suave */
+}
+
+/* Cuando se expande, también aumentamos el max-width */
+.Reg-box.expandido {
+    max-width: 600px; 
+}
+
+.Verify-KYC {
+    background-color: rgba(0, 0, 0, 0.6); 
+    border: 1px solid #ff4d4d; /* Mantenemos el rojo para el estilo Cyberpunk */
+    border-radius: 15px;
+    padding: 25px;
+    color: white;
+    width: 100%; 
+    box-sizing: border-box; 
+    text-align: center;
+}
+
+.kyc-title{
+    text-align: center;          /* Centrado perfecto */
+  color: #fff;                 /* Blanco puro */
+  text-transform: uppercase;   /* Todo mayúsculas */
+  letter-spacing: 2px;         /* Espacio entre letras para elegancia */
+  font-size: 1.2rem;
+  margin-bottom: 25px;         /* Espacio debajo del título */
+  
+  /* El toque mágico: Sombra de texto (Glow) */
+  text-shadow: 0 0 10px rgba(0, 123, 255, 0.7); 
+  
+  /* Línea decorativa debajo */
+  border-bottom: 2px solid #ff4d4d; 
+  display: inline-block;       /* Para que el borde mida lo que mide el texto */
+  padding-bottom: 10px;        /* Separación entre texto y línea */
+  
+  /* Truco para centrar el bloque con display inline-block */
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+}
+
+.Campo-Archivo{
+    /* Quitamos el fondo blanco y ponemos uno oscuro sutil */
+    margin-top: 20px;
+    border: 1px dashed #ccc; /* El borde punteado estilo "zona de carga" */
+    padding: 15px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1); /* Fondo sutil */
+}
+
+.Verify-KYC p{
+  color: #f7f7f7; /* Gris muy claro para que sea legible */
+  margin-bottom: 15px;
+  margin: 5px 0; /* Reduce el espacio entre las líneas de texto */
+  color: #fff;   /* Asegura que el texto sea blanco */
+  font-size: 0.9rem;
+}
+
+button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%; /* Botón ancho completo se ve bien en móviles */
+  font-size: 1rem;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3; /* Efecto al pasar el mouse */
+}
+
+.Foto-Documento{
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+}
+
+.error-style {
+    display: none; /* Se mantiene oculto por defecto */
+    background-color: rgba(255, 77, 77, 0.2); /* Rojo suave transparente */
+    color: #ff4d4d; /* Texto rojo brillante */
+    border: 1px solid #ff4d4d;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Clase que aplicaremos con JS al contenedor principal (.Reg-box) */
+.Reg-box.expandido {
+    width: 600px; /* Más ancho para los datos en columna o grid */
+    transition: all 0.5s ease-in-out;
+}
+
+/* Ajuste para que los campos tengan mejor espaciado vertical */
+.grid-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Aumentamos el espacio entre bloques de datos */
+    margin-top: 25px;
+    padding: 0 10px; /* Pequeño margen interno lateral */
+}
+
+/* Estilo de las etiquetas (Labels) */
+.campo-resultado input[readonly] {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(0, 123, 255, 0.3); /* Un toque azul sutil */
+    color: #00d4ff; /* Texto color cian para simular lectura de IA */
+    cursor: default;
+    font-weight: 500;
+    align-items: center;
+}
+
+/* Estilo de los inputs de datos extraídos */
+.campo-resultado input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08); /* Fondo un poco más visible */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px; /* Más espacio interno para el texto */
+    color: #fff;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Cuando el input es solo lectura (readonly) lo oscurecemos un poco */
+.campo-resultado input[readonly] {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #aaa; /* Texto un poco más tenue para indicar que no es editable */
+    cursor: not-allowed;
+}
+
+/* Ajuste del botón final para que sea coherente con el azul anterior */
+.btn-confirmar {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.btn-confirmar:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo para el estado de vencimiento */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.expired { background-color: #ff4d4d; color: white; }
+.invalid { background-color: #ff4d4d; color: white; }
+.valid { background-color: #28a745; color: white; }
+
+.divisor {
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin: 10px 0;
+}

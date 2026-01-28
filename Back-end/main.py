@@ -1,74 +1,74 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware # <--- 1. IMPORTANTE: Importar CORS
-import uvicorn
+# Back-end\main.py
+
 import os
-import sys 
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
-# --- CORRECCIÓN PATH (Mantenemos tu lógica) ---
-DIRECTORIO_RAIZ = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(DIRECTORIO_RAIZ)
-# ----------------------------------------------
+# --- IMPORTACIONES DEL PROYECTO ---
+# 1. Configuración (Al importarlo, ya crea las carpetas automáticamente)
+from configuracion import CARPETA_SUBIDAS
 
-from configuracion import inicializar_almacenamiento
-from app.routers import rutas_autenticacion, rutas_kyc, rutas_billetera
+# 2. Base de Datos
+from app.db.sesion import engine, Base
 
-# --- 1. INICIALIZACIÓN DE LA APLICACIÓN ---
+# 3. Routers (Tus endpoints de lógica)
+from app.routers import rutas_autenticacion, rutas_billetera
+
+# --- INICIALIZACIÓN DE TABLAS ---
+# Esto crea las tablas en PostgreSQL si no existen (incluyendo las nuevas columnas)
+Base.metadata.create_all(bind=engine)
+
+# --- CONFIGURACIÓN DE LA APP ---
 app = FastAPI(
-    title="Credora - Billetera Fintech Educativa",
-    version="2.0",
-    description="Backend desarrollado para la gestión financiera y educación."
+    title="Credora API",
+    description="Backend financiero con soporte de IA (KYC) y Billetera Virtual",
+    version="1.0.0"
 )
 
-# --- 2. CONFIGURACIÓN DE CORS (SOLUCIÓN A "BLOCKED BY CORS POLICY") ---
-# Definimos quién tiene permiso para hablar con el backend
-origenes_permitidos = [
+# --- CONFIGURACIÓN DE CORS (SEGURIDAD) ---
+# Permite que el Frontend (HTML/JS) se comunique con el Backend
+origins = [
     "http://localhost",
-    "http://localhost:5500",      # Puerto estándar de Live Server
-    "http://127.0.0.1:5500",
-    "http://127.0.0.1:5501",      # Tu puerto actual según el error que enviaste
-    "*"                           # Comodín para desarrollo (acepta todo)
+    "http://127.0.0.1",
+    "http://127.0.0.1:5500",  # Live Server típico de VS Code
+    "*"  # En modo desarrollo permitimos todo para evitar bloqueos
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origenes_permitidos, # Lista de orígenes permitidos
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],               # Permitir todos los métodos (GET, POST, PUT...)
-    allow_headers=["*"],               # Permitir todas las cabeceras
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# --- 3. EVENTO DE INICIO ---
+# --- EVENTOS DE ARRANQUE ---
 @app.on_event("startup")
-def setup_proyecto():
-    print("Iniciando infraestructura de Credora...")
-    if inicializar_almacenamiento():
-        print(" P1.2 COMPLETA: Directorio de subidas verificado.")
+async def startup_event():
+    print("🚀 Iniciando sistema Credora...")
+    
+    # Verificación visual de carpetas
+    if os.path.exists(CARPETA_SUBIDAS):
+        print(f" Sistema de archivos listo en: {CARPETA_SUBIDAS}")
     else:
-        print(" Error de infraestructura: Falló la creación del directorio de subidas.") 
+        print(f" Advertencia: La carpeta {CARPETA_SUBIDAS} no existe (se intentará crear al usarla).")
 
-# --- 4. INCLUSIÓN DE ROUTERS (SOLUCIÓN A ERROR 404) ---
+# --- REGISTRO DE RUTAS (ENDPOINTS) ---
+# Autenticación: /api/v1/auth/registro, /api/v1/auth/token
+app.include_router(rutas_autenticacion.router, prefix="/api/v1/auth", tags=["Autenticación"])
 
-# A) Autenticación
-# El JS llama a: /api/v1/auth/token
-# El router tiene: /auth/token
-# Solución: Agregamos prefix="/api/v1"
-app.include_router(rutas_autenticacion.router, prefix="/api/v1")
+# Billetera y KYC: /api/v1/billetera/saldo, /api/v1/billetera/kyc/...
+app.include_router(rutas_billetera.router, prefix="/api/v1", tags=["Billetera"])
 
-# B) Billetera
-# El JS llama a: /api/v1/billetera/...
-# Solución: Agregamos prefix="/api/v1"
-app.include_router(rutas_billetera.router, prefix="/api/v1")
+# --- ARCHIVOS ESTÁTICOS (OPCIONAL) ---
+# Si necesitas servir las imágenes subidas públicamente (útil para debug), descomenta esto:
+# app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# C) KYC
-# Nota: Según tu código anterior, rutas_kyc ya tiene definido prefix="/api/v1/kyc" internamente.
-# Por lo tanto, NO agregamos prefijo aquí para evitar duplicarlo (/api/v1/api/v1/kyc).
-app.include_router(rutas_kyc.router) 
-
-# --- Endpoint de prueba raíz ---
 @app.get("/")
-def root():
-    return {"mensaje": "Servidor Credora en línea 🚀. Documentación en /docs"}
-
-# --- 5. EJECUCIÓN ---
-if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+def read_root():
+    return {
+        "estado": "Activo",
+        "proyecto": "Credora",
+        "docs": "/docs"  # Link directo a Swagger UI
+    }

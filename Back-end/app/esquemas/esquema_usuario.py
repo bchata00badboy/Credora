@@ -1,7 +1,16 @@
-# app/esquemas/esquema_usuario.py
-
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+
+# ----------------------------------------------------------------------
+# 1. Esquema del Token (ESTO ES LO QUE FALTABA)
+# ----------------------------------------------------------------------
+class EsquemaToken(BaseModel):
+    access_token: str
+    token_type: str
+
+# ----------------------------------------------------------------------
+# 2. Esquemas de Usuario
+# ----------------------------------------------------------------------
 
 # Esquema para la creación de un nuevo usuario
 class EsquemaRegistro(BaseModel):
@@ -22,4 +31,5 @@ class EsquemaUsuario(BaseModel):
 
     class Config:
         # Permite mapear campos del ORM (BD) al esquema Pydantic
+        # Nota: Si usas Pydantic v2 es 'from_attributes', si es v1 es 'orm_mode'
         from_attributes = True

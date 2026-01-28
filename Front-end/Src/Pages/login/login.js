@@ -1,5 +1,4 @@
-// Front-end\Src\Pages\login\login.js
-
+<<<<<<< Updated upstream
 /**
  * CREDORA LOGIN - SCRIPT PRINCIPAL
  * ==================================
@@ -16,134 +15,136 @@
 // ============================================
 
 /** Contenedor principal que cambia de estado activo */
+=======
+/* ============================================
+   CREDORA LOGIN - SCRIPT PRINCIPAL
+   ============================================ */
+
+// --- REFERENCIAS DOM ---
+>>>>>>> Stashed changes
 const container = document.querySelector('.container');
+const registerBtn = document.querySelector('.register-btn'); // Botón panel izq
+const loginBtn = document.querySelector('.login-btn');       // Botón panel der
 
-/** Botón de registro (en el panel deslizante) */
-const registerBtn = document.querySelector('.register-btn');
+// --- REFERENCIAS DEL MODAL ---
+const modalTerms = document.getElementById('modal-terms');
+const btnOpenTerms = document.getElementById('btn-open-terms');
+const btnCloseTerms = document.getElementById('btn-close-terms');
+const btnAcceptTerms = document.getElementById('btn-accept-terms');
+const checkTerms = document.getElementById('checkTerms');
+const btnDownload = document.getElementById('btn-download-pdf');
 
-/** Botón de login (en el panel deslizante) */
-const loginBtn = document.querySelector('.login-btn');
-
-// ============================================
-// 2. FUNCIONES UTILITARIAS
-// ============================================
-
-/**
- * Limpia todos los campos de input del formulario
- * Se ejecuta al cambiar entre login y registro
- */
+// --- 1. TOGGLE ENTRE LOGIN Y REGISTRO ---
 function clearInputs() {
     const inputs = container.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.value = '';
-    });
+    inputs.forEach(input => input.value = '');
+    // Resetear checkbox al cambiar de vista
+    if(checkTerms) checkTerms.checked = false;
 }
 
-// ============================================
-// 3. EVENT LISTENERS - TOGGLE PANELS
-// ============================================
-
-/**
- * Evento: Click en botón "Registrarse" (panel izquierdo)
- * Acción: Activa la clase 'active' para mostrar formulario de registro
- * Efecto: Panel desliza, formulario cambia, se limpian inputs
- */
 registerBtn.addEventListener('click', () => {
     container.classList.add('active');
     clearInputs();
 });
 
-/**
- * Evento: Click en botón "Iniciar Sesión" (panel derecho)
- * Acción: Desactiva la clase 'active' para mostrar formulario de login
- * Efecto: Panel desliza al revés, formulario cambia, se limpian inputs
- */
 loginBtn.addEventListener('click', () => {
     container.classList.remove('active');
     clearInputs();
 });
 
-// ============================================
-// 4. ANIMACIÓN DE BILLETERAS (COPOS DE NIEVE)
-// ============================================
-
-/**
- * Crea una billetera animada que cae desde la parte superior
- * 
- * @param {boolean} isInitial - Si es true, la animación comienza desde un punto aleatorio
- *                             Si es false, comienza desde arriba
- * 
- * Características:
- *   - Tamaño aleatorio entre 15-40px
- *   - Duración de caída entre 10-25 segundos
- *   - Posición horizontal aleatoria
- *   - Opacidad variable para efecto de profundidad
- *   - Rotación de 360 grados durante la caída
- */
+// --- 2. ANIMACIÓN BILLETERAS (FONDO) ---
 function createWallet(isInitial = false) {
-    // Obtener contenedor de billeteras
     const snowflakesContainer = document.getElementById('snowflakes-container');
-    
-    // Crear elemento billetera
+    if (!snowflakesContainer) return;
+
     const wallet = document.createElement('i');
     wallet.className = 'bx bxs-wallet snowflake';
-    
-    // Posición horizontal aleatoria (0-95% del ancho)
     wallet.style.left = Math.random() * 95 + '%';
-    
-    // Inicio desde arriba
     wallet.style.top = '-50px';
     
-    // Tamaño aleatorio entre 15-40px
     const size = Math.random() * 25 + 15;
     wallet.style.fontSize = size + 'px';
     
-    // Duración de caída aleatoria entre 10-25 segundos
     const duration = Math.random() * 15 + 10;
     wallet.style.animationDuration = duration + 's';
     
-    // Delay de animación
     if (isInitial) {
-        // Para iniciales: comienzan desde puntos aleatorios de la caída
         wallet.style.animationDelay = -(Math.random() * duration) + 's';
     } else {
-        // Para nuevas: comienzan desde el inicio
         wallet.style.animationDelay = '0s';
     }
     
-    // Opacidad aleatoria para efecto de profundidad (10-50%)
     wallet.style.opacity = Math.random() * 0.4 + 0.1;
     
-    // Añadir al contenedor
     snowflakesContainer.appendChild(wallet);
     
-    // Remover cuando termina la animación
-    setTimeout(() => {
-        wallet.remove();
-    }, duration * 1000);
+    setTimeout(() => { wallet.remove(); }, duration * 1000);
 }
 
-// ============================================
-// 5. INICIALIZACIÓN
-// ============================================
+// Iniciar animación
+for (let i = 0; i < 40; i++) createWallet(true);
 
-/**
- * Crear 40 billeteras iniciales
- * Estas empiezan con delay negativo para que parezca que ya estaban cayendo
- */
-for (let i = 0; i < 40; i++) {
-    createWallet(true);
-}
-
-/**
- * Loop continuo de generación de billeteras
- * Crea nuevas billeteras en intervalos aleatorios (400-1200ms)
- */
 function startLoop() {
     createWallet(false);
-    let randomInterval = Math.random() * 800 + 400; // 400-1200ms
-    setTimeout(startLoop, randomInterval);
+    setTimeout(startLoop, Math.random() * 800 + 400);
+}
+startLoop();
+
+// --- 3. LÓGICA DEL MODAL DE TÉRMINOS ---
+function abrirModal() {
+    if(modalTerms) modalTerms.classList.add('active');
 }
 
-// Iniciar el loop de generación
-startLoop();
+function cerrarModal() {
+    if(modalTerms) modalTerms.classList.remove('active');
+}
+
+// Abrir modal
+if (btnOpenTerms) btnOpenTerms.addEventListener('click', abrirModal);
+
+// Cerrar con la X
+if (btnCloseTerms) btnCloseTerms.addEventListener('click', cerrarModal);
+
+// Cerrar con el botón "Aceptar" y marcar el checkbox
+if (btnAcceptTerms) {
+    btnAcceptTerms.addEventListener('click', () => {
+        cerrarModal();
+        if (checkTerms) checkTerms.checked = true;
+    });
+}
+
+// Cerrar haciendo clic afuera
+if (modalTerms) {
+    modalTerms.addEventListener('click', (e) => {
+        if (e.target === modalTerms) cerrarModal();
+    });
+}
+
+// --- 4. LÓGICA DE DESCARGA PDF ---
+if (btnDownload) {
+    btnDownload.addEventListener('click', () => {
+        const contenidoOriginal = btnDownload.innerHTML;
+        
+        // Feedback visual (Cargando...)
+        btnDownload.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Descargando...";
+        btnDownload.style.opacity = "0.7";
+        btnDownload.style.pointerEvents = "none";
+        
+        setTimeout(() => {
+            const link = document.createElement('a');
+            
+            // Ruta corregida al archivo PDF en la carpeta Assets
+            link.href = '../../Assets/PDF/Terminos_Credora.pdf.pdf'; 
+            link.download = 'Terminos_y_Condiciones_Credora.pdf';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Restaurar botón
+            btnDownload.innerHTML = contenidoOriginal;
+            btnDownload.style.opacity = "1";
+            btnDownload.style.pointerEvents = "auto";
+        }, 1000);
+    });
+}

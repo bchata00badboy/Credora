@@ -1,107 +1,81 @@
-<!-- Front-end\Src\Pages\login\login.html -->
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Meta tags para configuración de la página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credora - Acceso</title>
-    
-    <!-- Fuentes de Google (Poppins) -->
+    <title>Credora - Acceso y Registro</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    
-    <!-- Iconos Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    
-    <!-- Estilos locales -->
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
-    <!-- Contenedor de aurora boreal (fondo animado) -->
+    
     <div class="aurora-container">
         <div class="aurora-blob aurora-red"></div>
         <div class="aurora-blob aurora-blue"></div>
     </div>
-
-    <!-- Contenedor para las billeteras animadas (copos de nieve) -->
     <div class="snowflakes-container" id="snowflakes-container"></div>
 
-    <!-- Contenedor principal del login/registro -->
     <div class="container">
         
-        <!-- FORMULARIO DE LOGIN -->
         <div class="form_box login">
-            <form action="#" id="formLogin">
+            <form action="#">
                 <h1>Iniciar Sesión</h1>
-                
-                <!-- Input de correo electrónico -->
                 <div class="input_box">
-                    <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
+                    <input type="email" placeholder="Correo electrónico" required>
                     <i class='bx bxs-envelope'></i>
                 </div>
-
-                <!-- Input de contraseña -->
                 <div class="input_box">
-                    <input type="password" id="loginPass" placeholder="Contraseña" required>
+                    <input type="password" placeholder="Contraseña" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
-
-                <!-- Link de contraseña olvidada -->
                 <div class="forgot_link">
                     <a href="#">¿Olvidaste tu contraseña?</a>
                 </div>
-
-                <!-- Botón de envío -->
                 <button type="submit" class="btn">Iniciar Sesión</button>
             </form>
         </div>
 
-        <!-- FORMULARIO DE REGISTRO -->
         <div class="form_box register">
-            <form action="#" id="formRegister">
+            <form action="#">
                 <h1>Registrarse</h1>
                 
-                <!-- Input de nombre y apellido -->
                 <div class="input_box">
-                    <input type="text" id="regNombre" placeholder="Nombre y Apellido" required>
+                    <input type="text" placeholder="Nombre y Apellido" required>
                     <i class='bx bxs-user'></i>
                 </div>
                 
-                <!-- Input de correo electrónico -->
                 <div class="input_box">
-                    <input type="email" id="regEmail" placeholder="Correo electrónico" required>
+                    <input type="email" placeholder="Correo electrónico" required>
                     <i class='bx bxs-envelope'></i>
                 </div>
 
-                <!-- Input de contraseña -->
                 <div class="input_box">
-                    <input type="password" id="regPass" placeholder="Contraseña" required>
+                    <input type="password" placeholder="Contraseña" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
-                <!-- Input de confirmación de contraseña -->
                 <div class="input_box">
-                    <input type="password" id="regConfirmPass" placeholder="Confirmar contraseña" required>
+                    <input type="password" placeholder="Confirmar contraseña" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
-                <!-- Botón de registro -->
+                <div class="terms_box">
+                    <input type="checkbox" id="checkTerms" required>
+                    <label for="checkTerms">Acepto los <span id="btn-open-terms">Términos y Condiciones</span></label>
+                </div>
+
                 <button type="submit" class="btn">Registrarse</button>
             </form>
         </div>
 
-        <!-- PANEL DESLIZANTE (con gradient rojo-azul y logos) -->
         <div class="toggle_box">
-            <!-- Panel izquierdo (visible en login, se oculta en registro) -->
             <div class="toggle_panel toggle-left">
                 <img src="../../Assets/Images/credora2.0.png" alt="Credora Logo">
                 <h1>¡Hola, Bienvenido!</h1>
                 <p>¿No tienes una cuenta aún?</p>
                 <button class="btn register-btn">Registrarse</button>
             </div>
-            
-            <!-- Panel derecho (oculto en login, visible en registro) -->
             <div class="toggle_panel toggle-right">
                 <img src="../../Assets/Images/credora2.0.png" alt="Credora Logo">
                 <h1>¡Bienvenido de nuevo!</h1>
@@ -111,8 +85,55 @@
         </div>
     </div>
 
-    <!-- Script local -->
+    <div id="modal-terms" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Acuerdos y Condiciones</h3>
+                <button id="btn-close-terms" class="close-icon">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <h4>1. ACEPTACIÓN Y NATURALEZA DEL SERVICIO</h4>
+                <p>Bienvenido a Credora. Al registrarse y utilizar nuestros servicios, usted acepta vincularse legalmente por estos Términos. <strong>AVISO IMPORTANTE:</strong> Credora es un proyecto universitario de carácter académico. La plataforma simula un entorno de billetera digital. Los fondos reflejados no tienen valor comercial real.</p>
+                
+                <h4>2. ELEGIBILIDAD Y REGISTRO</h4>
+                <p>Para acceder a los servicios de Credora, el Usuario debe cumplir con:</p>
+                <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 10px;">
+                    <li><strong>Mayoría de Edad:</strong> Tener al menos dieciocho (18) años cumplidos.</li>
+                    <li><strong>Datos de Contacto:</strong> Se requiere un nombre real y un correo electrónico válido para el registro.</li>
+                </ul>
+
+                <h4>3. MONEDA Y SALDOS</h4>
+                <p>La plataforma opera exclusivamente con "Dólar Digital" (simulado). Credora no custodia dinero real.</p>
+
+                <h4>4. SERVICIOS Y OPERATORIA</h4>
+                <p>Credora habilita Transferencias Internas, Tarjeta de Débito Virtual y Historial de Transacciones con fines educativos.</p>
+
+                <h4>5. LÍMITES TRANSACCIONALES</h4>
+                <p><strong>Límite Diario Global:</strong> El Usuario podrá movilizar un máximo de <strong>$2,000.00 USD (Simulados)</strong> por día.</p>
+
+                <h4>6. SEGURIDAD</h4>
+                <p>El Usuario es responsable de resguardar su contraseña. Credora se reserva el derecho de suspender cuentas con patrones de fraude técnico.</p>
+
+                <h4>7. CIERRE DE CUENTA</h4>
+                <p>Para eliminar la cuenta, el saldo debe ser exactamente $0.00. El sistema bloqueará la eliminación si existen fondos simulados pendientes.</p>
+
+                <h4>8. PRIVACIDAD DE DATOS</h4>
+                <p>La información personal suministrada (Nombre, Correo) se utiliza estrictamente para el funcionamiento de la plataforma académica. Credora se compromete a no difundir públicamente esta información.</p>
+
+                <h4>9. RESPONSABILIDAD TÉCNICA</h4>
+                <p>Al tratarse de un software en fase Beta/Académica, Credora no garantiza la disponibilidad del 100% del servicio ni se hace responsable por pérdida de datos simulados.</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn-download-pdf" class="btn-descargar">
+                    <i class='bx bxs-file-pdf'></i> Descargar PDF
+                </button>
+                <button type="button" id="btn-accept-terms" class="btn-confirmar">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="login.js"></script>
-    <script src="conexion.js"></script>
 </body>
 </html>

@@ -1,5 +1,4 @@
-/* Front-end\Src\Pages\login\login.css */
-
+<<<<<<< Updated upstream
 /**
  * CREDORA LOGIN - ESTILOS PRINCIPALES
  * =====================================
@@ -18,8 +17,10 @@
  *   - Blanco: #ffffff
  */
 
+=======
+>>>>>>> Stashed changes
 /* ============================================
-   1. RESET Y CONFIGURACIÓN GLOBAL
+   CREDORA LOGIN - ESTILOS PRINCIPALES
    ============================================ */
 * {
     margin: 0;
@@ -28,9 +29,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-/* ============================================
-   2. CONFIGURACIÓN DEL CUERPO
-   ============================================ */
+/* --- CUERPO Y FONDO --- */
 body {
     display: flex;
     justify-content: center;
@@ -41,48 +40,31 @@ body {
     position: relative;
 }
 
-/* ============================================
-   3. AURORA BOREAL - FONDO ANIMADO
-   ============================================ */
+/* --- AURORA BOREAL (FONDO) --- */
 .aurora-container {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0; pointer-events: none;
 }
 
 .aurora-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(150px); /* Desenfoque para efecto difuso */
-    opacity: 0.5; /* Opacidad sutil */
-    mix-blend-mode: screen; /* Mezcla suave de luz */
+    position: absolute; border-radius: 50%;
+    filter: blur(150px); opacity: 0.5;
+    mix-blend-mode: screen;
 }
 
-/* Aurora roja (esquina superior izquierda) */
 .aurora-red {
-    top: -20%;
-    left: -20%;
-    width: 80vw;
-    height: 80vw;
+    top: -20%; left: -20%; width: 80vw; height: 80vw;
     background: rgba(180, 20, 50, 0.6);
     animation: aurora-float-1 15s infinite alternate ease-in-out;
 }
 
-/* Aurora azul (esquina inferior derecha) */
 .aurora-blue {
-    bottom: -20%;
-    right: -20%;
-    width: 80vw;
-    height: 80vw;
+    bottom: -20%; right: -20%; width: 80vw; height: 80vw;
     background: rgba(0, 50, 180, 0.6);
     animation: aurora-float-2 15s infinite alternate ease-in-out;
 }
 
-/* Animaciones de aurora */
 @keyframes aurora-float-1 {
     0% { transform: translate(0, 0) scale(1); }
     100% { transform: translate(10vw, 5vh) scale(1.05); }
@@ -93,13 +75,10 @@ body {
     100% { transform: translate(-10vw, -5vh) scale(1.05); }
 }
 
-/* ============================================
-   4. CONTENEDOR PRINCIPAL
-   ============================================ */
+/* --- CONTENEDOR PRINCIPAL (TARJETA BLANCA) --- */
 .container {
     position: relative;
-    width: 750px;
-    height: 480px;
+    width: 750px; height: 480px;
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
@@ -108,312 +87,221 @@ body {
     z-index: 10;
 }
 
-/* ============================================
-   5. FORMULARIOS (LOGIN Y REGISTRO)
-   ============================================ */
+/* --- FORMULARIOS --- */
 .form_box {
-    position: absolute;
-    right: 0;
-    width: 50%;
-    height: 100%;
+    position: absolute; right: 0;
+    width: 50%; height: 100%;
     background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #333;
-    text-align: center;
-    padding: 30px 20px;
-    z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    color: #333; text-align: center;
+    padding: 30px 20px; z-index: 1;
     transition: 0.6s ease-in-out 1.2s, visibility 0s 1s;
 }
 
 .container.active .form_box { right: 50%; }
-
 .form_box.register { visibility: hidden; }
 .container.active .form_box.register { visibility: visible; }
 
-form {
-    width: 100%;
-    max-width: 280px;
-}
+form { width: 100%; max-width: 280px; }
 
 .container h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: #333;
+    font-size: 24px; font-weight: 700;
+    margin-bottom: 20px; color: #333;
 }
 
-/* ============================================
-   6. INPUTS Y CAMPOS DE FORMULARIO
-   ============================================ */
-.input_box {
-    position: relative;
-    margin: 15px 0;
-}
+/* --- INPUTS --- */
+.input_box { position: relative; margin: 15px 0; }
 
 .input_box input {
-    width: 100%;
-    padding: 12px 45px 12px 15px;
+    width: 100%; padding: 12px 45px 12px 15px;
     background-color: #f5f5f5;
-    border-radius: 8px;
-    border: 2px solid #e0e0e0;
-    outline: none;
-    font-size: 14px;
-    color: #333;
-    font-weight: 500;
+    border-radius: 8px; border: 2px solid #e0e0e0;
+    outline: none; font-size: 14px;
+    color: #333; font-weight: 500;
     transition: all 0.3s ease;
 }
 
 .input_box input:focus {
-    border-color: #780000;
-    background-color: #fff;
+    border-color: #780000; background-color: #fff;
     box-shadow: 0 0 0 3px rgba(120, 0, 0, 0.1);
 }
 
-/* Iconos dentro de inputs */
 .input_box i {
-    position: absolute;
-    right: 15px;
-    top: 50%;
+    position: absolute; right: 15px; top: 50%;
     transform: translateY(-50%);
-    font-size: 20px;
-    color: #999;
-    transition: all 0.3s ease;
-    pointer-events: none;
+    font-size: 20px; color: #999;
+    transition: all 0.3s ease; pointer-events: none;
 }
 
-.input_box input:focus ~ i {
-    color: #780000;
+.input_box input:focus ~ i { color: #780000; }
+
+/* --- CHECKBOX TÉRMINOS Y CONDICIONES --- */
+.terms_box {
+    margin: 15px 0;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; font-size: 12px; color: #333;
 }
 
-/* ============================================
-   7. LINKS Y BOTONES
-   ============================================ */
-.forgot_link { 
-    margin: 10px 0 25px; 
-    text-align: right; 
+.terms_box input[type="checkbox"] {
+    accent-color: #780000; cursor: pointer;
 }
 
-.forgot_link a { 
-    font-size: 12px; 
-    color: #003049; 
-    text-decoration: none; 
-    font-weight: 500; 
+.terms_box span {
+    color: #003049; font-weight: 700;
+    text-decoration: underline; cursor: pointer;
+    transition: color 0.3s;
 }
 
-.forgot_link a:hover { 
-    color: #780000; 
+.terms_box span:hover { color: #780000; }
+
+/* --- BOTONES Y LINKS --- */
+.forgot_link { margin: 10px 0 25px; text-align: right; }
+.forgot_link a {
+    font-size: 12px; color: #003049;
+    text-decoration: none; font-weight: 500;
 }
+.forgot_link a:hover { color: #780000; }
 
 .btn {
-    width: 100%;
-    height: 45px;
+    width: 100%; height: 45px;
     background: linear-gradient(135deg, #780000 0%, #003049 100%);
-    color: #fff;
-    border-radius: 8px;
+    color: #fff; border-radius: 8px;
     box-shadow: 0 4px 15px rgba(120, 0, 0, 0.3);
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
+    border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    letter-spacing: 0.5px; transition: all 0.3s ease;
     text-transform: uppercase;
 }
-
 .btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 48, 73, 0.4);
 }
 
-/* ============================================
-   8. PANEL DESLIZANTE (TOGGLE)
-   ============================================ */
-.toggle_box { 
-    position: absolute; 
-    width: 100%; 
-    height: 100%; 
-}
+/* --- PANEL DESLIZANTE (TOGGLE) --- */
+.toggle_box { position: absolute; width: 100%; height: 100%; }
 
-/* Fondo deslizante con gradiente */
 .toggle_box::before {
-    content: '';
-    position: absolute;
-    left: -250%;
-    width: 300%;
-    height: 100%;
+    content: ''; position: absolute;
+    left: -250%; width: 300%; height: 100%;
     background: linear-gradient(135deg, #780000 0%, #003049 100%);
-    border-radius: 150px;
-    z-index: 2;
+    border-radius: 150px; z-index: 2;
     transition: 1.8s ease-in-out;
 }
-
 .container.active .toggle_box::before { left: 50%; }
 
-/* Paneles (izquierdo y derecho) */
 .toggle_panel {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-    padding: 30px 20px;
-    text-align: center;
-    transition: 0.6s ease-in-out;
+    position: absolute; width: 50%; height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    z-index: 2; padding: 30px 20px;
+    text-align: center; transition: 0.6s ease-in-out;
 }
 
-/* Imagen del logo en panel */
 .toggle_panel img {
-    width: 140px;
-    height: 140px;
-    margin-bottom: 10px;
-    object-fit: contain;
-    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+    width: 140px; height: 140px; margin-bottom: 10px;
+    object-fit: contain; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
 }
 
-/* Textos del panel */
-.toggle_panel h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: #ffffff;
+.toggle_panel h1 { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+.toggle_panel p { margin-bottom: 20px; font-size: 14px; color: #fff; }
+.toggle_panel .btn {
+    width: 140px; height: 45px; background: transparent;
+    border: 2px solid #fff; box-shadow: none;
 }
 
-.toggle_panel p {
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #ffffff;
-}
+.toggle_panel.toggle-left { left: 0; transition-delay: 1.2s; }
+.container.active .toggle_panel.toggle-left { left: -50%; transition-delay: 0.6s; }
 
-/* Botones en panel */
-.toggle_panel .btn { 
-    width: 140px; 
-    height: 45px; 
-    background: transparent; 
-    border: 2px solid #fff; 
-    box-shadow: none; 
-}
+.toggle_panel.toggle-right { right: -50%; transition-delay: 0.6s; }
+.container.active .toggle_panel.toggle-right { right: 0; transition-delay: 1.2s; }
 
-/* Panel izquierdo */
-.toggle_panel.toggle-left { 
-    left: 0; 
-    transition-delay: 1.2s; 
+/* --- ANIMACIÓN BILLETERAS (COPOS) --- */
+.snowflakes-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 5;
 }
-
-.container.active .toggle_panel.toggle-left { 
-    left: -50%; 
-    transition-delay: 0.6s; 
-}
-
-/* Panel derecho */
-.toggle_panel.toggle-right { 
-    right: -50%; 
-    transition-delay: 0.6s; 
-}
-
-.container.active .toggle_panel.toggle-right { 
-    right: 0; 
-    transition-delay: 1.2s; 
-}
-
-/* ============================================
-   9. ANIMACIÓN DE BILLETERAS (COPOS)
-   ============================================ */
-.snowflakes-container { 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    pointer-events: none; 
-    z-index: 5; 
-}
-
 .snowflake {
-    position: absolute;
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 20px;
-    z-index: 1;
-    animation: snowFall linear infinite;
-    pointer-events: none;
+    position: absolute; color: rgba(255, 255, 255, 0.3);
+    font-size: 20px; z-index: 1;
+    animation: snowFall linear infinite; pointer-events: none;
 }
-
 @keyframes snowFall {
-    0% { 
-        transform: translateY(0) rotate(0deg); 
-        opacity: 0; 
-    }
-    10% { 
-        opacity: 0.6; 
-    }
-    100% { 
-        transform: translateY(120vh) rotate(360deg); 
-        opacity: 0; 
-    }
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
 }
 
-/* ============================================
-   10. RESPONSIVIDAD (MÓVILES)
-   ============================================ */
+/* --- MODAL (TÉRMINOS Y CONDICIONES) --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999; /* Por encima de todo */
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; visibility: hidden;
+    transition: all 0.3s ease; backdrop-filter: blur(5px);
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal-box {
+    background: #fff; width: 90%; max-width: 500px;
+    border-radius: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    overflow: hidden; transform: scale(0.9);
+    transition: transform 0.3s ease;
+    display: flex; flex-direction: column; max-height: 85vh;
+}
+.modal-overlay.active .modal-box { transform: scale(1); }
+
+.modal-header {
+    background: #003049; padding: 15px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: white;
+}
+.modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; color: white; }
+.close-icon {
+    background: none; border: none; color: white;
+    font-size: 24px; cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px; overflow-y: auto;
+    font-size: 13px; color: #444; text-align: left; line-height: 1.5;
+}
+.modal-body h4 { color: #780000; margin-top: 10px; margin-bottom: 5px; }
+
+.modal-footer {
+    padding: 15px; background: #f9f9f9;
+    border-top: 1px solid #eee; display: flex; gap: 10px;
+}
+
+/* Botón Descargar (Outline) */
+.btn-descargar {
+    flex: 1; padding: 10px; background: transparent;
+    border: 2px solid #780000; color: #780000;
+    border-radius: 6px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 5px; transition: 0.3s;
+}
+.btn-descargar:hover { background: rgba(120,0,0,0.05); }
+
+/* Botón Aceptar (Sólido) */
+.btn-confirmar {
+    flex: 1; padding: 10px; background: #003049;
+    color: white; border: none; border-radius: 6px;
+    font-weight: 600; cursor: pointer;
+}
+.btn-confirmar:hover { background: #00456a; }
+
+/* --- RESPONSIVE --- */
 @media screen and (max-width: 650px) {
-    .container { 
-        height: calc(100vh - 40px); 
-        width: 100%; 
-    }
-    
-    .form_box { 
-        bottom: 0; 
-        width: 100%; 
-        height: 70%; 
-    }
-    
-    .container.active .form_box { 
-        right: 0; 
-        bottom: 30%; 
-    }
-    
-    .toggle_box::before { 
-        left: 0; 
-        top: -270%; 
-        width: 100%; 
-        height: 300%; 
-        border-radius: 20vw; 
-    }
-    
-    .container.active .toggle_box::before { 
-        left: 0; 
-        top: 70%; 
-    }
-    
-    .toggle_panel { 
-        width: 100%; 
-        height: 30%; 
-    }
-    
-    .toggle_panel img { 
-        width: 80px; 
-        height: 80px; 
-    }
-    
-    .toggle_panel.toggle-left { 
-        top: 0; 
-    }
-    
-    .container.active .toggle_panel.toggle-left { 
-        left: 0; 
-        top: -30%; 
-    }
-    
-    .toggle_panel.toggle-right { 
-        right: 0; 
-        bottom: -30%; 
-    }
-    
-    .container.active .toggle_panel.toggle-right { 
-        bottom: 0; 
-    }
+    .container { height: calc(100vh - 40px); width: 100%; }
+    .form_box { bottom: 0; width: 100%; height: 70%; }
+    .container.active .form_box { right: 0; bottom: 30%; }
+    .toggle_box::before { left: 0; top: -270%; width: 100%; height: 300%; border-radius: 20vw; }
+    .container.active .toggle_box::before { left: 0; top: 70%; }
+    .toggle_panel { width: 100%; height: 30%; }
+    .toggle_panel img { width: 80px; height: 80px; }
+    .toggle_panel.toggle-left { top: 0; }
+    .container.active .toggle_panel.toggle-left { left: 0; top: -30%; }
+    .toggle_panel.toggle-right { right: 0; bottom: -30%; }
+    .container.active .toggle_panel.toggle-right { bottom: 0; }
 }

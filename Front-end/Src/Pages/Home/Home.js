@@ -44,12 +44,11 @@ function createRealisticCardTexture() {
      * Dibujar detalles de la tarjeta (chip, números, textos)
      */
     function drawDetails() {
-        // Chip dorado
         const chipX = 80, chipY = 250;
-        ctx.fillStyle = '#d4af37'; 
+        ctx.fillStyle = '#cecec8'; 
         ctx.roundRect(chipX, chipY, 130, 100, 10); 
         ctx.fill();
-        ctx.strokeStyle = '#b48f17'; 
+        ctx.strokeStyle = '#5e798a'; 
         ctx.lineWidth = 2; 
         ctx.beginPath();
         ctx.moveTo(chipX, chipY + 30); 
@@ -109,7 +108,7 @@ function createRealisticCardTexture() {
 
     // URLs de recursos
     imgBg.src = '../../Assets/Images/rojoazul.jpeg'; 
-    imgLogo.src = '../../Assets/Logotipos Credora mejora/Diseño_sin_título-removebg-preview.png'; 
+    imgLogo.src = '../../Assets/Logotipos Credora mejora/Diseño blanco.png'; 
 
     imgBg.onload = () => {
         ctx.drawImage(imgBg, 0, 0, w, h);

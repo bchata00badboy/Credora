@@ -4,9 +4,9 @@
    1. LOGICA GLOBAL (DOM READY)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM cargado: inicializando Main.js');
+    console.log('DOM cargado: inicializando Main.js optimizado');
 
-    // --- A. LOGOUT DESDE EL SIDEBAR (RECUPERADO) ---
+    // --- A. LOGOUT DESDE EL SIDEBAR ---
     const btnLogoutSidebar = document.getElementById('btn-logout-sidebar');
     if (btnLogoutSidebar) {
         btnLogoutSidebar.addEventListener('click', (e) => {
@@ -19,45 +19,125 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- B. LOGICA DEL SIDEBAR (Visual) ---
-    const menuItemsDropDown = document.querySelectorAll('.menu-item-dropdown');
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menu-btn');
 
     // Minimizar sidebar
-    if (menuBtn) {
+    if (menuBtn && sidebar) {
         menuBtn.addEventListener('click', () => {
             sidebar.classList.toggle('minimize');
         });
     }
 
-    // Lógica de menús desplegables
-    menuItemsDropDown.forEach((menuItem) => {
-        menuItem.addEventListener('click', (e) => {
-            if (sidebar.classList.contains('minimize')) return;
+    // --- C. DELEGACIÓN DE EVENTOS GLOBAL (SOLUCIÓN DROPDOWNS) ---
+    // Esto maneja clicks en elementos que existen ahora O en el futuro (cargados por fetch)
+    document.addEventListener('click', (e) => {
+        
+        // 1. Manejo de Dropdowns del Sidebar Principal
+        const menuItem = e.target.closest('.menu-item-dropdown');
+        if (menuItem) {
+            if (sidebar && sidebar.classList.contains('minimize')) return;
+            
+            // Cerrar otros menús abiertos
+            document.querySelectorAll('.menu-item-dropdown').forEach((item) => {
+                if (item !== menuItem) {
+                    item.classList.remove('sub-menu-toggle');
+                    const otherSub = item.querySelector('.sub-menu');
+                    if (otherSub) { otherSub.style.height = '0'; otherSub.style.padding = '0'; }
+                }
+            });
 
+            // Abrir/Cerrar el actual
             const subMenu = menuItem.querySelector('.sub-menu');
             const isActive = menuItem.classList.toggle('sub-menu-toggle');
-            
             if (subMenu) {
                 subMenu.style.height = isActive ? `${subMenu.scrollHeight + 6}px` : '0';
                 subMenu.style.padding = isActive ? '0.2rem 0' : '0';
             }
+            return; // Detenemos aquí para no mezclar lógicas
+        }
+
+        // 2. Manejo de "Triggers" internos (ej. botón Transferir dentro del Dashboard)
+        const trigger = e.target.closest('.dropdown-trigger');
+        if (trigger) {
+            e.preventDefault();
+            const parentLi = trigger.closest('li');
+            if (!parentLi) return;
+
+            const submenuWrapper = parentLi.querySelector('.submenu-wrapper');
+            if (!submenuWrapper) return;
+
+            const isOpen = parentLi.classList.toggle('sub-menu-toggle');
             
-            // Cerrar otros menús
-            menuItemsDropDown.forEach((item) => {
-                if (item !== menuItem) {
-                    const otherSubmenu = item.querySelector('.sub-menu');
-                    if (otherSubmenu) {
-                        item.classList.remove('sub-menu-toggle');
-                        otherSubmenu.style.height = '0';
-                        otherSubmenu.style.padding = '0';
-                    }
-                }
-            });
-        });
+            if (isOpen) {
+                submenuWrapper.style.height = `${submenuWrapper.scrollHeight + 6}px`;
+                submenuWrapper.style.padding = '0.2rem 0';
+                submenuWrapper.classList.add('show');
+                if (sidebar) sidebar.classList.add('hover'); // Expandir sidebar visualmente
+                
+                // Enfocar primer elemento si existe
+                const firstLink = submenuWrapper.querySelector('.sub-menu-link');
+                if(firstLink) firstLink.focus();
+            } else {
+                submenuWrapper.style.height = '0';
+                submenuWrapper.style.padding = '0';
+                submenuWrapper.classList.remove('show');
+                if (sidebar) sidebar.classList.remove('hover');
+            }
+            
+            // Limpiar búsqueda si se abre un menú de acción
+            const searchInput = document.getElementById('searchInput');
+            if (isOpen && searchInput) searchInput.value = '';
+        }
     });
 
-    // Iniciar Navegación
+    // --- D. LÓGICA DE BÚSQUEDA GLOBAL ---
+    const searchInput = document.getElementById('searchInput') || document.querySelector('.search input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = (e.target.value || '').toLowerCase().trim();
+
+            // Filtrar filas de cualquier tabla visible
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+
+            // Filtrar menú lateral
+            const navItems = document.querySelectorAll('.nav_list li');
+            navItems.forEach(li => {
+                // Evitamos ocultar el profile o el logout si no queremos
+                if(li.querySelector('.profile') || li.id === 'log_out') return;
+                
+                const text = li.textContent.toLowerCase();
+                li.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
+    }
+
+    // --- E. SIDEBAR: restaurar estado al salir con el mouse ---
+    if (sidebar) {
+        sidebar.addEventListener('mouseleave', () => {
+            // Quitar estilo visual expandido
+            sidebar.classList.remove('hover');
+
+            // Restaurar visibilidad de todos los items del menú (por si se filtraron)
+            document.querySelectorAll('.nav_list li').forEach(li => li.style.display = '');
+
+            // Limpiar input de búsqueda si existe
+            try { const si = document.getElementById('searchInput'); if(si) si.value = ''; } catch(e) {}
+
+            // Cerrar submenus abiertos (pero mantener la sección marcada como active)
+            document.querySelectorAll('.submenu-wrapper.show').forEach(sw => {
+                sw.classList.remove('show');
+                sw.style.height = '0';
+                sw.style.padding = '0';
+            });
+        });
+    }
+
+    // Iniciar el enrutador SPA
     iniciarNavegacionSPA();
 });
 
@@ -67,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================= */
 const controladores = {
     'Main_Parts/main_home.html': iniciarInicio,
-    'Main_Parts/main_profile.html': iniciarPerfil, // Ahora sí cargará datos
+    'Main_Parts/main_profile.html': iniciarPerfil,
     'Main_Parts/main_notif.html': iniciarNotificaciones,
     'Main_Parts/main_transf1.html': iniciarTransferencias,
     'Main_Parts/main_mov.html': iniciarMovimientos,
@@ -80,53 +160,80 @@ const controladores = {
    3. LOGICA DE NAVEGACIÓN (SPA)
    ========================================= */
 function iniciarNavegacionSPA() {
-    const menuLinks = document.querySelectorAll('.menu-link, .sub-menu-link');
     const contenedor = document.getElementById('contenedor-dinamico');
-    if (!contenedor) console.error('No se encontró #contenedor-dinamico');
+    if (!contenedor) { console.error('CRÍTICO: No se encontró #contenedor-dinamico'); return; }
 
-    // Función principal de carga
+    // Interceptar clicks en enlaces del sidebar
+    const menuLinks = document.querySelectorAll('.menu-link, .sub-menu-link');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (link.id === 'btn-logout-sidebar') return; // Dejar que el evento de logout lo maneje
+            
+            const ruta = link.getAttribute('data-vista');
+            if (!ruta || ruta === '#') return;
+
+            e.preventDefault();
+            
+            // Gestión de clases active
+            document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
+            link.classList.add('active');
+            if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
+
+            window.cargarVista(ruta);
+            
+            // Si estamos en móvil o sidebar expandido por hover, limpiar estados
+            const sidebar = document.getElementById('sidebar');
+            if(sidebar) sidebar.classList.remove('hover');
+        });
+    });
+
     window.cargarVista = function(rutaArchivo) {
         const rutaLimpia = rutaArchivo.replace('./', '');
+        
+        // Animación simple de salida
         contenedor.style.opacity = '0';
 
         setTimeout(() => {
             fetch(rutaLimpia)
                 .then(respuesta => {
-                    if (!respuesta.ok) throw new Error('No se encontró el archivo: ' + rutaLimpia);
+                    if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status} - ${rutaLimpia}`);
                     return respuesta.text();
                 })
                 .then(html => {
-                    const temp = document.createElement('div');
-                    temp.innerHTML = html;
+                    // Crear un contenedor temporal para procesar scripts
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
 
-                    // 1) Inyectar hojas de estilo
-                    temp.querySelectorAll('link[rel="stylesheet"]').forEach(l => {
-                        const href = l.getAttribute('href');
-                        if (!href) return;
-                        if (!document.querySelector(`link[href="${href}"]`)) {
-                            const nl = document.createElement('link');
-                            nl.rel = 'stylesheet';
-                            nl.href = href;
-                            document.head.appendChild(nl);
+                    // 1. Mover estilos al head (para que no se repitan)
+                    tempDiv.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href && !document.querySelector(`link[href="${href}"]`)) {
+                            const newLink = document.createElement('link');
+                            newLink.rel = 'stylesheet';
+                            newLink.href = href;
+                            document.head.appendChild(newLink);
                         }
+                        link.remove(); // Quitarlos del HTML inyectado
                     });
 
-                    // 2) Insertar HTML
-                    contenedor.innerHTML = temp.innerHTML;
+                    // 2. Insertar HTML limpio
+                    contenedor.innerHTML = tempDiv.innerHTML;
 
-                    // 3) Re-ejecutar scripts
+                    // 3. Ejecutar Scripts incrustados (recursivamente)
                     const scripts = Array.from(contenedor.querySelectorAll('script'));
-                    scripts.forEach(s => s.remove());
+                    scripts.forEach(s => s.remove()); // Quitar los viejos para reinsertarlos y ejecutarlos
 
                     function runScripts(list, i = 0) {
                         if (i >= list.length) {
-                            afterScripts(); return;
+                            finalizarCarga(rutaLimpia); // Ejecutar controlador
+                            return;
                         }
                         const s = list[i];
                         const newS = document.createElement('script');
                         if (s.src) {
                             newS.src = s.src;
                             newS.onload = () => runScripts(list, i + 1);
+                            newS.onerror = () => runScripts(list, i + 1); // Continuar aunque falle uno
                             document.body.appendChild(newS);
                         } else {
                             newS.textContent = s.textContent;
@@ -134,50 +241,84 @@ function iniciarNavegacionSPA() {
                             runScripts(list, i + 1);
                         }
                     }
-
-                    function afterScripts() {
-                        contenedor.style.opacity = '1';
-                        try { if(window.CredoraTheme) window.CredoraTheme.setTheme(document.body.classList.contains('dark'), false); } catch(e) {}
-
-                        if (controladores[rutaLimpia]) {
-                            console.log(`Ejecutando controlador para: ${rutaLimpia}`);
-                            controladores[rutaLimpia]();
-                        }
-                    }
                     runScripts(scripts);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    contenedor.innerHTML = `<div style="padding:2rem;"><h2>Error 404</h2><p>No se pudo cargar la vista.</p></div>`;
+                    console.error('Error SPA:', error);
+                    contenedor.innerHTML = `<div style="padding:2rem; text-align:center;"><h3>Error cargando vista</h3><p>${error.message}</p></div>`;
                     contenedor.style.opacity = '1';
                 });
-        }, 200);
+        }, 150); // Pequeño delay para la transición visual
+    };
+
+    function finalizarCarga(ruta) {
+        contenedor.style.opacity = '1';
+        // Restaurar tema si aplica
+        try { if(window.CredoraTheme) window.CredoraTheme.setTheme(document.body.classList.contains('dark'), false); } catch(e) {}
+
+        // Ejecutar controlador específico
+        if (controladores[ruta]) {
+            console.log(`🚀 Ejecutando controlador: ${ruta}`);
+            // Animación de entrada: aplicar clase y ejecutar controlador
+            try {
+                contenedor.classList.add('view-enter');
+                setTimeout(() => contenedor.classList.remove('view-enter'), 420);
+            } catch (e) {}
+            controladores[ruta]();
+        }
     }
 
-    // Eventos Click en el menú
-    if (menuLinks && menuLinks.length) {
-        menuLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                // Ignorar botón de logout del sidebar
-                if (link.id === 'btn-logout-sidebar') return;
-
-                const ruta = link.getAttribute('data-vista');
-                if (!ruta || ruta === '#') return;
-
-                e.preventDefault();
-                
-                // Active Class Logic
-                document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
-                link.classList.add('active');
-                if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
-
-                window.cargarVista(ruta);
-            });
-        });
-    }
-
-    // Cargar Inicio por defecto
+    // Cargar vista inicial
     window.cargarVista('Main_Parts/main_home.html');
+}
+
+// Helper: configura un toggle limpio y sin listeners duplicados para el número de tarjeta
+function configureCardToggle(last4) {
+    const cardNumEl = document.querySelector('.card-number');
+    const cardContainer = document.querySelector('.tarjeta-visual-container');
+    const btn = document.getElementById('btn-toggle-card-data');
+
+    if (!cardNumEl || !cardContainer || !btn) return;
+
+    // Guardar último4 en data attribute
+    cardNumEl.dataset.last4 = String(last4).slice(-4);
+
+    // Estado inicial: enmascarado
+    cardContainer.classList.add('masked');
+    cardNumEl.textContent = '**** **** **** ****';
+
+    // Reemplazar el botón por un clon para eliminar listeners antiguos
+    const cleanBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(cleanBtn, btn);
+
+    // Asegurar el icono y atributos ARIA iniciales
+    const icon = cleanBtn.querySelector('i');
+    if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+    cleanBtn.setAttribute('aria-pressed', 'false');
+    cleanBtn.title = 'Mostrar número';
+
+    // Función que actualiza el estado visible/oculto
+    function setMasked(masked) {
+        if (masked) {
+            cardContainer.classList.add('masked');
+            cardNumEl.textContent = '**** **** **** ****';
+            cleanBtn.setAttribute('aria-pressed', 'false');
+            cleanBtn.title = 'Mostrar número';
+            if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+        } else {
+            cardContainer.classList.remove('masked');
+            cardNumEl.textContent = `**** **** **** ${cardNumEl.dataset.last4 || '0000'}`;
+            cleanBtn.setAttribute('aria-pressed', 'true');
+            cleanBtn.title = 'Ocultar número';
+            if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        }
+    }
+
+    // Añadir listener único
+    cleanBtn.addEventListener('click', () => {
+        const isMasked = cardContainer.classList.contains('masked');
+        setMasked(!isMasked);
+    });
 }
 
 
@@ -187,323 +328,265 @@ function iniciarNavegacionSPA() {
 
 // --- A. INICIO (DASHBOARD) ---
 async function iniciarInicio() {
-    console.log("⚡ Cargando Dashboard...");
-
-    // 1. Cargar dependencias de gráficas
-    const graficaCssPath = 'css/grafica.css';
-    const graficaJsPath = 'js/grafica.js';
-    const chartJsCdn = 'https://cdn.jsdelivr.net/npm/chart.js';
-
-    if (!document.querySelector(`link[href*="grafica.css"]`)) {
-        const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = graficaCssPath;
-        document.head.appendChild(l);
+    // Carga dinámica de Chart.js si no existe
+    if (typeof Chart === 'undefined') {
+        const scriptChart = document.createElement('script');
+        scriptChart.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        scriptChart.onload = () => cargarGraficasPropias();
+        document.body.appendChild(scriptChart);
+    } else {
+        cargarGraficasPropias();
     }
 
-    function loadScripts() {
-        if (typeof Chart === 'undefined') {
-            const s1 = document.createElement('script'); s1.src = chartJsCdn;
-            s1.onload = () => {
-                const s2 = document.createElement('script'); s2.src = graficaJsPath;
-                document.body.appendChild(s2);
-            };
-            document.body.appendChild(s1);
-        } else if (typeof window.renderMainChart !== 'function') {
-            const s2 = document.createElement('script'); s2.src = graficaJsPath;
-            document.body.appendChild(s2);
-        } else {
+    function cargarGraficasPropias() {
+        // Asumiendo que grafica.js define window.renderMainChart
+        if (!document.querySelector('script[src*="grafica.js"]')) {
+            const s = document.createElement('script');
+            s.src = 'js/grafica.js'; // Ajusta la ruta si es necesario
+            s.onload = () => { if(window.renderMainChart) window.renderMainChart(); };
+            document.body.appendChild(s);
+        } else if (window.renderMainChart) {
             window.renderMainChart();
-            window.renderUsageChart();
         }
     }
-    loadScripts();
 
-    // 2. CONEXIÓN API
+    // Cargar datos de API
     try {
         if (window.CredoraAPI) {
             const datos = await window.CredoraAPI.request('/billetera/saldo');
-            
             if (datos) {
-                // Dashboard Central
-                const saldoEl = document.querySelector('.saldo-amount');
-                if(saldoEl) saldoEl.innerHTML = `$${datos.saldo_actual.toLocaleString('en-US', {minimumFractionDigits: 2})} <span class="currency">${datos.moneda}</span>`;
-                
-                const cardNumEl = document.querySelector('.card-number');
-                if(cardNumEl) cardNumEl.textContent = `**** **** **** ${datos.tarjeta_ultimos_4}`;
-                
-                const cardHolderEl = document.querySelector('.card-holder');
-                if(cardHolderEl) cardHolderEl.textContent = datos.titular;
+                // Actualizar UI del Dashboard
+                const updateText = (sel, val) => { const el = document.querySelector(sel); if(el) el.textContent = val; };
+                const updateHTML = (sel, val) => { const el = document.querySelector(sel); if(el) el.innerHTML = val; };
 
-                const cuentaFooter = document.querySelector('.saldo-footer');
-                if(cuentaFooter) cuentaFooter.textContent = `Número de Cuenta: ${datos.numero_cuenta}`;
-
-                // --- SIDEBAR (Nombre Corto) ---
-                const sidebarName = document.querySelector('.sidebar .user-data .name');
-                const sidebarEmail = document.querySelector('.sidebar .user-data .email');
+                updateHTML('.saldo-amount', `$${datos.saldo_actual.toLocaleString('en-US', {minimumFractionDigits: 2})} <span class="currency">${datos.moneda || 'USD'}</span>`);
+                // Mantener el número en la tarjeta tal como está en el HTML (1234...)
+                // Si quieres que venga desde la API, reemplaza la siguiente línea por la adecuada.
+                updateText('.card-holder', datos.titular);
+                updateText('.saldo-footer', `Cuenta: ${datos.numero_cuenta}`);
                 
-                if (sidebarName) {
-                    const nombreCompleto = datos.titular || "Usuario";
-                    const nombreCorto = nombreCompleto.split(' ').slice(0, 2).join(' ');
-                    sidebarName.textContent = nombreCorto;
-                }
-                
-                if (sidebarEmail) sidebarEmail.textContent = datos.email;
+                // Actualizar Sidebar también
+                updateText('.sidebar .user-data .name', (datos.titular || "Usuario").split(' ').slice(0, 2).join(' '));
+                updateText('.sidebar .user-data .email', datos.email);
 
-                // Avatar Sidebar
+                // Avatar
                 const userImgContainer = document.querySelector('.sidebar .user-img');
                 if (userImgContainer) {
-                    const nombreLimpio = datos.titular || "Usuario";
-                    const iniciales = nombreLimpio.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-                    
-                    userImgContainer.innerHTML = `
-                        <div style="
-                            width: 100%; height: 100%; 
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                            color: white; display: flex; align-items: center; justify-content: center; 
-                            font-weight: bold; border-radius: 50%; font-size: 1.1rem; border: 2px solid white;">
-                            ${iniciales}
-                        </div>
-                    `;
+                    const iniciales = (datos.titular || "U").split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                    userImgContainer.innerHTML = `<div style="width:100%; height:100%; background:linear-gradient(135deg, #667eea, #764ba2); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; border-radius:50%;">${iniciales}</div>`;
                 }
-
-                if (window.actualizarGraficasDesdeAPI && datos.historial) {
-                    window.actualizarGraficasDesdeAPI(datos.historial);
-                }
+                // No toggle: mostrar últimos 4 directamente
+                // (antes se usaba configureCardToggle, ahora removido)
             }
         }
-    } catch (err) {
-        console.error("Error cargando datos:", err);
+    } catch (err) { console.error("Error Dashboard API:", err); }
+    
+    // Efecto Flip Tarjeta
+    const flipCard = document.querySelector('.bank-card');
+    if(flipCard) {
+        flipCard.onclick = () => flipCard.classList.toggle('flip');
     }
 
-    const flipCard = document.querySelector('.tarjeta-visual-container .bank-card');
-    if (flipCard) {
-        const newFlip = flipCard.cloneNode(true);
-        flipCard.parentNode.replaceChild(newFlip, flipCard);
-        newFlip.addEventListener('click', function () { this.classList.toggle('flip'); });
-    }
+    // Configurar toggle ojo para tarjeta principal (mostrar/ocultar número)
+    try {
+        const btnEye = document.getElementById('btn-toggle-card-data');
+        const cardContainer = document.querySelector('.tarjeta-visual-container');
+        const cardNumber = document.querySelector('.card-number');
+        if (btnEye && cardContainer && cardNumber) {
+            // limpiar listeners previos
+            const newBtn = btnEye.cloneNode(true);
+            btnEye.parentNode.replaceChild(newBtn, btnEye);
+
+            newBtn.setAttribute('aria-pressed', cardContainer.classList.contains('masked') ? 'true' : 'false');
+
+            newBtn.addEventListener('click', (e) => {
+                const isMasked = cardContainer.classList.toggle('masked');
+                const ic = newBtn.querySelector('i');
+                if (isMasked) {
+                    if (ic) { ic.classList.remove('fa-eye'); ic.classList.add('fa-eye-slash'); }
+                    newBtn.setAttribute('aria-pressed', 'true');
+                } else {
+                    if (ic) { ic.classList.remove('fa-eye-slash'); ic.classList.add('fa-eye'); }
+                    newBtn.setAttribute('aria-pressed', 'false');
+                }
+            });
+        }
+    } catch (e) { console.warn('No se pudo configurar eye toggle', e); }
 }
 
-// --- B. PERFIL (CORREGIDO - AHORA CARGA DATOS) ---
+// --- B. PERFIL ---
 async function iniciarPerfil() {
-    console.log("👤 Cargando Perfil...");
-
-    // 1. Manejo del formulario de contraseña (existente)
     const formPassword = document.getElementById('form-password');
     if (formPassword) {
-        formPassword.addEventListener('submit', (e) => {
+        formPassword.onsubmit = (e) => {
             e.preventDefault();
             alert('Funcionalidad de cambio de contraseña en desarrollo.');
             formPassword.reset();
-        });
+        };
     }
 
-    // 2. CARGA DE DATOS DEL USUARIO (LO QUE FALTABA)
     if (!window.CredoraAPI) return;
-
-    try {
-        const datos = await window.CredoraAPI.request('/billetera/saldo');
-        if (datos) {
-            // Nombre Completo
-            const elName = document.getElementById('profile-name');
-            if (elName) elName.textContent = datos.titular; 
-
-            // Correo
-            const elEmail = document.getElementById('profile-email');
-            if (elEmail) elEmail.textContent = datos.email;
-
-            // Cuenta
-            const elAccount = document.getElementById('profile-account');
-            if (elAccount) elAccount.textContent = datos.numero_cuenta;
-
-            // Avatar Grande
-            const elAvatar = document.getElementById('profile-avatar');
-            if (elAvatar) {
-                const iniciales = (datos.titular || "U").split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-                elAvatar.innerHTML = `
-                    <div style="
-                        width: 100%; height: 100%; 
-                        background: linear-gradient(135deg, #003049 0%, #005f73 100%); 
-                        color: white; display: flex; align-items: center; justify-content: center; 
-                        font-weight: bold; font-size: 2.5rem; border-radius: 50%;
-                        box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                        ${iniciales}
-                    </div>
-                `;
-            }
+    const datos = await window.CredoraAPI.request('/billetera/saldo');
+    if (datos) {
+        const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+        setVal('profile-name', datos.titular);
+        setVal('profile-email', datos.email);
+        setVal('profile-account', datos.numero_cuenta);
+        
+        const elAvatar = document.getElementById('profile-avatar');
+        if (elAvatar) {
+            const iniciales = (datos.titular || "U").slice(0, 2).toUpperCase();
+            elAvatar.innerHTML = `<div style="width:100%; height:100%; background:#005f73; color:white; display:flex; justify-content:center; align-items:center; font-size:2rem; border-radius:50%;">${iniciales}</div>`;
         }
-    } catch (err) {
-        console.error("Error cargando perfil:", err);
     }
 }
 
-
 // --- C. MOVIMIENTOS ---
 async function iniciarMovimientos() {
-    console.log("📂 Cargando historial...");
     const tbody = document.querySelector('table tbody');
     if (!tbody) return;
 
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">Cargando movimientos...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem;">Cargando...</td></tr>';
 
     try {
-        if (!window.CredoraAPI) throw new Error("API no disponible");
-
+        if (!window.CredoraAPI) throw new Error("API no inicializada");
         const movimientos = await window.CredoraAPI.request('/billetera/movimientos?limite=20');
 
         if (!movimientos || movimientos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">No tienes movimientos recientes.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem;">Sin movimientos recientes.</td></tr>';
             return;
         }
 
         tbody.innerHTML = ''; 
-
         movimientos.forEach(mov => {
-            const fechaObj = new Date(mov.fecha);
-            const fechaStr = fechaObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-            
+            const fecha = new Date(mov.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
             const esIngreso = mov.tipo === 'INGRESO';
             const claseMonto = esIngreso ? 'monto-positivo' : 'monto-negativo';
             const signo = esIngreso ? '+' : '-';
             
-            let iconoEstado = "<i class='bx bxs-check-circle success'></i> Completado";
-            if (mov.estado === 'PENDIENTE') iconoEstado = "<i class='bx bxs-time-five pending'></i> Pendiente";
-            if (mov.estado === 'FALLIDO') iconoEstado = "<i class='bx bxs-x-circle' style='color:red'></i> Fallido";
-
-            let catClass = 'compras';
-            if (mov.categoria === 'Transferencia' || mov.categoria === 'Ingreso') catClass = 'ingreso';
-            if (mov.categoria === 'Servicios') catClass = 'entretenimiento';
+            // Asignar clase por categoría (simple)
+            let catClass = 'compras'; 
+            if(['Transferencia','Ingreso'].includes(mov.categoria)) catClass = 'ingreso';
+            if(mov.categoria === 'Servicios') catClass = 'entretenimiento';
 
             const row = `
                 <tr>
-                    <td>${fechaStr}</td>
-                    <td>
-                        <span class="titulo-transaccion">${mov.descripcion || 'Transacción'}</span><br>
-                        <span class="subtitulo">${mov.referencia || ''}</span>
-                    </td>
+                    <td>${fecha}</td>
+                    <td><span class="titulo-transaccion">${mov.descripcion}</span><br><small>${mov.referencia || ''}</small></td>
                     <td><span class="badge ${catClass}">${mov.categoria || 'General'}</span></td>
-                    <td>${iconoEstado}</td>
+                    <td>${mov.estado === 'COMPLETADO' ? '<i class="bx bxs-check-circle success"></i>' : '<i class="bx bxs-time pending"></i>'}</td>
                     <td class="text-right ${claseMonto}">${signo} $${parseFloat(mov.monto).toFixed(2)}</td>
-                </tr>
-            `;
+                </tr>`;
             tbody.insertAdjacentHTML('beforeend', row);
         });
 
     } catch (err) {
         console.error(err);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding: 2rem;">Error al cargar datos. Intenta nuevamente.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Error de conexión.</td></tr>';
     }
 }
 
-
-// --- D. TRANSFERENCIAS (CORREGIDO - CAMPO IDENTIFICADOR) ---
+// --- D. TRANSFERENCIAS (OPTIMIZADO) ---
 async function iniciarTransferencias() {
-    console.log("💸 Módulo Transferencias");
+    console.log("💸 Iniciando Transferencias...");
 
-    try {
-        if (window.CredoraAPI) {
-            const datos = await window.CredoraAPI.request('/billetera/saldo');
-            if (datos) {
-                const balanceDisplay = document.querySelector('.acc-balance strong');
-                if (balanceDisplay) balanceDisplay.textContent = `$${datos.saldo_actual.toFixed(2)}`;
-            }
-        }
-    } catch (e) { console.error("Error cargando saldo para transferencia", e); }
+    // 1. Mostrar Saldo
+    if (window.CredoraAPI) {
+        window.CredoraAPI.request('/billetera/saldo').then(d => {
+            const bal = document.querySelector('.acc-balance strong');
+            if(bal && d) bal.textContent = `$${d.saldo_actual.toFixed(2)}`;
+        }).catch(e => console.log(e));
+    }
 
+    // 2. Manejar el Botón
     const btnConfirmar = document.querySelector('.btn-confirmar');
-    if (btnConfirmar) {
-        const newBtn = btnConfirmar.cloneNode(true);
-        btnConfirmar.parentNode.replaceChild(newBtn, btnConfirmar);
+    if (!btnConfirmar) { console.error("Falta botón .btn-confirmar"); return; }
 
-        newBtn.addEventListener('click', async (e) => {
-            e.preventDefault(); 
-            
-            // OJO: Selectores actualizados para buscar inputs dentro de la vista
-            const destinoInput = document.getElementById('input-destino'); // Busca por ID
-            const montoInput = document.querySelector('.input-monto');
-            const motivoInput = document.getElementById('input-motivo');
+    // Reemplazar nodo para limpiar eventos viejos
+    const newBtn = btnConfirmar.cloneNode(true);
+    btnConfirmar.parentNode.replaceChild(newBtn, btnConfirmar);
 
-            // Fallback si no encuentra por ID (por si el HTML no se actualizó)
-            const identificador = (destinoInput ? destinoInput.value : document.querySelector('.input-with-icon input[type="text"]').value).trim();
-            const monto = montoInput ? parseFloat(montoInput.value) : 0;
-            const motivo = motivoInput ? motivoInput.value.trim() : 'Transferencia';
+    newBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        // BÚSQUEDA ROBUSTA DE INPUTS (Por ID o selectores alternativos)
+        const inputDestino = document.getElementById('input-destino') || document.querySelector('input[type="email"]') || document.querySelector('input[placeholder*="Destinatario"]');
+        const inputMonto = document.querySelector('.input-monto') || document.querySelector('input[type="number"]');
+        const inputMotivo = document.getElementById('input-motivo') || document.querySelector('input[placeholder*="Motivo"]');
 
-            if (!identificador || monto <= 0) {
-                alert("Por favor ingresa un destinatario válido (correo o cuenta) y un monto mayor a 0.");
-                return;
+        if (!inputDestino || !inputMonto) {
+            alert("Error interno: No se encuentran los campos del formulario. Revisa el HTML.");
+            return;
+        }
+
+        const datos = {
+            identificador: inputDestino.value.trim(),
+            monto: parseFloat(inputMonto.value),
+            motivo: inputMotivo ? inputMotivo.value.trim() : 'Transferencia'
+        };
+
+        if (!datos.identificador || datos.monto <= 0 || isNaN(datos.monto)) {
+            alert("⚠️ Datos inválidos. Verifica el destinatario y el monto.");
+            return;
+        }
+
+        // UX: Bloquear botón
+        const originalText = newBtn.textContent;
+        newBtn.disabled = true;
+        newBtn.textContent = "Enviando...";
+
+        try {
+            const res = await window.CredoraAPI.request('/billetera/transferir', 'POST', datos);
+            if (res) {
+                alert(`✅ ¡Transferencia enviada con éxito!`);
+                window.cargarVista('Main_Parts/main_home.html');
             }
+        } catch (err) {
+            alert("❌ Error: " + err.message);
+            newBtn.disabled = false;
+            newBtn.textContent = originalText;
+        }
+    });
 
-            const textoOriginal = newBtn.textContent;
-            newBtn.disabled = true;
-            newBtn.textContent = "Procesando...";
-
-            try {
-                // NOTA IMPORTANTE: Usamos 'identificador' para coincidir con el backend inteligente
-                const resultado = await window.CredoraAPI.request('/billetera/transferir', 'POST', {
-                    identificador: identificador, 
-                    monto: monto,
-                    motivo: motivo
-                });
-
-                if (resultado) {
-                    alert(`✅ ¡Transferencia Exitosa!\nEnviado a: ${resultado.destinatario}\nNuevo Saldo: $${resultado.nuevo_saldo}`);
-                    window.cargarVista('Main_Parts/main_home.html');
-                }
-            } catch (err) {
-                alert("❌ Falló la transferencia:\n" + err.message);
-                newBtn.disabled = false;
-                newBtn.textContent = textoOriginal;
-            }
-        });
-    }
-    
     const btnCancelar = document.querySelector('.btn-cancelar');
-    if (btnCancelar) {
-        btnCancelar.addEventListener('click', () => { window.cargarVista('Main_Parts/main_home.html'); });
-    }
+    if (btnCancelar) btnCancelar.onclick = () => window.cargarVista('Main_Parts/main_home.html');
 }
 
 // --- E. NOTIFICACIONES ---
 function iniciarNotificaciones() {
-    const btnMarcar = document.getElementById('btn-marcar-leidas');
-    const notificaciones = document.querySelectorAll('.notificacion-item.no-leida');
-
-    if (btnMarcar) {
-        btnMarcar.addEventListener('click', () => {
-            notificaciones.forEach(notif => {
-                notif.classList.remove('no-leida');
-                notif.style.transition = "background-color 0.5s";
+    const btn = document.getElementById('btn-marcar-leidas');
+    if (btn) {
+        btn.onclick = () => {
+            document.querySelectorAll('.notificacion-item.no-leida').forEach(n => {
+                n.classList.remove('no-leida');
+                n.style.opacity = '0.7';
             });
-            alert("Todas las notificaciones marcadas como leídas.");
-        });
+            alert("Notificaciones actualizadas.");
+        };
     }
 }
 
 // --- F. DATA MOVIMIENTOS ---
 function iniciardatamov() {
-    window.copiarAlPortapapeles = function(texto) {
-        navigator.clipboard.writeText(texto).then(() => {
+    window.copiarAlPortapapeles = (txt) => {
+        navigator.clipboard.writeText(txt).then(() => {
             const toast = document.getElementById('toast-copiado');
-            if(toast) {
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2000);
-            }
+            if(toast) { toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2000); }
         });
     };
-    // Cargar datos para mostrar "Mi cuenta"
-    if (window.CredoraAPI) {
-        window.CredoraAPI.request('/billetera/saldo').then(datos => {
-            if (datos) {
-                const valCuenta = document.getElementById('val-cuenta');
-                if (valCuenta) valCuenta.innerText = datos.numero_cuenta;
-            }
+    if(window.CredoraAPI) {
+        window.CredoraAPI.request('/billetera/saldo').then(d => {
+            const el = document.getElementById('val-cuenta');
+            if(el && d) el.textContent = d.numero_cuenta;
         });
     }
 }
 
 // --- G. CONFIGURACIÓN ---
 function iniciarConfiguracion() {
-    const themeToggle = document.getElementById('config-theme-toggle');
-    if(themeToggle) themeToggle.checked = document.body.classList.contains('dark');
+    const toggle = document.getElementById('config-theme-toggle');
+    if(toggle) toggle.checked = document.body.classList.contains('dark');
 }
 
-function iniciarEducacion() { console.log("Módulo educativo cargado"); }
-function iniciarcredoramov() { console.log('Vista Credora Movimientos cargada'); }
+// --- H. EDUCACIÓN ---
+function iniciarEducacion() { console.log("Educación cargada"); }

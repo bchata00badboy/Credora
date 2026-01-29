@@ -1,261 +1,91 @@
-<!-- /Front-end/Src/Pages/Main/Dashboard.html -->
-
+<!-- Reemplazado por el contenido de index.html adaptado -->
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Main</title>
-
-    <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
-
-    <!-- <link rel="stylesheet" href="../../Styles/normalize.css"> -->
-
-    <link rel="stylesheet" href="../../Styles/font.css">
-
-    <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
-
-    <!-- Font Awesome: iconos usados por el panel IA -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <title>Credora - Dashboard</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="css/Main.css">
-    <link rel="stylesheet" href="css/grafica.css">
-    <link rel="stylesheet" href="css/ia.css">
-
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" referrerpolicy="no-referrer" />
 
 </head>
+<body class="app-root">
 
-<body>  
-<button id="chatbot-toggler" class="chatbot-toggler" aria-label="Abrir chat">
-        <i class="fa-solid fa-comment"></i>
-    </button>
-
-    <div class="chatbot-interface">
-        
-        <header class="ai-header">
-            <div class="header-info">
-                <div class="ai-avatar">
-                    <i class="fa-solid fa-robot"></i>
-                </div>
-                <div class="ai-text">
-                    <h3>Credo</h3>
-                    <p><span class="dot-online"></span>Asistente Virtual</p>
-                </div>
-            </div>
-            
-            <button id="close-btn" class="close-btn" aria-label="Cerrar chat">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </header>
-
-        <ul class="chat-box" id="chatBox">
-            <li class="chat incoming">
-                <div class="msg-content">
-                    <p>Hola 👋 soy Credo, tu asistente financiero.<br>Haz click en una opción o escribe tu duda para poder ayudarte.</p>
-                </div>
-            </li>
-        </ul>
-
-        <div class="suggestions-bar">
-            <button class="chip" onclick="preguntarIA('Tips de Ahorro')">💰 Ahorro</button>
-            <button class="chip" onclick="preguntarIA('Regla 50/30/20')">📊 50/30/20</button>
-            <button class="chip" onclick="preguntarIA('Gastos Hormiga')">🐜 Gastos</button>
-        </div>
-
-        <div class="chat-input">
-            <textarea id="aiInput" placeholder="Escribe aquí..." spellcheck="false" required></textarea>
-            <button id="send-btn" onclick="enviarMensajeIA()">
-                <i class="fa-solid fa-paper-plane"></i>
-            </button>
-        </div>
-    </div>
-
+    <div id="canvas-container"></div>
 
     <div class="sidebar" id="sidebar">
-
-        <div class="header">
-
-            <div class="menu-btn" id="menu-btn">
-
-                <i class="bx bx-chevron-left"></i>
-
-            </div>
-
-            <div class="brand">
-
-                <img src="../../Assets/Icons/Favicon.png" alt="Credora">
-
-                <span>Credora</span>
-
-            </div>
-
+        <div class="logo_content">
+            <img src="../../Assets/Icons/Favicon.png" alt="Logo">
+            <div class="logo_name">Credora</div>
         </div>
 
-
-
-        <div class="menu-container">
-
-            <div class="search">
-
-                <i class="bx bx-search"></i>
-
-                <input type="search" placeholder="Buscar">
-
-            </div>
-
-
-
-            <ul class="menu">
-
-                <li class="menu-item menu-item-static active">
-
-                    <a href="#" class="menu-link" data-vista="Main_Parts/main_home.html">
-
-                        <i class="bx bx-home-alt-2"></i>
-
-                        <span>Inicio</span>
-
-                    </a>
-
-                </li>
-
-                <li class="menu-item menu-item-static">
-
-                    <a href="#" class="menu-link" data-vista="Main_Parts/main_mov.html">
-
-                        <i class='bx bx-file'></i>
-
-                        <span>Movimientos</span>
-
-                    </a>
-
-                </li>
-
-                <li class="menu-item menu-item-dropdown">
-
-                    <a href="#" class="menu-link">
-
-                        <i class='bx bx-transfer'></i>
-
-                        <span>Transferir</span>
-
-                        <i class='bx  bx-chevron-down'></i>
-
-                    </a>
-
-                    <ul class="sub-menu">
-
-                        <li><a href="#" class="sub-menu-link" data-vista="Main_Parts/main_transf1.html">
-
-                            Otras Cuenta</a></li>
-
-                        <li><a href="#" class="sub-menu-link" data-vista="Main_Parts/main_mov_data.html">
-
-                            Revisar Datos</a></li>
-
-                    </ul>
-
-                </li>
-
-                <li class="menu-item menu-item-static">
-                    <a href="#" class="menu-link" data-vista="Main_Parts/main_educ.html">
-                        <i class='bx bx-book-open'></i>
-                        <span>Educación</span>
-                    </a>
-                </li>
-
-                <li class="menu-item menu-item-static">
-
-                    <a href="#" class="menu-link" data-vista="Main_Parts/main_config.html">
-
-                        <i class='bx  bx-cog'></i>
-
-                        <span>Configuración</span>
-
-                    </a>
-
-                </li>
-
-                <li class="menu-item menu-item-static">
-
-                    <a href="#" class="menu-link" id="btn-logout-sidebar">
-
-                        <i class='bx  bx-door-open' ></i>
-
-                        <span>Cerrar Sesión</span>
-
-                    </a>
-
-                </li>
-
-            </ul>
-
+        <div class="input-box">
+            <i class='bx bx-search'></i>
+            <input type="text" placeholder="Buscar..." id="searchInput">
         </div>
 
-        <div class="footer">
-
-            <ul class="menu">
-
-                <li class="menu-item menu-item-static">
-
-                    <a href="#" class="menu-link" data-vista="Main_Parts/main_notif.html">
-
-                        <i class='bx  bx-bell'></i>
-
-                        <span>Notificaciones</span>
-
+        <ul class="nav_list">
+            <li style="--i:1">
+                <a href="#" class="active nav-link menu-link" data-vista="Main_Parts/main_home.html">
+                    <i class='bx bx-home-smile'></i>
+                    <span class="links_name">Inicio</span>
+                </a>
+            </li>
+            <li style="--i:2">
+                <a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_mov.html">
+                    <i class='bx bx-list-check'></i>
+                    <span class="links_name">Movimientos</span>
+                </a>
+            </li>
+            <li style="--i:3" id="transfer-item">
+                <a href="#" class="dropdown-trigger nav-link">
+                    <i class='bx bx-send'></i>
+                    <span class="links_name">Transferencia</span>
+                    <i class='bx bx-chevron-down arrow'></i>
+                </a>
+                <div class="submenu-wrapper">
+                    <a href="#" class="nav-link sub-menu-link" data-vista="Main_Parts/main_transf1.html">
+                        <i class='bx bx-user'></i><span class="links_name">Transferir</span>
                     </a>
-
-                </li>
-
-                <li class="menu-item menu-item-static">
-
-                    <a href="#" class="menu-link" data-vista="Main_Parts/main_profile.html">
-
-                        <i class='bx  bx-cog'></i>
-
-                        <span>Perfil</span>
-
+                    <a href="#" class="nav-link sub-menu-link" data-vista="Main_Parts/main_mov_data.html">
+                        <i class='bx bx-file-find'></i><span class="links_name">Ver mis datos de cuenta</span>
                     </a>
-
-                </li>
-
-            </ul>
-
-            <div class="user">
-
-                <div class="user-img">
-
-                    <img src="../../Assets/Images/Gemini_Generated_Image_wem40xwem40xwem4.jpeg" alt="user" onerror="this.onerror=null;this.src='../../Assets/Images/userIcon.svg'">
-
                 </div>
-
-                <div class="user-data">
-
-                    <span class="name">Alejandro Bueno</span>
-
-                    <span class="email">alejandrobuenobellorin@gmail.com</span>
-
-                </div>
-
-                <!-- switch de tema movido a Configuración (removido del sidebar) -->
+            </li>
+            <li style="--i:4">
+                <a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_educ.html">
+                    <i class='bx bx-book-reader'></i>
+                    <span class="links_name">Educación</span>
+                </a>
+            </li>
+            <li style="--i:5">
+                <a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_config.html">
+                    <i class='bx bx-cog'></i>
+                    <span class="links_name">Configuración</span>
+                </a>
+            </li>
+            <li style="--i:6">
+                <a href="#" class="nav-link" id="btn-logout-sidebar">
+                    <i class='bx bx-exit'></i>
+                    <span class="links_name">Cerrar Sesión</span>
+                </a>
+            </li>
+            <li class="divider" style="--i:7"></li>
+            <div class="footer_div">
+                <li style="--i:8"><a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_notif.html"><i class='bx bx-bell-ring'></i><span class="links_name">Notificaciones</span></a></li>
+                <li style="--i:9"><a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_profile.html"><i class='bx bx-id-card'></i><span class="links_name">Perfil</span></a></li>
             </div>
-        </div>
+        </ul>
     </div>
 
-    <main class="main-content" id="contenedor-dinamico">
+    <main class="home_content" id="contenedor-dinamico"></main>
 
-    </main>
-
-
+    <!-- Scripts actuales del proyecto -->
     <script src="js/theme.js"></script>
-    <script src="js/api.js"></script>
     <script src="js/Main.js"></script>
+     <!--<script src="js/api.js"></script>-->
     <script src="js/ia.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/grafica.js"></script>

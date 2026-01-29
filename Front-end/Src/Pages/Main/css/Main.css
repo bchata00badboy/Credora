@@ -73,8 +73,7 @@ html {
         .submenu-wrapper a { height: 40px !important; padding-left: 10px; }
         .divider { height: 1px; width: 100%; background: rgba(255,255,255,0.05); margin: 15px 0; display: block; }
         .footer_div { margin-top: auto; }
-        .home_content { flex-grow: 1; height: 100%; padding: 50px; overflow-y: auto; position: relative; transition: filter 0.5s var(--smooth-easing); animation: fadeInContent 1s ease forwards; }
-        @keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .home_content { flex-grow: 1; height: 100%; padding: 50px; overflow-y: auto; position: relative; transition: filter 0.5s var(--smooth-easing); }
         .sidebar:hover + .home_content { filter: blur(2px) brightness(0.8); pointer-events: none; }
         .hero-text { font-size: 36px; font-weight: 700; margin-bottom: 20px; }
         .hero-p { color: #ccc; font-size: 16px; max-width: 800px; line-height: 1.6; }
@@ -325,7 +324,7 @@ body.dark .main-content * {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    animation: fadeIn 0.6s cubic-bezier(0.39, 0.575, 0.565, 1);
+    /* animation removed to avoid double entry animation; use JS-driven .view-enter */
 }
 
 .content-section header {
@@ -695,11 +694,12 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: -10px;              /* Un poco de espacio real ayuda a que no se monten */
-    margin-bottom: 20px;   /* AUMENTADO: Espacio vital para que no choque con el chip */
+    gap: 8px;              /* Espacio positivo para separar logo y texto */
+    margin-bottom: 0;   /* quitar margen que acercaba elementos al chip */
     position: relative;
     z-index: 10;           /* Asegura que esté por encima del fondo */
-    margin-left: -20px;
+    margin-left: 0; /* evitar desplazamiento negativo hacia el chip */
+    padding-right: 12px;
 }
 
 /* Forzar tamaño del logo */
@@ -719,75 +719,12 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     letter-spacing: 1px;
     line-height: 1;
     margin: 0;
-    margin-left: -12px;      /* Ajuste para acercarlo al logo */
+    margin-left: 0;      /* mantener separación del logo, no acercar al chip */
     position: relative;
     top: 1px;
     z-index: 10;
 }
 
-.card-chip {
-    width: 64px;
-    height: 44px;
-    border-radius: 4px;
-
-    /* Fondo Metálico con surcos finos (repeating lines) */
-    background:
-        linear-gradient(135deg, #f2f2f2 0%, #d9d9d9 45%, #bfbfbf 100%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 1px, rgba(0,0,0,0.02) 1px 3px);
-
-    position: relative;
-    overflow: hidden;
-
-    /* Borde y volumen */
-    border: 1px solid rgba(0,0,0,0.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), 0 1px 4px rgba(0,0,0,0.10);
-
-    margin-top: -8px;
-    margin-bottom: -12px;
-}
-
-/* --- ESTILO DE LAS LÍNEAS (SURCOS) --- */
-.card-chip::before,
-.card-chip::after {
-    content: '';
-    position: absolute;
-    z-index: 2;
-    /* líneas y relieve */
-    background: rgba(0,0,0,0.25);
-    border-right: 1px solid rgba(255,255,255,0.45);
-    border-bottom: 1px solid rgba(255,255,255,0.45);
-}
-
-/* LÍNEAS HORIZONTALES */
-.card-chip::before {
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    border-bottom: none;
-    /* crear varios surcos finos mediante box-shadows */
-    box-shadow:
-        0 -8px 0 rgba(0,0,0,0.14),
-        0 -5px 0 rgba(255,255,255,0.25),
-        0 -3px 0 rgba(0,0,0,0.06),
-        0 0px 0 rgba(255,255,255,0.25),
-        0 3px 0 rgba(0,0,0,0.06),
-        0 5px 0 rgba(255,255,255,0.18),
-        0 8px 0 rgba(0,0,0,0.14);
-}
-
-/* LÍNEA VERTICAL CENTRAL */
-.card-chip::after {
-    left: 50%; 
-    top: 0; 
-    width: 1px; 
-    height: 100%;
-    transform: translateX(-50%);
-    border-right: none;
-    /* Sombra blanca al lado derecho */
-    box-shadow: 1px 0 0 rgba(255,255,255,0.4),
-                2px 0 0 rgba(255,255,255,0.08);
-}
 
 
 .card-number {
@@ -812,6 +749,30 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
 .bank-card.flip .card-inner {
     transform: rotateY(180deg);
 }
+
+/* Chip image styling: use an <img> with class .card-chip-img */
+.card-chip-img {
+    width: 78px;
+    height: 62px; /* semi-cuadrado, un poco más pequeño */
+    border-radius: 10px;
+    display: block;
+    align-self: flex-start;
+    object-fit: cover;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    border: none !important;
+    z-index: 6;
+    margin: 0px;
+    transform: translateY(-9px);
+    transition: transform 180ms var(--smooth-easing);
+}
+.card-chip-img:hover { transform: translateY(-18px) scale(1.04); }
+
+/* Ajuste en pantallas pequeñas: no subir tanto el chip para evitar solapamientos */
+@media (max-width: 480px) {
+    .card-chip-img { transform: translateY(-8px); }
+    .card-chip-img:hover { transform: translateY(-8px) scale(1.03); }
+}
+
 
 /* Caras de la tarjeta: FRENTE Y DORSO IGUALES */
 .tarjeta-visual-container .card-front,
@@ -842,7 +803,7 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     font-weight: 600 !important; text-shadow: 0 2px 4px rgba(0,0,0,0.3); margin: 8px 0 !important;
 }
 /* Bajar (mover hacia abajo) el número de la tarjeta un poco */
-.tarjeta-visual-container .card-number { margin-top: 2rem !important; }
+.tarjeta-visual-container .card-number { margin-top: 0rem !important; }
 
 /* Ocultar/mostrar número de cuenta del saldo cuando esté enmascarado */
 .saldo-card .saldo-footer { color: inherit; position: relative; }
@@ -856,15 +817,7 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
 }
 .cvv-row { margin-top: 45px; }
 .cvv-box { color: #000 !important; background: #fff !important; font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
-.card-chip {
-    /* fallback compacto — ahora estrictamente cuadrado (tarjeta pequeña) */
-    background: linear-gradient(135deg, #f6f7f8 0%, #e1e4e8 45%, #c7ccd2 100%) !important;
-    border-radius: 3px !important;
-    width: 52px !important;
-    height: 52px !important;
-    position: relative !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 4px rgba(0,0,0,0.08) !important;
-}
+
 
 /* Badge de red de pago (esquina inferior derecha) */
 .tarjeta-visual-container .visa-badge {
@@ -896,28 +849,7 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
 }
 
 /* Versión 'realistic' usada en main_home: tamaño mayor y sombra más oscura */
-.card-chip.realistic {
-    /* Variante más detallada pero en forma de pequeña tarjeta cuadrada */
-    width: 64px !important;
-    height: 64px !important;
-    border-radius: 4px !important;
-    background: linear-gradient(135deg, #f7f8f9 0%, #e6eaef 40%, #cfd6dd 70%, #b7bcc2 100%) !important;
-    border: 1px solid rgba(0,0,0,0.12) !important;
-    box-shadow: inset 0 2px 6px rgba(255,255,255,0.35), 0 6px 16px rgba(0,0,0,0.18) !important;
-    margin-top: 6px; margin-bottom: 10px;
-}
-.card-chip.realistic::before {
-    content: '';
-    position: absolute; left: 8px; right: 8px; top: 12px; height: 2px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.03));
-    border-radius: 2px;
-}
-.card-chip.realistic::after {
-    content: '';
-    position: absolute; left: 40%; top: 10px; width: 2px; height: calc(100% - 20px);
-    background: rgba(0,0,0,0.08);
-    box-shadow: 10px 0 0 rgba(255,255,255,0.06), -8px 0 0 rgba(0,0,0,0.04);
-}
+
 
 @media (max-width: 968px) {
     .dashboard-grid { grid-template-columns: 1fr; }
@@ -1287,3 +1219,11 @@ body.dark .btn-copy:hover {
 .sidebar.hover .input-box input { opacity: 1 !important; pointer-events: auto !important; }
 .sidebar.hover .links_name { opacity: 1 !important; transform: translateX(0) !important; pointer-events: auto !important; }
 .sidebar.hover + .home_content { filter: blur(2px) brightness(0.8) !important; pointer-events: none !important; }
+
+/* Botón de notificaciones (esquina superior derecha) */
+.top-actions { position: fixed; top: 14px; right: 20px; z-index: 120; }
+.notif-btn { background: rgba(255,255,255,0.04); color: var(--color-text-primary); border: 1px solid rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+.notif-btn i { font-size: 18px; }
+.notif-btn:hover { background: rgba(255,255,255,0.08); }
+.notif-badge { background: var(--accent-color, #ff3347); color: #fff; font-weight: 700; font-size: 12px; padding: 2px 6px; border-radius: 999px; display: inline-block; min-width: 20px; text-align: center; }
+.notif-badge.hidden { display: none !important; }

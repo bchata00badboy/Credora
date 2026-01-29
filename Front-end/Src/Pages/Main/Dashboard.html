@@ -74,10 +74,17 @@
             </li>
             <li class="divider" style="--i:7"></li>
             <div class="footer_div">
-                <li style="--i:8"><a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_notif.html"><i class='bx bx-bell-ring'></i><span class="links_name">Notificaciones</span></a></li>
                 <li style="--i:9"><a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_profile.html"><i class='bx bx-id-card'></i><span class="links_name">Perfil</span></a></li>
             </div>
         </ul>
+    </div>
+
+    <!-- Botón de notificaciones en la esquina superior derecha -->
+    <div class="top-actions">
+        <button id="notif-button" class="notif-btn" aria-label="Notificaciones" title="Notificaciones" onclick="window.cargarVista && window.cargarVista('Main_Parts/main_notif.html')">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notif-badge">0</span>
+        </button>
     </div>
 
     <main class="home_content" id="contenedor-dinamico"></main>

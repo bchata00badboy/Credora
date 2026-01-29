@@ -71,7 +71,7 @@ const controladores = {
     'Main_Parts/main_notif.html': iniciarNotificaciones,
     'Main_Parts/main_transf1.html': iniciarTransferencias,
     'Main_Parts/main_mov.html': iniciarMovimientos,
-    'Main_Parts/main_mov_data.html': iniciardatamov,
+    'Main_Parts/main_data_transf.html': iniciardatamov,
     'Main_Parts/main_config.html': iniciarConfiguracion,
     'Main_Parts/main_educ.html': iniciarEducacion
 };
@@ -394,10 +394,11 @@ async function iniciarMovimientos() {
 }
 
 
-// --- D. TRANSFERENCIAS (CORREGIDO - CAMPO IDENTIFICADOR) ---
+// --- D. TRANSFERENCIAS (CON PIN DE SEGURIDAD) ---
 async function iniciarTransferencias() {
-    console.log("💸 Módulo Transferencias");
+    console.log("💸 Módulo Transferencias Iniciado");
 
+    // 1. Cargar Saldo (Igual que antes)
     try {
         if (window.CredoraAPI) {
             const datos = await window.CredoraAPI.request('/billetera/saldo');
@@ -406,60 +407,175 @@ async function iniciarTransferencias() {
                 if (balanceDisplay) balanceDisplay.textContent = `$${datos.saldo_actual.toFixed(2)}`;
             }
         }
-    } catch (e) { console.error("Error cargando saldo para transferencia", e); }
+    } catch (e) { console.error("Error cargando saldo", e); }
 
-    const btnConfirmar = document.querySelector('.btn-confirmar');
+
+    // --- VARIABLES DE ESTADO ---
+    // Aquí guardaremos los datos mientras el usuario escribe el PIN
+    let transferenciaPendiente = null;
+    let botonOriginalRef = null; // Para devolverle el texto al botón si falla
+
+
+    // --- LÓGICA DEL MODAL Y PIN ---
+    const modal = document.getElementById('pinModal');
+    
+    // Función interna para cerrar modal y limpiar
+    const cerrarModal = () => {
+        if(modal) modal.classList.remove('active');
+        document.querySelectorAll('.pin-box').forEach(input => input.value = '');
+    };
+
+    // Función que se ejecuta SOLO si el PIN es correcto
+    const ejecutarTransferenciaReal = async () => {
+        if (!transferenciaPendiente) return;
+
+        const { identificador, monto, motivo, btn } = transferenciaPendiente;
+        
+        // Efectos visuales de carga (en el botón original o en el modal)
+        const textoOriginal = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Procesando...";
+        cerrarModal(); // Cerramos el modal para ver el proceso en el fondo
+
+        try {
+            // 🔥 TU LLAMADA API ORIGINAL
+            const resultado = await window.CredoraAPI.request('/billetera/transferir', 'POST', {
+                identificador: identificador, 
+                monto: monto,
+                motivo: motivo
+            });
+
+            if (resultado) {
+                alert(`✅ ¡Transferencia Exitosa!\nEnviado a: ${resultado.destinatario}\nNuevo Saldo: $${resultado.nuevo_saldo}`);
+                window.cargarVista('Main_Parts/main_home.html');
+            }
+        } catch (err) {
+            alert("❌ Falló la transferencia:\n" + err.message);
+            btn.disabled = false;
+            btn.textContent = textoOriginal;
+        }
+        
+        // Limpiamos la variable temporal
+        transferenciaPendiente = null;
+    };
+
+    // Configuración de inputs del PIN (Auto-salto y Validación)
+    const pinInputs = document.querySelectorAll('.pin-box');
+    if (pinInputs.length > 0) {
+        // Clonamos para limpiar listeners viejos si se recarga la vista
+        pinInputs.forEach(oldInput => {
+            const newInput = oldInput.cloneNode(true);
+            oldInput.parentNode.replaceChild(newInput, oldInput);
+        });
+        
+        // Re-seleccionamos los nuevos inputs limpios
+        const inputsLimpios = document.querySelectorAll('.pin-box');
+        
+        inputsLimpios.forEach((input, index) => {
+            input.addEventListener('keyup', (e) => {
+                // Auto-focus siguiente
+                if (input.value.length === 1 && index < inputsLimpios.length - 1) {
+                    inputsLimpios[index + 1].focus();
+                }
+                // Backspace
+                if (e.key === 'Backspace' && index > 0) {
+                    inputsLimpios[index - 1].focus();
+                }
+                // Enter en el último input
+                if (e.key === 'Enter' && index === inputsLimpios.length - 1) {
+                    validarYEnvia();
+                }
+            });
+        });
+
+        // Función interna para chequear el PIN
+        const validarYEnvia = () => {
+            let pin = '';
+            inputsLimpios.forEach(i => pin += i.value);
+            
+            // 🔥 AQUÍ VALIDAS EL PIN (Simulado 1234)
+            if (pin === "1234") {
+                ejecutarTransferenciaReal();
+            } else {
+                // Efecto de error visual
+                const container = document.querySelector('.pin-container');
+                if(container) {
+                    container.style.animation = "shake 0.3s";
+                    setTimeout(() => container.style.animation = "", 300);
+                }
+                inputsLimpios.forEach(i => i.value = '');
+                inputsLimpios[0].focus();
+            }
+        };
+
+        // Listener para el botón "Autorizar" del Modal
+        const btnAutorizarModal = document.querySelector('.modal-actions .btn-confirmar');
+        if (btnAutorizarModal) {
+            // Clonar para limpiar eventos previos
+            const newBtnAuth = btnAutorizarModal.cloneNode(true);
+            btnAutorizarModal.parentNode.replaceChild(newBtnAuth, btnAutorizarModal);
+            newBtnAuth.addEventListener('click', validarYEnvia);
+        }
+
+        // Listener para cancelar en el Modal
+        const btnCancelarModal = document.querySelector('.modal-actions .btn-cancelar');
+        if (btnCancelarModal) {
+             const newBtnCancel = btnCancelarModal.cloneNode(true);
+             btnCancelarModal.parentNode.replaceChild(newBtnCancel, btnCancelarModal);
+             newBtnCancel.addEventListener('click', cerrarModal);
+        }
+    }
+
+
+    // --- 2. CONFIGURACIÓN DEL BOTÓN "CONTINUAR" PRINCIPAL ---
+    const btnConfirmar = document.querySelector('.btn-confirmar'); // El del formulario
     if (btnConfirmar) {
         const newBtn = btnConfirmar.cloneNode(true);
         btnConfirmar.parentNode.replaceChild(newBtn, btnConfirmar);
 
-        newBtn.addEventListener('click', async (e) => {
+        newBtn.addEventListener('click', (e) => {
             e.preventDefault(); 
             
-            // OJO: Selectores actualizados para buscar inputs dentro de la vista
-            const destinoInput = document.getElementById('input-destino'); // Busca por ID
+            // Recolección de datos
+            const destinoInput = document.getElementById('input-destino');
             const montoInput = document.querySelector('.input-monto');
             const motivoInput = document.getElementById('input-motivo');
 
-            // Fallback si no encuentra por ID (por si el HTML no se actualizó)
             const identificador = (destinoInput ? destinoInput.value : document.querySelector('.input-with-icon input[type="text"]').value).trim();
             const monto = montoInput ? parseFloat(montoInput.value) : 0;
             const motivo = motivoInput ? motivoInput.value.trim() : 'Transferencia';
 
+            // Validación básica
             if (!identificador || monto <= 0) {
-                alert("Por favor ingresa un destinatario válido (correo o cuenta) y un monto mayor a 0.");
+                alert("Por favor ingresa un destinatario válido y un monto mayor a 0.");
                 return;
             }
 
-            const textoOriginal = newBtn.textContent;
-            newBtn.disabled = true;
-            newBtn.textContent = "Procesando...";
+            // 🔥 AQUÍ ESTÁ EL CAMBIO: No enviamos, solo guardamos y abrimos modal
+            transferenciaPendiente = {
+                identificador,
+                monto,
+                motivo,
+                btn: newBtn
+            };
 
-            try {
-                // NOTA IMPORTANTE: Usamos 'identificador' para coincidir con el backend inteligente
-                const resultado = await window.CredoraAPI.request('/billetera/transferir', 'POST', {
-                    identificador: identificador, 
-                    monto: monto,
-                    motivo: motivo
-                });
-
-                if (resultado) {
-                    alert(`✅ ¡Transferencia Exitosa!\nEnviado a: ${resultado.destinatario}\nNuevo Saldo: $${resultado.nuevo_saldo}`);
-                    window.cargarVista('Main_Parts/main_home.html');
-                }
-            } catch (err) {
-                alert("❌ Falló la transferencia:\n" + err.message);
-                newBtn.disabled = false;
-                newBtn.textContent = textoOriginal;
+            // Abrir Modal
+            if(modal) {
+                modal.classList.add('active');
+                setTimeout(() => document.getElementById('pin1')?.focus(), 100);
+            } else {
+                alert("Error: No se encontró el modal de seguridad en el HTML");
             }
         });
     }
     
-    const btnCancelar = document.querySelector('.btn-cancelar');
+    // Botón cancelar del formulario principal
+    const btnCancelar = document.querySelector('.form-actions .btn-cancelar');
     if (btnCancelar) {
         btnCancelar.addEventListener('click', () => { window.cargarVista('Main_Parts/main_home.html'); });
     }
 }
+
 
 // --- E. NOTIFICACIONES ---
 function iniciarNotificaciones() {

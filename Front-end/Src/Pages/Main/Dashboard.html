@@ -154,7 +154,7 @@
 
                             Otras Cuenta</a></li>
 
-                        <li><a href="#" class="sub-menu-link" data-vista="Main_Parts/main_mov_data.html">
+                        <li><a href="#" class="sub-menu-link" data-vista="Main_Parts/main_data_transf.html">
 
                             Revisar Datos</a></li>
 
@@ -253,8 +253,32 @@
     </main>
 
 
+    <div id="pinModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fas fa-shield-alt shield-icon"></i>
+            <h3>Confirmar Transferencia</h3>
+            <p>Ingresa tu PIN de seguridad de 4 dígitos para autorizar el envío.</p>
+        </div>
+
+        <div class="pin-container">
+            <input type="password" class="pin-box" maxlength="1" id="pin1" autofocus>
+            <input type="password" class="pin-box" maxlength="1" id="pin2">
+            <input type="password" class="pin-box" maxlength="1" id="pin3">
+            <input type="password" class="pin-box" maxlength="1" id="pin4">
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-cancelar" onclick="toggleModal(false)">Cancelar</button>
+            <button class="btn-confirmar" onclick="validarPin()">Autorizar</button>
+        </div>
+    </div>
+    </div>
+
+
+
     <script src="js/theme.js"></script>
-    <script src="js/api.js"></script>
+    <script src="js/api.js"></script> 
     <script src="js/Main.js"></script>
     <script src="js/ia.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

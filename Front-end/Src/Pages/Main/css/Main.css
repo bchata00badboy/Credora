@@ -664,6 +664,13 @@ input:checked + .slider:before { transform: translateX(26px); }
 .slider.round { border-radius: 34px; }
 .slider.round:before { border-radius: 50%; }
 
+
+/*
+
+Configuraciones CSS para el apartado de notificaciones
+
+*/
+
 .btn-texto {
     background: none; border: none; color: var(--color-surface); font-weight: 600;
     cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;
@@ -693,22 +700,87 @@ input:checked + .slider:before { transform: translateX(26px); }
 .notif-header .time { font-size: 0.8rem; color: #999; }
 .notif-content p { margin: 0; font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.4; }
 
-.transfer-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
-.card-form { padding: 2rem; }
-.card-form h3 { margin-bottom: 1.5rem; color: var(--color-surface); border-bottom: 1px solid #eee; padding-bottom: 10px; }
-.form-group { margin-bottom: 1.2rem; }
-.form-row { display: flex; gap: 1rem; }
-.form-row .form-group { flex: 1; }
-label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600; color: #555; }
-.account-select {
-    display: flex; align-items: center; border: 1px solid var(--color-border);
-    border-radius: 10px; padding: 10px; cursor: pointer; transition: all 0.3s; background: var(--card-bg);
+
+/*
+Apartado CSS del Menu de Transferencias
+
+*/
+
+
+.transfer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* Proporción más equilibrada */
+    gap: 2.5rem;
+    max-width: 1100px; /* Evita que se estire demasiado en monitores grandes */
+    margin: 0 auto;    /* Centra el bloque entero */
+    align-items: start; /* Alinea los elementos al principio verticalmente */
 }
-.account-select:hover { border-color: var(--color-surface); background: rgba(0,0,0,0.03); }
+
+.card-form { 
+    padding: 2rem;
+ }
+
+.card-form h3 { 
+    margin-bottom: 1.5rem; color: var(--color-surface);
+     border-bottom: 1px solid #eee; 
+     padding-bottom: 10px;
+     }
+
+.form-group { 
+
+    margin-bottom: 1.2rem;
+
+ }
+.form-row {
+     display: flex; gap: 1rem; 
+    
+    }
+.form-row .form-group { 
+    flex: 1; }
+
+label { 
+    display: block; margin-bottom: 0.5rem;
+     font-size: 0.9rem; 
+     font-weight: 600; 
+     color: #555; }
+
+.account-select {
+
+    display: flex; 
+    align-items: center; 
+    border: 1px solid var(--color-border);
+    border-radius: 10px; 
+    padding: 10px; 
+    cursor: pointer;
+     transition: all 0.3s; 
+     background: var(--card-bg);
+}
+
+.account-select:hover 
+{ border-color: var(--color-surface);
+     background: rgba(0,0,0,0.03); 
+    }
+
 .acc-icon {
     width: 40px; height: 40px; background-color: var(--color-surface); color: white;
     border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-right: 12px;
 }
+
+/* Mejora de campos de texto */
+body.dark input[type="text"], 
+body.dark input[type="number"] {
+    background-color: #0b1720;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+body.dark input:focus {
+    border-color: var(--color-surface);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+    background-color: #0e1d29;
+}
+
 body.dark .account-select { background-color: #07121a !important; border-color: rgba(255,255,255,0.04) !important; }
 body.dark .account-select:hover { background-color: #0b1720 !important; }
 body.dark .acc-icon { background-color: var(--color-surface) !important; color: #fff !important; }
@@ -733,9 +805,33 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     background: transparent; border: 1px solid var(--color-border); color: #666;
     padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;
 }
+.btn-cancelar:hover {
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+}
 .btn-confirmar {
-    background: var(--color-surface); color: white; border: none; padding: 10px 30px;
-    border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.3s;
+    background: var(--color-surface); 
+    color: white; 
+    border: none;
+     padding: 12px 40px;
+     border-radius: 12px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+     cursor: pointer; 
+     font-weight: 600; 
+     transition: background 0.3s;
+     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-confirmar {
+    padding: 12px 40px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 .btn-confirmar:hover { background: #002244; }
 .fav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -743,28 +839,122 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 50%;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
-.fav-desc { font-size: 0.8rem; color: #888; margin-bottom: 1.5rem; }
-.favoritos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; }
-.fav-item { cursor: pointer; }
-.fav-avatar {
-    width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; color: white; font-weight: bold; margin: 0 auto 5px auto; transition: transform 0.2s;
+
+.limites-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px); /* Efecto Glassmorphism */
 }
-.fav-item:hover .fav-avatar { transform: scale(1.1); }
-.fav-name { font-size: 0.75rem; color: #555; }
-.color-1 { background: #ff7043; }
-.color-2 { background: #42a5f5; }
-.color-3 { background: #66bb6a; }
-.color-4 { background: #ab47bc; }
-.info-card { margin-top: 1.5rem; background-color: #e3f2fd; border: 1px solid #bbdefb; display: flex; gap: 1rem; align-items: flex-start; }
-.info-card i { font-size: 1.5rem; color: #1976d2; }
-.info-card h4 { margin: 0; font-size: 0.9rem; color: #0d47a1; }
-.info-card p { margin: 2px 0 0; font-size: 0.8rem; color: #1565c0; }
+
 
 @media (max-width: 768px) {
     .transfer-grid { grid-template-columns: 1fr; }
     .form-row { flex-direction: column; gap: 0; }
 }
+
+
+/*Este fragmento se relaciona al modal de PIN para la transferencia*/
+
+/* El fondo oscuro transparente */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px); /* Efecto de desenfoque moderno */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Estado activo para mostrar el modal */
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* La tarjeta del modal */
+.modal-content {
+    background: #0b1720; /* Tu color de fondo oscuro */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.shield-icon {
+    font-size: 3rem;
+    color: var(--color-surface); /* Tu azul corporativo */
+    margin-bottom: 1rem;
+}
+
+.modal-header h3 { color: white; margin-bottom: 0.5rem; }
+.modal-header p { color: #888; font-size: 0.9rem; margin-bottom: 2rem; }
+
+/* Estilo de los inputs del PIN */
+.pin-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+
+.pin-box {
+    width: 50px;
+    height: 60px;
+    font-size: 1.5rem;
+    text-align: center;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    transition: all 0.2s;
+}
+
+.pin-box:focus {
+    border-color: var(--color-surface);
+    background: rgba(255,255,255,0.1);
+    outline: none;
+    transform: scale(1.05);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.modal-actions button { width: 100%; }
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  75% { transform: translateX(-10px); }
+  100% { transform: translateX(0); }
+}
+
+/*
+
+CSS para los modales y avisos de la aplicacion
+
+*/
 
 .hidden { display: none !important; opacity: 0; }
 .active-section { display: block !important; animation: fadeIn 0.5s ease-out forwards; }
@@ -784,6 +974,7 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
 @keyframes floatUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .search, .search input, body.dark .search input { background-color: transparent !important; border: none !important; }
 .search { border: 1px solid rgba(255,255,255,0.2) !important; }
+
 
 /* =======================================================
    NUEVO DISEÑO DASHBOARD (Tarjeta Premium - Ajustada)
@@ -879,12 +1070,11 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     z-index: 10;
 }
 
-/* =========================================
-   CORRECCIÓN: CHIP (Error de '30x' arreglado)
-   ========================================= */
+/* 
+ */
 
 .card-chip {
-    width: 50px;           /* CORREGIDO: Decía '30x', debe ser 'px'. Aumenté a 50px para realismo */
+    width: 50px;           
     height: 35px;
     background: linear-gradient(135deg, #e6c263 0%, #b38522 50%, #e6c263 100%) !important;
     border-radius: 6px;    /* Bordes un poco más suaves */
@@ -898,7 +1088,7 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     margin-bottom: -15px;   /* Espacio debajo del chip para que no choque con los números */
 }
 
-/* Líneas del chip (Sin cambios, solo asegurando que estén) */
+/* Líneas del chip */
 .card-chip::before {
     content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px;
     background: rgba(0,0,0,0.3);
@@ -912,10 +1102,7 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
 }
 
 /* =========================================
-   CORRECCIÓN: NÚMERO DE TARJETA
-   ========================================= */
-/* =========================================
-   CORRECCIÓN FINAL: NÚMERO DE TARJETA (SUBIDO A LA FUERZA)
+    NÚMERO DE TARJETA
    ========================================= */
 .card-number {
     /* 1. Fuente y Tamaño */
@@ -930,12 +1117,11 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     white-space: nowrap;
     text-align: left;
     
-    /* 3. POSICIONAMIENTO (EL TRUCO INFALIBLE) */
+    /* 3. POSICIONAMIENTO  */
     display: block;
-    position: relative;       /* Permite moverlo libremente */
+    position: relative;      
     left: -10px !important;
     
-    /* CAMBIA ESTE NÚMERO: Cuanto más negativo, más sube */
     top: -25px !important;    
     
     margin: 0 !important;     /* Quitamos márgenes para que no estorben */
@@ -946,7 +1132,7 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
     z-index: 10;
 }
 
-/* CORRECCIÓN VITAL: El contenedor interno debe tener 100% de altura para que las caras absolutas se posicionen bien */
+/* */
 .bank-card .card-inner {
     position: relative; width: 100%; height: 100%;
     transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
@@ -1018,7 +1204,6 @@ th {
     color: #ffffff !important;
 }
 
-/* Si por casualidad usaste 'td' en vez de 'th' en el HTML para los títulos */
 thead td {
     color: #ffffff !important;
 }

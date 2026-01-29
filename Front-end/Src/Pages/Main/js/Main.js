@@ -4,9 +4,9 @@
    1. LOGICA GLOBAL (DOM READY)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM cargado: inicializando Main.js');
+    console.log('🚀 DOM cargado: Inicializando Main.js');
 
-    // --- A. LOGOUT DESDE EL SIDEBAR (RECUPERADO) ---
+    // --- A. LOGOUT DESDE EL SIDEBAR ---
     const btnLogoutSidebar = document.getElementById('btn-logout-sidebar');
     if (btnLogoutSidebar) {
         btnLogoutSidebar.addEventListener('click', (e) => {
@@ -67,11 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================= */
 const controladores = {
     'Main_Parts/main_home.html': iniciarInicio,
-    'Main_Parts/main_profile.html': iniciarPerfil, // Ahora sí cargará datos
+    'Main_Parts/main_profile.html': iniciarPerfil,
     'Main_Parts/main_notif.html': iniciarNotificaciones,
     'Main_Parts/main_transf1.html': iniciarTransferencias,
     'Main_Parts/main_mov.html': iniciarMovimientos,
     'Main_Parts/main_data_transf.html': iniciardatamov,
+    'Main_Parts/main_kyc.html': iniciarKYC, // <--- ¡AQUÍ ESTABA FALTANDO!
     'Main_Parts/main_config.html': iniciarConfiguracion,
     'Main_Parts/main_educ.html': iniciarEducacion
 };
@@ -80,7 +81,6 @@ const controladores = {
    3. LOGICA DE NAVEGACIÓN (SPA)
    ========================================= */
 function iniciarNavegacionSPA() {
-    const menuLinks = document.querySelectorAll('.menu-link, .sub-menu-link');
     const contenedor = document.getElementById('contenedor-dinamico');
     if (!contenedor) console.error('No se encontró #contenedor-dinamico');
 
@@ -137,10 +137,9 @@ function iniciarNavegacionSPA() {
 
                     function afterScripts() {
                         contenedor.style.opacity = '1';
-                        try { if(window.CredoraTheme) window.CredoraTheme.setTheme(document.body.classList.contains('dark'), false); } catch(e) {}
-
+                        // Ejecutar controlador específico
                         if (controladores[rutaLimpia]) {
-                            console.log(`Ejecutando controlador para: ${rutaLimpia}`);
+                            // console.log(`Ejecutando controlador para: ${rutaLimpia}`);
                             controladores[rutaLimpia]();
                         }
                     }
@@ -154,27 +153,25 @@ function iniciarNavegacionSPA() {
         }, 200);
     }
 
-    // Eventos Click en el menú
-    if (menuLinks && menuLinks.length) {
-        menuLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                // Ignorar botón de logout del sidebar
-                if (link.id === 'btn-logout-sidebar') return;
+    // Eventos Click en el menú (Delegación de eventos para elementos dinámicos)
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('.menu-link, .sub-menu-link');
+        
+        // Ignorar logout o clicks fuera de enlaces
+        if (!link || link.id === 'btn-logout-sidebar') return;
 
-                const ruta = link.getAttribute('data-vista');
-                if (!ruta || ruta === '#') return;
+        const ruta = link.getAttribute('data-vista');
+        if (!ruta || ruta === '#') return;
 
-                e.preventDefault();
-                
-                // Active Class Logic
-                document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
-                link.classList.add('active');
-                if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
+        e.preventDefault();
+        
+        // Active Class Logic
+        document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
+        link.classList.add('active');
+        if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
 
-                window.cargarVista(ruta);
-            });
-        });
-    }
+        window.cargarVista(ruta);
+    });
 
     // Cargar Inicio por defecto
     window.cargarVista('Main_Parts/main_home.html');
@@ -187,7 +184,7 @@ function iniciarNavegacionSPA() {
 
 // --- A. INICIO (DASHBOARD) ---
 async function iniciarInicio() {
-    console.log("⚡ Cargando Dashboard...");
+    // console.log("⚡ Cargando Dashboard...");
 
     // 1. Cargar dependencias de gráficas
     const graficaCssPath = 'css/grafica.css';
@@ -282,9 +279,9 @@ async function iniciarInicio() {
     }
 }
 
-// --- B. PERFIL (CORREGIDO - AHORA CARGA DATOS) ---
+// --- B. PERFIL ---
 async function iniciarPerfil() {
-    console.log("👤 Cargando Perfil...");
+    // console.log("👤 Cargando Perfil...");
 
     // 1. Manejo del formulario de contraseña (existente)
     const formPassword = document.getElementById('form-password');
@@ -296,23 +293,29 @@ async function iniciarPerfil() {
         });
     }
 
-    // 2. CARGA DE DATOS DEL USUARIO (LO QUE FALTABA)
+    // 2. CARGA DE DATOS DEL USUARIO
     if (!window.CredoraAPI) return;
 
     try {
         const datos = await window.CredoraAPI.request('/billetera/saldo');
         if (datos) {
-            // Nombre Completo
-            const elName = document.getElementById('profile-name');
-            if (elName) elName.textContent = datos.titular; 
+            const mapa = {
+                'profile-name': datos.titular,
+                'profile-email': datos.email,
+                'profile-account': datos.numero_cuenta
+            };
+            
+            for(const [id, val] of Object.entries(mapa)) {
+                const el = document.getElementById(id);
+                if(el) el.textContent = val;
+            }
 
-            // Correo
-            const elEmail = document.getElementById('profile-email');
-            if (elEmail) elEmail.textContent = datos.email;
-
-            // Cuenta
-            const elAccount = document.getElementById('profile-account');
-            if (elAccount) elAccount.textContent = datos.numero_cuenta;
+            // Estado KYC visual en el perfil (Opcional)
+            const estadoEl = document.querySelector('.value.status-active');
+            if(estadoEl && datos.estado_kyc) {
+                estadoEl.textContent = datos.estado_kyc;
+                estadoEl.style.color = datos.estado_kyc === 'APROBADO' ? '#00d26a' : '#ffa500';
+            }
 
             // Avatar Grande
             const elAvatar = document.getElementById('profile-avatar');
@@ -338,7 +341,7 @@ async function iniciarPerfil() {
 
 // --- C. MOVIMIENTOS ---
 async function iniciarMovimientos() {
-    console.log("📂 Cargando historial...");
+    // console.log("📂 Cargando historial...");
     const tbody = document.querySelector('table tbody');
     if (!tbody) return;
 
@@ -394,185 +397,164 @@ async function iniciarMovimientos() {
 }
 
 
-// --- D. TRANSFERENCIAS (CON PIN DE SEGURIDAD) ---
+// --- D. TRANSFERENCIAS (CON PIN Y DATOS COMPLETOS) ---
 async function iniciarTransferencias() {
     console.log("💸 Módulo Transferencias Iniciado");
 
-    // 1. Cargar Saldo (Igual que antes)
+    // 1. Cargar Saldo
     try {
         if (window.CredoraAPI) {
             const datos = await window.CredoraAPI.request('/billetera/saldo');
             if (datos) {
                 const balanceDisplay = document.querySelector('.acc-balance strong');
-                if (balanceDisplay) balanceDisplay.textContent = `$${datos.saldo_actual.toFixed(2)}`;
+                if (balanceDisplay) balanceDisplay.textContent = `$${datos.saldo_actual.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             }
         }
     } catch (e) { console.error("Error cargando saldo", e); }
 
-
-    // --- VARIABLES DE ESTADO ---
-    // Aquí guardaremos los datos mientras el usuario escribe el PIN
+    // Variables de Estado
     let transferenciaPendiente = null;
-    let botonOriginalRef = null; // Para devolverle el texto al botón si falla
-
-
-    // --- LÓGICA DEL MODAL Y PIN ---
     const modal = document.getElementById('pinModal');
-    
-    // Función interna para cerrar modal y limpiar
-    const cerrarModal = () => {
-        if(modal) modal.classList.remove('active');
-        document.querySelectorAll('.pin-box').forEach(input => input.value = '');
-    };
 
-    // Función que se ejecuta SOLO si el PIN es correcto
-    const ejecutarTransferenciaReal = async () => {
+    // --- MANEJO DEL PIN ---
+    const pinInputs = document.querySelectorAll('.pin-box');
+    
+    // Configurar Inputs del PIN (Salto automático)
+    pinInputs.forEach((input, index) => {
+        // Limpiamos eventos previos clonando
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        newInput.addEventListener('keyup', (e) => {
+            if (e.key >= 0 && e.key <= 9) {
+                if (index < pinInputs.length - 1) pinInputs[index + 1].focus();
+            }
+            if (e.key === 'Backspace' && index > 0) {
+                pinInputs[index - 1].focus();
+            }
+            if (e.key === 'Enter' && index === pinInputs.length - 1) {
+                confirmarConPin();
+            }
+        });
+    });
+
+    // Función para ejecutar la transferencia real
+    window.confirmarConPin = async () => {
+        // 1. Obtener el PIN ingresado
+        let pinIngresado = "";
+        document.querySelectorAll('.pin-box').forEach(box => pinIngresado += box.value);
+
+        if (pinIngresado.length !== 4) {
+            alert("El PIN debe tener 4 dígitos.");
+            return;
+        }
+
         if (!transferenciaPendiente) return;
 
-        const { identificador, monto, motivo, btn } = transferenciaPendiente;
-        
-        // Efectos visuales de carga (en el botón original o en el modal)
-        const textoOriginal = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = "Procesando...";
-        cerrarModal(); // Cerramos el modal para ver el proceso en el fondo
-
-        try {
-            // 🔥 TU LLAMADA API ORIGINAL
-            const resultado = await window.CredoraAPI.request('/billetera/transferir', 'POST', {
-                identificador: identificador, 
-                monto: monto,
-                motivo: motivo
-            });
-
-            if (resultado) {
-                alert(`✅ ¡Transferencia Exitosa!\nEnviado a: ${resultado.destinatario}\nNuevo Saldo: $${resultado.nuevo_saldo}`);
-                window.cargarVista('Main_Parts/main_home.html');
-            }
-        } catch (err) {
-            alert("❌ Falló la transferencia:\n" + err.message);
-            btn.disabled = false;
-            btn.textContent = textoOriginal;
-        }
-        
-        // Limpiamos la variable temporal
-        transferenciaPendiente = null;
-    };
-
-    // Configuración de inputs del PIN (Auto-salto y Validación)
-    const pinInputs = document.querySelectorAll('.pin-box');
-    if (pinInputs.length > 0) {
-        // Clonamos para limpiar listeners viejos si se recarga la vista
-        pinInputs.forEach(oldInput => {
-            const newInput = oldInput.cloneNode(true);
-            oldInput.parentNode.replaceChild(newInput, oldInput);
-        });
-        
-        // Re-seleccionamos los nuevos inputs limpios
-        const inputsLimpios = document.querySelectorAll('.pin-box');
-        
-        inputsLimpios.forEach((input, index) => {
-            input.addEventListener('keyup', (e) => {
-                // Auto-focus siguiente
-                if (input.value.length === 1 && index < inputsLimpios.length - 1) {
-                    inputsLimpios[index + 1].focus();
-                }
-                // Backspace
-                if (e.key === 'Backspace' && index > 0) {
-                    inputsLimpios[index - 1].focus();
-                }
-                // Enter en el último input
-                if (e.key === 'Enter' && index === inputsLimpios.length - 1) {
-                    validarYEnvia();
-                }
-            });
-        });
-
-        // Función interna para chequear el PIN
-        const validarYEnvia = () => {
-            let pin = '';
-            inputsLimpios.forEach(i => pin += i.value);
-            
-            // 🔥 AQUÍ VALIDAS EL PIN (Simulado 1234)
-            if (pin === "1234") {
-                ejecutarTransferenciaReal();
-            } else {
-                // Efecto de error visual
-                const container = document.querySelector('.pin-container');
-                if(container) {
-                    container.style.animation = "shake 0.3s";
-                    setTimeout(() => container.style.animation = "", 300);
-                }
-                inputsLimpios.forEach(i => i.value = '');
-                inputsLimpios[0].focus();
-            }
+        // 2. Preparar datos finales
+        const datosEnvio = {
+            ...transferenciaPendiente, // Trae monto, motivo, nombre, etc.
+            pin: pinIngresado // Agregamos el PIN al paquete
         };
 
-        // Listener para el botón "Autorizar" del Modal
-        const btnAutorizarModal = document.querySelector('.modal-actions .btn-confirmar');
-        if (btnAutorizarModal) {
-            // Clonar para limpiar eventos previos
-            const newBtnAuth = btnAutorizarModal.cloneNode(true);
-            btnAutorizarModal.parentNode.replaceChild(newBtnAuth, btnAutorizarModal);
-            newBtnAuth.addEventListener('click', validarYEnvia);
+        const btnModal = document.querySelector('.modal-actions .btn-confirmar');
+        const txtOriginal = btnModal.textContent;
+        btnModal.textContent = "Procesando...";
+        btnModal.disabled = true;
+
+        try {
+            // 3. Enviar al Backend
+            const respuesta = await window.CredoraAPI.request('/billetera/transferir', 'POST', datosEnvio);
+
+            if (respuesta) {
+                // cerrarModal(); // Definida abajo
+                if(modal) modal.classList.remove('active');
+                
+                alert(`✅ Transferencia Exitosa!\n\nDestino: ${datosEnvio.nombre_beneficiario}\nMonto: $${datosEnvio.monto}`);
+                window.cargarVista('Main_Parts/main_home.html');
+            }
+        } catch (error) {
+            alert("❌ Error: " + error.message);
+            // Limpiar PIN si falló
+            document.querySelectorAll('.pin-box').forEach(box => box.value = '');
+            document.getElementById('pin1').focus();
+        } finally {
+            btnModal.textContent = txtOriginal;
+            btnModal.disabled = false;
         }
+    };
 
-        // Listener para cancelar en el Modal
-        const btnCancelarModal = document.querySelector('.modal-actions .btn-cancelar');
-        if (btnCancelarModal) {
-             const newBtnCancel = btnCancelarModal.cloneNode(true);
-             btnCancelarModal.parentNode.replaceChild(newBtnCancel, btnCancelarModal);
-             newBtnCancel.addEventListener('click', cerrarModal);
+    // Funciones del Modal
+    window.toggleModal = (show) => {
+        if (show) {
+            modal.classList.add('active');
+            setTimeout(() => document.getElementById('pin1').focus(), 100);
+        } else {
+            modal.classList.remove('active');
+            document.querySelectorAll('.pin-box').forEach(box => box.value = '');
+            transferenciaPendiente = null;
         }
-    }
+    };
 
+    window.validarPin = window.confirmarConPin; // Alias para el onclick del HTML
 
-    // --- 2. CONFIGURACIÓN DEL BOTÓN "CONTINUAR" PRINCIPAL ---
-    const btnConfirmar = document.querySelector('.btn-confirmar'); // El del formulario
-    if (btnConfirmar) {
-        const newBtn = btnConfirmar.cloneNode(true);
-        btnConfirmar.parentNode.replaceChild(newBtn, btnConfirmar);
+    // --- MANEJO DEL FORMULARIO PRINCIPAL ---
+    const btnContinuar = document.querySelector('.form-actions .btn-confirmar');
+    
+    if (btnContinuar) {
+        // Clonar para limpiar eventos
+        const newBtn = btnContinuar.cloneNode(true);
+        btnContinuar.parentNode.replaceChild(newBtn, btnContinuar);
 
-        newBtn.addEventListener('click', (e) => {
-            e.preventDefault(); 
+        newBtn.addEventListener('click', () => {
+            // 1. Capturar datos del HTML
+            const inputs = document.querySelectorAll('.form-transferencia input');
             
-            // Recolección de datos
-            const destinoInput = document.getElementById('input-destino');
-            const montoInput = document.querySelector('.input-monto');
-            const motivoInput = document.getElementById('input-motivo');
+            // Asumiendo el orden de tu HTML:
+            // [0] = Nombre Beneficiario
+            // [1] = Cédula Beneficiario
+            // [2] = Teléfono Beneficiario
+            // [3] = Monto
+            // [4] = Motivo
+            
+            const nombre = inputs[0].value.trim();
+            const cedula = inputs[1].value.trim();
+            const telefono = inputs[2].value.trim();
+            const monto = parseFloat(inputs[3].value);
+            const motivo = inputs[4].value.trim();
 
-            const identificador = (destinoInput ? destinoInput.value : document.querySelector('.input-with-icon input[type="text"]').value).trim();
-            const monto = montoInput ? parseFloat(montoInput.value) : 0;
-            const motivo = motivoInput ? motivoInput.value.trim() : 'Transferencia';
-
-            // Validación básica
-            if (!identificador || monto <= 0) {
-                alert("Por favor ingresa un destinatario válido y un monto mayor a 0.");
+            // 2. Validaciones
+            if (!nombre || !cedula || !monto || monto <= 0) {
+                alert("Por favor completa los datos obligatorios (Nombre, Cédula, Monto).");
                 return;
             }
 
-            // 🔥 AQUÍ ESTÁ EL CAMBIO: No enviamos, solo guardamos y abrimos modal
+            // 3. Guardar en memoria temporal
             transferenciaPendiente = {
-                identificador,
-                monto,
-                motivo,
-                btn: newBtn
+                nombre_beneficiario: nombre,
+                cedula_destino: cedula,
+                telefono_destino: telefono,
+                identificador: cedula, // Usamos la cédula como ID principal para el backend
+                monto: monto,
+                motivo: motivo || "Transferencia Credora"
             };
 
-            // Abrir Modal
-            if(modal) {
-                modal.classList.add('active');
-                setTimeout(() => document.getElementById('pin1')?.focus(), 100);
-            } else {
-                alert("Error: No se encontró el modal de seguridad en el HTML");
-            }
+            // 4. Pedir PIN
+            toggleModal(true);
         });
     }
-    
-    // Botón cancelar del formulario principal
+
     const btnCancelar = document.querySelector('.form-actions .btn-cancelar');
-    if (btnCancelar) {
-        btnCancelar.addEventListener('click', () => { window.cargarVista('Main_Parts/main_home.html'); });
+    if(btnCancelar) {
+        btnCancelar.addEventListener('click', () => window.cargarVista('Main_Parts/main_home.html'));
+    }
+    
+    // Listener para cancelar en el Modal
+    const btnCancelarModal = document.querySelector('.modal-actions .btn-cancelar');
+    if (btnCancelarModal) {
+         const newBtnCancel = btnCancelarModal.cloneNode(true);
+         btnCancelarModal.parentNode.replaceChild(newBtnCancel, btnCancelarModal);
+         newBtnCancel.addEventListener('click', () => window.toggleModal(false));
     }
 }
 
@@ -619,6 +601,123 @@ function iniciardatamov() {
 function iniciarConfiguracion() {
     const themeToggle = document.getElementById('config-theme-toggle');
     if(themeToggle) themeToggle.checked = document.body.classList.contains('dark');
+}
+
+// --- H. KYC (VERIFICACIÓN) - RECUPERADO ---
+function iniciarKYC() {
+    console.log(" Iniciando módulo KYC...");
+
+    const formKyc = document.getElementById('form-kyc');
+    const fileInput = document.getElementById('doc-id');
+    const fileNameDisplay = document.getElementById('file-name');
+    const vistaSubida = document.getElementById('vista-subida');
+    const vistaCarga = document.getElementById('vista-carga');
+    const vistaResultados = document.getElementById('vista-resultados');
+    const barra = document.getElementById('barra-progreso');
+
+    // 1. Mostrar nombre del archivo seleccionado
+    if(fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const f = this.files[0];
+                if(f.size > 5 * 1024 * 1024) {
+                    alert(" Archivo muy pesado (Máx 5MB)");
+                    this.value = "";
+                    fileNameDisplay.textContent = "";
+                } else {
+                    fileNameDisplay.textContent = `Archivo: ${f.name}`;
+                }
+            }
+        });
+    }
+
+    // 2. Enviar Documento (OCR)
+    if(formKyc) {
+        formKyc.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!fileInput.files[0]) { alert("Selecciona una imagen."); return; }
+
+            // UI: Cambiar a Cargando
+            vistaSubida.style.display = 'none';
+            vistaCarga.style.display = 'block';
+
+            // Simulación Barra Progreso
+            let progreso = 0;
+            const intervalo = setInterval(() => {
+                progreso += 3;
+                if(progreso > 90) progreso = 90; // Esperar al servidor
+                if(barra) barra.style.width = `${progreso}%`;
+            }, 100);
+
+try {
+                // Preparar FormData
+                const formData = new FormData();
+                formData.append('archivo', fileInput.files[0]);
+                const token = localStorage.getItem('credora_token');
+
+                console.log("Enviando imagen al servidor..."); // Log para depurar
+
+                // Petición al Backend
+                const response = await fetch('http://localhost:8000/api/v1/billetera/kyc/subir-documento', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if(!response.ok) {
+                    // Intentamos leer el error del servidor, si es JSON
+                    let mensajeError = "Error al analizar documento";
+                    try {
+                        const errorData = await response.json();
+                        mensajeError = errorData.detail || mensajeError;
+                    } catch (e) {
+                        mensajeError = `Error del servidor: ${response.status} ${response.statusText}`;
+                    }
+                    throw new Error(mensajeError);
+                }
+                
+                const datosAPI = await response.json();
+                console.log("Respuesta recibida:", datosAPI); // Ver qué llegó
+                
+                // Finalizar Barra
+                clearInterval(intervalo);
+                if(barra) barra.style.width = '100%';
+
+                // ... resto del código (Mostrar Resultados) ...
+
+            } catch (err) {
+                console.error("Error en KYC:", err); // Ver error en consola roja
+                clearInterval(intervalo);
+                alert(" Ocurrió un error: " + err.message);
+                
+                // Reiniciar vista
+                if(vistaCarga) vistaCarga.style.display = 'none';
+                if(vistaSubida) vistaSubida.style.display = 'block';
+            }
+        });
+    }
+
+    // 3. Finalizar Proceso (Guardar Datos Extra)
+    const formFinalizar = document.getElementById('form-finalizar-kyc');
+    if(formFinalizar) {
+        formFinalizar.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const datosFinales = {
+                direccion: document.getElementById('user-direccion').value,
+                telefono: document.getElementById('user-phone').value,
+                tipo_usuario: document.getElementById('tipe-user').value
+            };
+
+            try {
+                const res = await window.CredoraAPI.request('/billetera/kyc/finalizar', 'POST', datosFinales);
+                alert("✅ " + res.mensaje);
+                window.cargarVista('Main_Parts/main_profile.html');
+            } catch (err) {
+                alert("Error guardando perfil: " + err.message);
+            }
+        });
+    }
 }
 
 function iniciarEducacion() { console.log("Módulo educativo cargado"); }

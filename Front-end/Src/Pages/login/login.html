@@ -6,6 +6,7 @@
     <title>Credora - Acceso y Registro</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="shortcut icon" href="../../Assets/Icons/Favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="login.css">
 </head>
 <body>
@@ -19,14 +20,14 @@
     <div class="container">
         
         <div class="form_box login">
-            <form action="#">
+            <form action="#" id="formLogin">
                 <h1>Iniciar Sesión</h1>
                 <div class="input_box">
-                    <input type="email" placeholder="Correo electrónico" required>
+                    <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
                     <i class='bx bxs-envelope'></i>
                 </div>
                 <div class="input_box">
-                    <input type="password" placeholder="Contraseña" required>
+                    <input type="password" id="loginPass" placeholder="Contraseña" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
                 <div class="forgot_link">
@@ -37,26 +38,26 @@
         </div>
 
         <div class="form_box register">
-            <form action="#">
+            <form action="#" id="formRegister">
                 <h1>Registrarse</h1>
                 
                 <div class="input_box">
-                    <input type="text" placeholder="Nombre y Apellido" required>
+                    <input type="text" id="regNombre" placeholder="Nombre y Apellido" required>
                     <i class='bx bxs-user'></i>
                 </div>
                 
                 <div class="input_box">
-                    <input type="email" placeholder="Correo electrónico" required>
+                    <input type="email" id="regEmail" placeholder="Correo electrónico" required>
                     <i class='bx bxs-envelope'></i>
                 </div>
 
                 <div class="input_box">
-                    <input type="password" placeholder="Contraseña" required>
+                    <input type="password" id="regPass" placeholder="Contraseña" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
                 <div class="input_box">
-                    <input type="password" placeholder="Confirmar contraseña" required>
+                    <input type="password" id="regConfirmPass" placeholder="Confirmar contraseña" required>
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
@@ -134,6 +135,8 @@
         </div>
     </div>
 
+    
+    <script src="conexion.js"></script>
     <script src="login.js"></script>
 </body>
 </html>

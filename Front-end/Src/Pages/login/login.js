@@ -1,27 +1,8 @@
-<<<<<<< Updated upstream
-/**
- * CREDORA LOGIN - SCRIPT PRINCIPAL
- * ==================================
- * Archivo: script.js
- * Descripción: Funcionalidades interactivas de la página de login
- *   - Toggle entre formularios de login y registro
- *   - Limpieza de campos al cambiar de formulario
- *   - Generación dinámica de billeteras animadas (efecto nieve)
- *   - Posicionamiento aleatorio y duración variable
- */
-
-// ============================================
-// 1. REFERENCIAS A ELEMENTOS DEL DOM
-// ============================================
-
-/** Contenedor principal que cambia de estado activo */
-=======
 /* ============================================
    CREDORA LOGIN - SCRIPT PRINCIPAL
    ============================================ */
 
 // --- REFERENCIAS DOM ---
->>>>>>> Stashed changes
 const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn'); // Botón panel izq
 const loginBtn = document.querySelector('.login-btn');       // Botón panel der

@@ -1,0 +1,90 @@
+/* Front-end\Src\Pages\Main\css\kyc.css */
+
+/* Estilos para el contenedor de Carga de Documentos */
+.kyc-wrapper {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.kyc-upload-area {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f9f9f9;
+}
+
+.kyc-upload-area:hover {
+    border-color: #003049;
+    background: #eef2ff;
+}
+
+.kyc-upload-area i {
+    font-size: 3rem;
+    color: #003049;
+    margin-bottom: 1rem;
+}
+
+.kyc-title {
+    color: #003049;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+/* Barra de progreso */
+.progress-container {
+    background: #eee;
+    border-radius: 50px;
+    height: 10px;
+    width: 100%;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #003049, #00d26a);
+    height: 100%;
+    width: 0%;
+    border-radius: 50px;
+    transition: width 0.4s ease;
+}
+
+/* Badges de estado */
+.status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.status-badge.valid { background: #d1fae5; color: #065f46; }
+.status-badge.expired { background: #fee2e2; color: #991b1b; }
+
+/* Inputs del formulario final */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+}
+.form-group input:read-only {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}

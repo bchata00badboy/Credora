@@ -588,7 +588,7 @@ body:not(.dark) .sub-menu .sub-menu-link {
 }
 #vista-perfil .card-perfil {
     background-color: #ffffff; border-radius: 12px; padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); flex: 1; min-width: 300px;
+    box-shadow: 0 4px 12px rgba(50, 16, 16, 0.05); flex: 1; min-width: 300px;
 }
 #vista-perfil .avatar-circle {
     width: 80px; height: 80px; background-color: #003366; color: white;
@@ -607,6 +607,45 @@ body:not(.dark) .sub-menu .sub-menu-link {
     width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;
     font-size: 1rem; box-sizing: border-box;
 }
+
+/* =========================================
+   ESTILOS DEL BOTÓN DE VERIFICACIÓN (KYC)
+   ========================================= */
+.profile-actions {
+    width: 100%;
+    margin-top: auto; /* Empuja el botón al final si hay espacio */
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    background-color: #003049; /* Color principal Credora */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    box-shadow: 0 4px 6px rgba(0, 48, 73, 0.2);
+}
+
+.btn-action i {
+    font-size: 1.3rem;
+}
+
+.btn-action:hover {
+    background-color: #004e75;
+}
+
+.btn-action:active {
+    transform: scale(0.98);
+}
+
 #vista-perfil input[type="password"]:focus { border-color: #003366; outline: none; }
 #vista-perfil .btn-guardar {
     background-color: #003366; color: white; border: none; padding: 12px 20px;

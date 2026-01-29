@@ -7,9 +7,14 @@ class EsquemaRecarga(BaseModel):
 
 # P3.1 - Transferencia
 class EsquemaTransferencia(BaseModel):
-    correo_destino: EmailStr
-    monto: float = Field(..., gt=0, description="El monto debe ser positivo")
-    descripcion: Optional[str] = "Transferencia"
+    # Ya no usamos solo "identificador", ahora somos específicos
+    cuenta_destino: str = None  # Opcional si usa teléfono/cédula
+    cedula_destino: str = None
+    telefono_destino: str = None
+    nombre_beneficiario: str = None # Informativo
+    monto: float
+    motivo: str
+    pin: str
 
 # P3.1 - Registro de Negocio
 class EsquemaRegistroNegocio(BaseModel):

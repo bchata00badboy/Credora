@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // VALIDACIÓN EXTRA: ¿Coinciden las contraseñas?
             if (pass !== passConfirm) {
-                alert("❌ Las contraseñas no coinciden.");
+                alert(" Las contraseñas no coinciden.");
                 return;
             }
 
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (respuesta.ok) {
-                    alert("✅ ¡Cuenta creada con éxito! Iniciando sesión...");
+                    alert(" ¡Cuenta creada con éxito! Iniciando sesión...");
                     // Auto-login tras registro
                     await realizarLogin(correo, pass);
                 } else {

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 # Importaciones de Base de Datos y Modelos
 from app.db.sesion import get_db
-from app.db.modelos import Usuario, Transaccion, Cuenta, SolicitudKYC
+from app.db.modelos import Usuario, Transaccion, Cuenta, SolicitudKYC, EstadoKYC
 
 # Seguridad
 from app.seguridad.jwt_utils import decodificar_token
@@ -49,11 +49,6 @@ def obtener_saldo(
     db: Session = Depends(get_db), 
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
-    """
-    Retorna datos para el Dashboard.
-    Incluye lógica de AUTO-REPARACIÓN: Si no tiene cuenta, crea una con $100.
-    """
-    
     # --- AUTO-REPARACIÓN (Bono de Bienvenida) ---
     if not usuario.cuenta:
         print(f"⚠️ Usuario {usuario.correo} sin billetera. Generando Bono $100...")
@@ -80,8 +75,8 @@ def obtener_saldo(
         "email": usuario.correo,
         "numero_cuenta": cuenta_real,
         "tarjeta_ultimos_4": ultimos_4,
+        "estado_kyc": usuario.estado_kyc, # Enviamos el estado KYC al front
         "historial": {
-            # Gráfica simulada basada en saldo real
             "lineal": {
                 "valores": [saldo_real * 0.9, saldo_real * 0.95, saldo_real, saldo_real * 1.05, saldo_real],
                 "total_fmt": f"${saldo_real:,.2f}"
@@ -126,12 +121,19 @@ def historial_movimientos(
         return []
 
 # ======================================================================
-# 3. ENDPOINT TRANSFERENCIAS (INTELIGENTE)
+# 3. ENDPOINT TRANSFERENCIAS (ACTUALIZADO CON PIN)
 # ======================================================================
+
+# Esquema actualizado para recibir todos los datos del Frontend
 class EsquemaTransferencia(BaseModel):
-    identificador: str # Acepta CORREO o NÚMERO DE CUENTA
+    identificador: str # Correo o Cuenta del destino
     monto: float
     motivo: Optional[str] = "Transferencia"
+    # Campos nuevos de seguridad e información
+    pin: str
+    cedula_destino: Optional[str] = None
+    telefono_destino: Optional[str] = None
+    nombre_beneficiario: Optional[str] = None
 
 @router.post("/transferir")
 def realizar_transferencia(
@@ -139,37 +141,55 @@ def realizar_transferencia(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
-    # 1. Validar Saldo (Desde la tabla Cuenta)
+    # 0. Validar Estado KYC (Opcional: Descomentar si quieres obligar KYC)
+    # if usuario.estado_kyc != "APROBADO": # o EstadoKYC.APROBADO
+    #     raise HTTPException(status_code=403, detail="Debes verificar tu identidad (KYC) para transferir.")
+
+    # 1. Validar PIN DE SEGURIDAD
+    # En un caso real, compararíamos con usuario.pin_hash en la BD.
+    # Para la DEMO, aceptamos "1234".
+    if datos.pin != "1234":
+        raise HTTPException(status_code=403, detail="PIN de seguridad incorrecto.")
+
+    # 2. Validar Saldo
     if usuario.cuenta.saldo < datos.monto:
         raise HTTPException(status_code=400, detail="Saldo insuficiente.")
     
     if datos.monto <= 0:
-        raise HTTPException(status_code=400, detail="Monto inválido.")
+        raise HTTPException(status_code=400, detail="El monto debe ser mayor a 0.")
 
-    # 2. Buscar Destinatario (Por Correo O Cuenta)
+    # 3. Buscar Destinatario (Por Correo O Cuenta)
+    # Prioridad: Identificador principal (Cuenta/Correo)
     destinatario = db.query(Usuario).filter(
         (Usuario.correo == datos.identificador) | 
         (Usuario.numero_cuenta == datos.identificador)
     ).first()
 
+    # Si no encuentra por identificador, intentamos por Cédula (si la envió)
+    if not destinatario and datos.cedula_destino:
+         # Asumiendo que tienes campo 'cedula' en Usuario, si no, omite este bloque
+         # destinatario = db.query(Usuario).filter(Usuario.cedula == datos.cedula_destino).first()
+         pass
+
     if not destinatario:
-        raise HTTPException(status_code=404, detail="Destinatario no encontrado. Verifique correo o cuenta.")
+        raise HTTPException(status_code=404, detail="Destinatario no encontrado. Verifique los datos.")
         
     if destinatario.id_usuario == usuario.id_usuario:
         raise HTTPException(status_code=400, detail="No puedes transferirte a ti mismo.")
 
-    # 3. Ejecutar Transacción (Atomicidad)
+    # 4. Ejecutar Transacción (Atomicidad)
     try:
-        # Actualizar saldos en tabla Cuenta
+        # Descontar saldo
         usuario.cuenta.saldo -= datos.monto
         
-        # Auto-reparación destino si no tiene cuenta
+        # Auto-reparación destino (Bono fantasma si no tiene cuenta)
         if not destinatario.cuenta:
             destinatario_cuenta = Cuenta(id_usuario=destinatario.id_usuario, saldo=0.0, moneda='USD')
             db.add(destinatario_cuenta)
             db.commit()
             db.refresh(destinatario)
 
+        # Acreditar saldo
         destinatario.cuenta.saldo += datos.monto
         
         # Registrar Transacción
@@ -193,13 +213,13 @@ def realizar_transferencia(
         
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error interno procesando el pago: {str(e)}")
 
 # ======================================================================
-# 4. ENDPOINT KYC: SUBIR DOCUMENTO (IA)
+# 4. ENDPOINT KYC: SUBIR DOCUMENTO (IA) - CORREGIDO (Sin Async)
 # ======================================================================
 @router.post("/kyc/subir-documento")
-async def subir_documento_kyc(
+def subir_documento_kyc(  # <--- CAMBIO AQUÍ: Quitamos 'async'
     archivo: UploadFile = File(...),
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(obtener_usuario_actual)
@@ -221,7 +241,8 @@ async def subir_documento_kyc(
     # 3. Registrar en BD
     solicitud = registrar_subida_en_bd(db, usuario.id_usuario, nombre_seguro)
 
-    # 4. Ejecutar IA (EasyOCR)
+    # 4. Ejecutar IA (EasyOCR) - AHORA CORRE EN UN HILO SEPARADO
+    # Esto ya no bloqueará la conexión con el Frontend
     datos_extraidos = extraer_datos_venezuela(ruta_destino)
 
     # 5. Guardar Resultados
@@ -241,7 +262,6 @@ async def subir_documento_kyc(
             "cedula": datos_extraidos["cedula"]
         }
     }
-
 # ======================================================================
 # 5. ENDPOINT KYC: FINALIZAR (Datos extra)
 # ======================================================================
@@ -256,11 +276,8 @@ def finalizar_kyc_datos(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
-    # Verificamos si ya pasó la IA
-    # Ajusta 'APROBADO' si tu Enum en modelos.py usa otro valor
-    if usuario.estado_kyc != "APROBADO": 
-        # Si usas el Enum directamente: if usuario.estado_kyc != EstadoKYC.APROBADO:
-        pass # Permitimos continuar para la demo, pero idealmente se valida aquí
+    if usuario.estado_kyc != EstadoKYC.APROBADO: 
+        pass 
 
     usuario.direccion = datos.direccion
     usuario.telefono = datos.telefono

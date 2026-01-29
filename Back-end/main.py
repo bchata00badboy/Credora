@@ -30,7 +30,9 @@ app = FastAPI(
 # Permite que el Frontend (HTML/JS) se comunique con el Backend
 origins = [
     "http://localhost",
+    "http://localhost:8000",
     "http://127.0.0.1",
+    "http://127.0.0.1:8000",
     "http://127.0.0.1:5500",  # Live Server típico de VS Code
     "*"  # En modo desarrollo permitimos todo para evitar bloqueos
 ]

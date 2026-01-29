@@ -1,5 +1,7 @@
 <!-- /Front-end/Src/Pages/Main/Main_Parts/main_profile.html -->
 
+<link rel="stylesheet" href="css/profile.css">
+
 <section class="content-section" id="vista-perfil">
     <header> 
         <h1>Mi Perfil</h1>
@@ -15,19 +17,27 @@
             <h2 id="profile-name">Cargando usuario...</h2>
             <p class="rol">Cliente Credora</p>
             
-            <div class="info-row">
-                <span class="label">Correo:</span>
-                <span class="value" id="profile-email">...</span>
+            <div class="info-container">
+                <div class="info-row">
+                    <span class="label">Correo:</span>
+                    <span class="value" id="profile-email">...</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Nro. Cuenta:</span>
+                    <span class="value monospace" id="profile-account">...</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Estado:</span>
+                    <span class="value status-active">Activo</span>
+                </div>
             </div>
-            
-            <div class="info-row">
-                <span class="label">Nro. Cuenta:</span>
-                <span class="value" id="profile-account">...</span>
-            </div>
-            
-            <div class="info-row">
-                <span class="label">Estado:</span>
-                <span class="value" style="color: #00d26a; font-weight: bold;">Activo</span>
+
+            <div class="profile-actions">
+                <button class="btn-action menu-link" data-vista="Main_Parts/main_kyc.html">
+                    <i class='bx bx-id-card'></i> Verificar Identidad (KYC)
+                </button>
             </div>
         </div>
 

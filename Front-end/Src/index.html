@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credora Final Icons</title>
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+
+    <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+
+    <style>
+        /* ============================
+           CONFIGURACIÓN BASE
+           ============================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body { 
+            background-color: #00050a;
+            overflow: hidden; 
+            color: #fff; 
+            width: 100vw; height: 100vh;
+            display: flex;
+        }
+
+        #canvas-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; 
+        }
+
+        :root {
+            --sidebar-closed-w: 78px;
+            --sidebar-open-w: 280px;
+            --bg-glass: rgba(5, 15, 25, 0.85);
+            --accent-color: #ff3347;
+            --text-color: #ffffff;
+            --text-muted: #909090;
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --smooth-easing: cubic-bezier(0.4, 0, 0.2, 1);
+            --text-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* ============================
+           SIDEBAR
+           ============================ */
+        .sidebar {
+            position: relative; height: 100%;
+            width: var(--sidebar-closed-w);
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px) saturate(100%);
+            padding: 20px 14px;
+            transition: width 0.5s var(--smooth-easing);
+            z-index: 100;
+            border-right: 1px solid var(--border-glass);
+            box-shadow: 5px 0 20px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column;
+            overflow-x: hidden; overflow-y: auto;
+            --mouse-x: 0px; --mouse-y: 0px;
+        }
+
+        /* Spotlight sutil */
+        .sidebar::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(400px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.03), transparent 40%);
+            z-index: 0; opacity: 0; transition: opacity 0.5s; pointer-events: none;
+        }
+        .sidebar:hover::before { opacity: 1; }
+        .sidebar:hover { width: var(--sidebar-open-w); }
+        .sidebar::-webkit-scrollbar { width: 0px; }
+
+        /* ============================
+           ELEMENTOS
+           ============================ */
+        .logo_content, .input-box, .nav_list, .footer_div { position: relative; z-index: 1; }
+
+        /* LOGO */
+        .logo_content { display: flex; align-items: center; height: 50px; margin-bottom: 25px; flex-shrink: 0; white-space: nowrap; }
+        .logo_content img { width: 40px; height: 40px; object-fit: contain; margin-left: 5px; }
+        
+        .logo_name { 
+            font-size: 24px; font-weight: 700; margin-left: 15px; color: #fff;
+            opacity: 0; letter-spacing: -2px; filter: blur(2px);
+            transition: all 0.6s var(--text-easing);
+        }
+        .sidebar:hover .logo_name { 
+            opacity: 1; letter-spacing: 0px; filter: blur(0);
+            transition-delay: 0.1s; 
+        }
+
+        /* BUSCADOR */
+        .input-box {
+            position: relative; height: 50px; width: 100%; margin-bottom: 20px; 
+            background: rgba(255,255,255,0.03); border-radius: 12px; display: flex; align-items: center;
+            transition: all 0.4s ease; border: 1px solid transparent;
+        }
+        .input-box:focus-within { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
+        .sidebar:not(:hover) .input-box { background: transparent; cursor: pointer; }
+
+        .input-box i { position: absolute; width: 50px; text-align: center; font-size: 22px; color: #aaa; z-index: 10; }
+        .input-box input {
+            height: 100%; width: 100%; outline: none; border: none; background: transparent; 
+            color: #fff; padding-left: 50px; font-size: 14px; opacity: 0; pointer-events: none; 
+            transition: 0.3s;
+        }
+        .sidebar:hover .input-box input { opacity: 1; pointer-events: auto; }
+
+        /* LISTA */
+        .nav_list { list-style: none; width: 100%; }
+        .nav_list li { position: relative; margin-bottom: 5px; }
+
+        .nav_list li a {
+            display: flex; align-items: center; text-decoration: none; border-radius: 12px;
+            transition: all 0.2s ease; white-space: nowrap; height: 50px; cursor: pointer;
+        }
+
+        .nav_list li a i {
+            height: 50px; min-width: 50px; border-radius: 12px; line-height: 50px; 
+            text-align: center; font-size: 22px; color: var(--text-muted); transition: 0.3s;
+        }
+
+        /* ANIMACIÓN TEXTO: EXPANSIÓN DIGITAL */
+        .links_name {
+            color: var(--text-muted); font-weight: 500; white-space: nowrap;
+            opacity: 0; letter-spacing: -3px; filter: blur(3px); transform: translateX(-5px); 
+            transition: all 0.5s var(--text-easing); pointer-events: none;
+        }
+        .sidebar:hover .links_name {
+            opacity: 1; letter-spacing: 0px; filter: blur(0); transform: translateX(0);
+            pointer-events: auto; transition-delay: calc(0.04s * var(--i)); 
+        }
+
+        /* Hover */
+        .nav_list li a:hover { background: rgba(255,255,255,0.05); }
+        .nav_list li a:hover i, .nav_list li a:hover .links_name { color: #fff; }
+
+        /* Activo */
+        .nav_list li a.active { background: rgba(255, 51, 71, 0.08); }
+        .nav_list li a.active i { color: var(--accent-color); }
+        .nav_list li a.active .links_name { color: #fff; }
+        .nav_list li a.active::before {
+            content: ''; position: absolute; left: 0; top: 12px; height: 26px; width: 3px;
+            background: var(--accent-color); border-radius: 0 4px 4px 0;
+        }
+
+        /* SUBMENU */
+        .arrow { margin-left: auto; margin-right: 15px; font-size: 16px !important; transition: 0.3s; opacity: 0;}
+        .sidebar:hover .arrow { opacity: 1; transition-delay: 0.2s; }
+        .arrow.rotate { transform: rotate(180deg); }
+        .submenu-wrapper {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
+            background: rgba(0,0,0,0.3); border-radius: 8px; margin-left: 10px; margin-right: 10px;
+        }
+        .submenu-wrapper.show { max-height: 150px; }
+        .submenu-wrapper a { height: 40px !important; padding-left: 10px; }
+        
+        .divider { height: 1px; width: 100%; background: rgba(255,255,255,0.05); margin: 15px 0; display: block; }
+        .footer_div { margin-top: auto; }
+
+        /* CONTENIDO PRINCIPAL */
+        .home_content {
+            flex-grow: 1; height: 100%; padding: 50px; overflow-y: auto; position: relative;
+            transition: filter 0.5s var(--smooth-easing);
+            animation: fadeInContent 1s ease forwards;
+        }
+        @keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .sidebar:hover + .home_content { filter: blur(2px) brightness(0.8); pointer-events: none; }
+        .hero-text { font-size: 36px; font-weight: 700; margin-bottom: 20px; }
+        .hero-p { color: #ccc; font-size: 16px; max-width: 800px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+
+
+    
+
+    <div id="canvas-container"></div>
+
+    <div class="sidebar">
+        <div class="logo_content">
+            <img src="Assets/Icons/Favicon.png" alt="Logo">
+            <div class="logo_name">Credora</div>
+        </div>
+
+        <div class="input-box">
+            <i class='bx bx-search'></i>
+            <input type="text" placeholder="Buscar..." id="searchInput">
+        </div>
+
+        <ul class="nav_list">
+            <li style="--i:1">
+                <a href="#" class="active nav-link">
+                    <i class='bx bx-home-smile'></i>
+                    <span class="links_name">Inicio</span>
+                </a>
+            </li>
+            <li style="--i:2">
+                <a href="#" class="nav-link">
+                    <i class='bx bx-list-check'></i>
+                    <span class="links_name">Movimientos</span>
+                </a>
+            </li>
+            
+            <li style="--i:3" id="transfer-item">
+                <a href="#" class="dropdown-trigger nav-link">
+                    <i class='bx bx-send'></i>
+                    <span class="links_name">Transferir</span>
+                    <i class='bx bx-chevron-down arrow'></i>
+                </a>
+                <div class="submenu-wrapper">
+                    <a href="#" class="nav-link">
+                        <i class='bx bx-user'></i><span class="links_name">Otras Cuentas</span>
+                    </a>
+                    <a href="#" class="nav-link">
+                        <i class='bx bx-file-find'></i><span class="links_name">Revisar Datos</span>
+                    </a>
+                </div>
+            </li>
+
+            <li style="--i:4">
+                <a href="#" class="nav-link">
+                    <i class='bx bx-book-reader'></i>
+                    <span class="links_name">Educación</span>
+                </a>
+            </li>
+            
+            <li style="--i:5">
+                <a href="#" class="nav-link">
+                    <i class='bx bx-cog'></i>
+                    <span class="links_name">Configuración</span>
+                </a>
+            </li>
+
+            <li style="--i:6">
+                <a href="#" class="nav-link">
+                    <i class='bx bx-exit'></i>
+                    <span class="links_name">Cerrar Sesión</span>
+                </a>
+            </li>
+
+            <li class="divider" style="--i:7"></li>
+
+            <div class="footer_div">
+                <li style="--i:8"><a href="#" class="nav-link">
+                    <i class='bx bx-bell-ring'></i><span class="links_name">Notificaciones</span>
+                </a></li>
+                <li style="--i:9"><a href="#" class="nav-link">
+                    <i class='bx bx-id-card'></i><span class="links_name">Perfil</span>
+                </a></li>
+            </div>
+        </ul>
+    </div>
+
+
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- FONDO ---
+            const scene = new THREE.Scene(); scene.background = new THREE.Color(0x020b14); 
+            const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 100); camera.position.set(0, 0, 13);
+            const renderer = new THREE.WebGLRenderer({antialias:true}); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); document.getElementById('canvas-container').appendChild(renderer.domElement);
+            const auroraMat = new THREE.ShaderMaterial({ uniforms: { uTime: { value: 0 } }, vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`, fragmentShader: `varying vec2 vUv; uniform float uTime; void main() { vec2 uv = vUv; float w1 = sin(uv.x*2.0 + uTime*0.5)*0.5+0.5; vec3 c1 = vec3(0.4, 0.05, 0.1); vec3 c2 = vec3(0.05, 0.1, 0.4); vec3 col = mix(c1, c2, cos(uv.x*4.0 + uTime*0.2)*0.5+0.5); float mask = smoothstep(-0.2, 1.2, uv.y); gl_FragColor = vec4(col * w1 * mask, 0.3); }`, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+            const auroraPlane = new THREE.Mesh(new THREE.PlaneGeometry(60, 40), auroraMat); auroraPlane.position.set(0, -5, -15); scene.add(auroraPlane);
+            const snowGeo = new THREE.BufferGeometry(); const snowPos = new Float32Array(800 * 3); for (let i = 0; i < 800 * 3; i++) snowPos[i] = (Math.random() - 0.5) * 40; snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
+            const snowMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, transparent: true, opacity: 0.4 }); const snowSystem = new THREE.Points(snowGeo, snowMat); scene.add(snowSystem);
+            function animate() { requestAnimationFrame(animate); auroraMat.uniforms.uTime.value += 0.005; snowSystem.rotation.y += 0.0005; renderer.render(scene, camera); } animate();
+            window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+            // --- SPOTLIGHT TRACKING ---
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.addEventListener('mousemove', (e) => {
+                const rect = sidebar.getBoundingClientRect();
+                sidebar.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                sidebar.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+            });
+
+            // --- LOGICA MENU ---
+            const transferItem = document.getElementById('transfer-item');
+            const toggle = transferItem.querySelector('.dropdown-trigger');
+            const subMenu = transferItem.querySelector('.submenu-wrapper');
+            const arrow = transferItem.querySelector('.arrow');
+            toggle.addEventListener('click', (e) => { e.preventDefault(); subMenu.classList.toggle('show'); arrow.classList.toggle('rotate'); });
+            sidebar.addEventListener('mouseleave', () => { subMenu.classList.remove('show'); arrow.classList.remove('rotate'); });
+
+            // --- CLICK ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if(!this.classList.contains('dropdown-trigger')) {
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
+                    }
+                });
+            });
+
+            // --- BUSQUEDA ---
+            const searchInput = document.getElementById('searchInput');
+            const allNavItems = document.querySelectorAll('.nav_list > li:not(.divider)');
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                allNavItems.forEach(item => {
+                    let match = false;
+                    if (item.querySelector('.links_name')?.textContent.toLowerCase().includes(term)) match = true;
+                    item.querySelectorAll('.submenu-wrapper .nav-link').forEach(sub => {
+                        if(sub.querySelector('.links_name').textContent.toLowerCase().includes(term)) { match = true; sub.style.display = 'flex'; }
+                        else { sub.style.display = term ? 'none' : 'flex'; }
+                    });
+                    item.style.display = match ? 'block' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

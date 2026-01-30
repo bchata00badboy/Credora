@@ -1,45 +1,36 @@
 // /Front-end/Src/Pages/Main/js/grafica.js
 
-/* ==========================================
-   LOGICA DE GRÁFICAS - SPA + CONEXIÓN API
-   ========================================== */
+// /Front-end/Src/Pages/Main/js/grafica.js
 
 (function() {
-    console.log('>>> Sistema de Gráficas: Iniciado y vigilando...');
+    console.log('📊 Sistema de Gráficas: Módulo cargado correctamente.');
 
-    // --- 1. CONFIGURACIÓN Y DATOS INICIALES (Placeholders) ---
-    // Estos datos se mostrarán mientras carga la API o si falla la conexión
-    const walletData = {
+    const CONFIG = {
+        colors: ['#003049', '#00d26a', '#f7b731', '#8854d0', '#eb3b5a'],
+        defaultColorIndex: 1, // Verde
+        fontFamily: "'Poppins', sans-serif"
+    };
+
+    let currentColorIndex = CONFIG.defaultColorIndex;
+    let periodoActual = 'dia'; 
+
+    // --- DATOS LOCALES (Estructura Base) ---
+    // Estas son las etiquetas predeterminadas que definen el eje X
+    const datosLocales = {
         dia: { 
-            labels: ["08:00", "12:00", "16:00", "20:00", "00:00"], 
-            data: [0, 0, 0, 0, 0], 
-            total: "$0.00" 
+            labels: ["06:00", "10:00", "14:00", "18:00", "22:00"], 
+            data: [0, 0, 0, 0, 0] 
         },
         mes: { 
             labels: ["Sem 1", "Sem 2", "Sem 3", "Sem 4"], 
-            data: [0, 0, 0, 0], 
-            total: "$0.00" 
+            data: [0, 0, 0, 0] 
         },
         anio: { 
-            labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"], 
-            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-            total: "$0.00" 
+            labels: ["Ene", "Abr", "Jul", "Oct", "Dic"], 
+            data: [0, 0, 0, 0, 0] 
         }
     };
 
-    // Variables de Estado
-    let periodoActual = 'dia'; 
-    
-    // Configuración de Colores
-    const colorOptions = ['#003049', '#00d26a', '#f7b731', '#8854d0', '#eb3b5a'];
-    let colorIndex = 1; // Verde por defecto
-    let currentColor = colorOptions[colorIndex];
-
-    // Variables para las instancias de Chart.js
-    window.chartInstanceMain = null;
-    window.chartInstanceUsage = null;
-
-    // --- 2. UTILIDADES ---
     function hexToRgba(hex, alpha) {
         let c = hex.substring(1).split('');
         if(c.length === 3) c = [c[0], c[0], c[1], c[1], c[2], c[2]];
@@ -47,80 +38,78 @@
         return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
     }
 
-    // --- 3. FUNCIONES DE RENDERIZADO ---
-
-    // A) Gráfica Principal (Líneas)
+    // --- RENDERIZADO GRÁFICA PRINCIPAL ---
     window.renderMainChart = function(periodo = periodoActual) {
         const canvas = document.getElementById('credoraChart');
-        if (!canvas) return; 
+        if (!canvas) return;
 
-        // Destruir anterior si existe para evitar superposiciones
-        if (window.chartInstanceMain instanceof Chart) {
-            window.chartInstanceMain.destroy();
+        // Protección contra carga prematura
+        if (typeof Chart === 'undefined') {
+            setTimeout(() => window.renderMainChart(periodo), 500);
+            return;
         }
 
+        const chartExistente = Chart.getChart(canvas);
+        if (chartExistente) chartExistente.destroy();
+
         const ctx = canvas.getContext('2d');
-        const selectedData = walletData[periodo];
-        const colorPrincipal = currentColor; 
+        const color = CONFIG.colors[currentColorIndex];
+        
+        // Selección de datos segura
+        const dataSet = datosLocales[periodo] || datosLocales['dia'];
 
-        // Crear degradado dinámico
-        let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, hexToRgba(colorPrincipal, 0.5));
-        gradient.addColorStop(1, hexToRgba(colorPrincipal, 0.0));
+        // Gradiente seguro
+        const height = canvas.height || 160;
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, hexToRgba(color, 0.5));
+        gradient.addColorStop(1, hexToRgba(color, 0.01));
 
-        window.chartInstanceMain = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'line',
             data: {
-                labels: selectedData.labels,
+                labels: dataSet.labels,
                 datasets: [{
                     label: 'Balance',
-                    data: selectedData.data,
-                    borderColor: colorPrincipal,
+                    data: dataSet.data, // Array numérico
+                    borderColor: color,
                     backgroundColor: gradient,
-                    borderWidth: 2,
+                    borderWidth: 3,
                     pointBackgroundColor: '#fff',
-                    pointBorderColor: colorPrincipal,
+                    pointBorderColor: color,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4 // Curva suave
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
-                scales: { x: { display: false }, y: { display: false } },
-                animation: { duration: 500 }
+                scales: { x: { display: false }, y: { display: false, min: 0 } },
+                animation: { duration: 800 }
             }
         });
-
-        // Actualizar texto de dinero en la tarjeta
-        const totalDisplay = document.getElementById('totalDisplay');
-        if(totalDisplay) totalDisplay.innerText = selectedData.total;
-        
-        canvas.classList.add('chart-initialized');
     };
 
-    // B) Gráfica Secundaria (Dona - Gastos)
+    // --- RENDERIZADO GRÁFICA DONA ---
     window.renderUsageChart = function() {
         const canvas = document.getElementById('usageChart');
         if (!canvas) return;
+        if (typeof Chart === 'undefined') return;
 
-        if (window.chartInstanceUsage instanceof Chart) {
-            window.chartInstanceUsage.destroy();
-        }
+        const chartExistente = Chart.getChart(canvas);
+        if (chartExistente) chartExistente.destroy();
 
-        const ctx = canvas.getContext('2d');
-        const donutColors = ['#00d26a', '#003049', '#f7b731'];
-
-        window.chartInstanceUsage = new Chart(ctx, {
+        new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: ['Servicios', 'Comida', 'Ocio'],
                 datasets: [{
-                    data: [45, 30, 25], // Valores por defecto
-                    backgroundColor: donutColors,
+                    data: [30, 50, 20], // Placeholder inicial
+                    backgroundColor: ['#00d26a', '#003049', '#f7b731'],
                     borderWidth: 0,
-                    hoverOffset: 4
+                    hoverOffset: 6
                 }]
             },
             options: {
@@ -130,78 +119,100 @@
                 plugins: { legend: { display: false } }
             }
         });
-        
-        canvas.classList.add('chart-initialized');
     };
 
-    // --- 4. INTERACCIÓN GLOBAL ---
-    
+    // --- INTERACCIÓN ---
     window.cambiarPeriodo = function(nuevoPeriodo, btn) {
         periodoActual = nuevoPeriodo;
         if(btn) {
-            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            btn.parentElement.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
         window.renderMainChart(periodoActual);
     };
-    
+
     window.cambiarColorGrafica = function() {
-        colorIndex = (colorIndex + 1) % colorOptions.length;
-        currentColor = colorOptions[colorIndex];
-        // Opcional: Actualizar variable CSS si se usa en otros elementos
-        document.documentElement.style.setProperty('--chart-primary', currentColor);
+        currentColorIndex = (currentColorIndex + 1) % CONFIG.colors.length;
         window.renderMainChart(periodoActual);
     };
 
-    // --- 5. PUENTE DE DATOS (NUEVO) ---
-    // Esta función será llamada por Main.js cuando reciba datos del backend
-    window.actualizarGraficasDesdeAPI = function(datosBackend) {
-        console.log("📊 Actualizando gráficas con datos reales...", datosBackend);
-        
-        if (!datosBackend) return;
+    // =========================================================
+    //  PUENTE DE DATOS CON LÓGICA DE RELLENO (FIX)
+    // =========================================================
+    window.actualizarGraficasDesdeAPI = function(historial) {
+        console.log("📥 API Data recibida en JS:", historial);
 
-        // 1. Actualizar Gráfica Lineal (Historial)
-        // Se asume que el backend envía una estructura compatible o un array de movimientos
-        if (datosBackend.lineal) {
-            // Actualizamos los datos locales
-            walletData.dia.data = datosBackend.lineal.valores || walletData.dia.data;
-            walletData.dia.labels = datosBackend.lineal.etiquetas || walletData.dia.labels;
-            walletData.dia.total = datosBackend.lineal.total_fmt || walletData.dia.total;
+        if (!historial) return;
+
+        /**
+         * FUNCIÓN DE NORMALIZACIÓN:
+         * Si el array tiene 1 solo dato (ej: saldo actual), lo repetimos 
+         * para que coincida con la cantidad de etiquetas (ej: 5 para dia).
+         * Esto crea una línea plana visualmente agradable.
+         */
+        const normalizarDatos = (arrEntrada, cantidadObjetivo) => {
+            // Si no es array o está vacío, devolvemos ceros
+            if (!Array.isArray(arrEntrada) || arrEntrada.length === 0) {
+                return new Array(cantidadObjetivo).fill(0);
+            }
+
+            // Si tiene datos suficientes, lo devolvemos tal cual
+            if (arrEntrada.length >= cantidadObjetivo) {
+                return arrEntrada.slice(0, cantidadObjetivo);
+            }
+
+            // CASO CLAVE: Pocos datos (ej: 1 punto).
+            // Rellenamos el resto del array con el último valor conocido.
+            const ultimoValor = arrEntrada[arrEntrada.length - 1];
+            const relleno = new Array(cantidadObjetivo - arrEntrada.length).fill(ultimoValor);
+            return [...arrEntrada, ...relleno];
+        };
+
+        // 1. Mapeo para 'DIA' (Esperamos 5 puntos según labels de dia)
+        if (historial.dia) {
+            const rawData = Array.isArray(historial.dia) ? historial.dia : (historial.dia.data || []);
+            datosLocales.dia.data = normalizarDatos(rawData, datosLocales.dia.labels.length);
             
-            // Renderizamos de nuevo con los datos frescos
-            window.renderMainChart(periodoActual);
+            // Si el backend envía etiquetas personalizadas, las usamos
+            if (historial.dia.labels && Array.isArray(historial.dia.labels)) {
+                datosLocales.dia.labels = historial.dia.labels;
+            }
         }
 
-        // 2. Actualizar Gráfica de Dona (Distribución de Gastos)
-        if (datosBackend.categorias && window.chartInstanceUsage) {
-            // Ejemplo: datosBackend.categorias = { valores: [10, 50, 40], etiquetas: [...] }
-            window.chartInstanceUsage.data.datasets[0].data = datosBackend.categorias.valores;
-            // Opcional: actualizar etiquetas si el diseño tuviera leyenda dinámica
-            window.chartInstanceUsage.update();
+        // 2. Mapeo para 'MES' (Esperamos 4 puntos)
+        if (historial.mes) {
+            const rawData = Array.isArray(historial.mes) ? historial.mes : (historial.mes.data || []);
+            datosLocales.mes.data = normalizarDatos(rawData, datosLocales.mes.labels.length);
         }
+
+        // 3. Mapeo para 'ANIO' (Esperamos 5 puntos)
+        if (historial.anio) {
+            const rawData = Array.isArray(historial.anio) ? historial.anio : (historial.anio.data || []);
+            datosLocales.anio.data = normalizarDatos(rawData, datosLocales.anio.labels.length);
+        }
+
+        // 4. Actualizar total de texto
+        const totalDisplay = document.getElementById('totalDisplay');
+        if(totalDisplay) {
+            // Preferimos el valor explícito del backend, sino usamos el último punto de la gráfica
+            const ultimoValorGrafica = datosLocales.dia.data[datosLocales.dia.data.length -1];
+            const total = historial.total_actual !== undefined ? historial.total_actual : ultimoValorGrafica;
+            
+            totalDisplay.innerText = typeof total === 'number' 
+                ? `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}` 
+                : total;
+        }
+
+        console.log("✅ Datos normalizados para gráfica:", datosLocales);
+
+        // 5. Renderizar
+        window.renderMainChart(periodoActual);
     };
 
-    // --- 6. EL VIGILANTE (OBSERVER) ---
-    // Detecta cuando el HTML de las gráficas se inyecta en el DOM
-    const observer = new MutationObserver((mutations) => {
-        const mainCanvas = document.getElementById('credoraChart');
-        const usageCanvas = document.getElementById('usageChart');
-
-        if (mainCanvas && !mainCanvas.classList.contains('chart-initialized')) {
-            window.renderMainChart();
-        }
-
-        if (usageCanvas && !usageCanvas.classList.contains('chart-initialized')) {
-            window.renderUsageChart();
-        }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    // Intento inicial por si ya existen los elementos
-    setTimeout(() => {
+    // Auto-inicio
+    if (document.getElementById('credoraChart')) {
         window.renderMainChart();
         window.renderUsageChart();
-    }, 100);
+    }
 
 })();

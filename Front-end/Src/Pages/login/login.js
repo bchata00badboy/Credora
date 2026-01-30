@@ -3,9 +3,15 @@
    ============================================ */
 
 // --- REFERENCIAS DOM ---
+
 const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn'); // Botón panel izq
 const loginBtn = document.querySelector('.login-btn');       // Botón panel der
+
+// --- DETECTAR HASH PARA IR DIRECTO A REGISTRO ---
+if (window.location.hash === '#register') {
+    container.classList.add('active');
+}
 
 // --- REFERENCIAS DEL MODAL ---
 const modalTerms = document.getElementById('modal-terms');

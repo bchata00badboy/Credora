@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pantalla de Carga - Credora</title>
+  <style>
+    /* PRELOADER (copiado de Home.css) */
+    :root{--accent-red:#8d1119;--accent-blue:#171470}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    #preloader{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity .5s ease-out}
+    .loader-spinner{width:50px;height:50px;border:3px solid rgba(255,255,255,.1);border-radius:50%;border-top-color:var(--accent-red);border-left-color:var(--accent-blue);animation:spin 1s linear infinite;margin-bottom:20px}
+    .loader-text{color:#fff;font-family:monospace;font-size:1.2rem;letter-spacing:5px;animation:pulse 1.5s infinite}
+    @keyframes spin{100%{transform:rotate(360deg)}}
+    @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+    /* Opcional: estilo para mostrar una página detrás del preloader */
+    .demo-background{position:fixed;inset:0;background:linear-gradient(180deg,#071021,#00121a);display:flex;align-items:center;justify-content:center;color:#fff;font-family:Arial,Helvetica,sans-serif}
+  </style>
+</head>
+<body>
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="loader-spinner"></div>
+    <div class="loader-text">CREDORA</div>
+  </div>
+
+
+  <script>
+    // Nota: esta pantalla de carga se mantiene visible por defecto.
+    // Llama a `window.hidePreloader()` desde tu aplicación cuando quieras ocultarla.
+    (function(){
+      window.hidePreloader = function(delay=500){
+        var pre = document.getElementById('preloader');
+        if(!pre) return;
+        pre.style.opacity = '0';
+        setTimeout(function(){ pre.style.display = 'none'; }, delay);
+      };
+
+      window.showPreloader = function(){
+        var pre = document.getElementById('preloader');
+        if(!pre) return;
+        pre.style.display = 'flex';
+        // force repaint then fade in
+        requestAnimationFrame(function(){ pre.style.opacity = '1'; });
+      };
+
+      // No hay listener automático de 'load' para mantener el preloader visible.
+      // Para pruebas rápidas, puedes ejecutar:
+      // setTimeout(()=>window.hidePreloader(), 3000);
+    })();
+  </script>
+</body>
+</html>

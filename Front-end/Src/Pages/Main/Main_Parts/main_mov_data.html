@@ -1,0 +1,56 @@
+<!-- /Front-end/Src/Pages/Main/Main_Parts/main_mov_data.html -->
+
+<section class="share-container">
+    <div class="header-section" style="text-align: center; margin-bottom: 1.5rem;">
+        <h2>Datos de mi Cuenta</h2>
+        <p style="color: #666;">Comparte estos datos para recibir transferencias</p>
+    </div>
+
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="bank-logo-placeholder">C</div> <div class="bank-info">
+                <h3>Banco Credora</h3>
+                <p>Cuenta Corriente</p>
+            </div>
+        </div>
+
+        <div class="data-row">
+            <span class="data-label">Titular de la cuenta</span>
+            <div class="data-value-group">
+                <span class="data-value">Alejandro Bueno</span>
+                </div>
+        </div>
+
+        <div class="data-row">
+            <span class="data-label">Número de Cuenta / CBU</span>
+            <div class="data-value-group">
+                <span class="data-value" id="val-cuenta">0012 4567 8901 2345 6789</span>
+                <button class="btn-copy" onclick="copiarAlPortapapeles('00124567890123456789')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="data-row">
+            <span class="data-label">Alias</span>
+            <div class="data-value-group">
+                <span class="data-value" id="val-alias">ALE.BUENO.CREDORA</span>
+                <button class="btn-copy" onclick="copiarAlPortapapeles('JUAN.PEREZ.CREDORA')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="data-row">
+            <span class="data-label">C.I. / DNI / RUT</span>
+            <div class="data-value-group">
+                <span class="data-value">12.345.678</span>
+                <button class="btn-copy" onclick="copiarAlPortapapeles('12345678')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+        <div id="toast-copiado" class="copy-feedback">¡Copiado!</div>
+    </div>
+</section>

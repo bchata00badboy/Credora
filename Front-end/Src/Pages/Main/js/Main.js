@@ -4,7 +4,7 @@
    1. LOGICA GLOBAL (DOM READY)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM cargado: Inicializando Main.js');
+    console.log('DOM cargado: inicializando Main.js optimizado');
 
     // --- A. LOGOUT DESDE EL SIDEBAR ---
     const btnLogoutSidebar = document.getElementById('btn-logout-sidebar');
@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- B. LOGICA DEL SIDEBAR (Visual) ---
-    const menuItemsDropDown = document.querySelectorAll('.menu-item-dropdown');
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menu-btn');
 
@@ -30,34 +29,115 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Lógica de menús desplegables
-    menuItemsDropDown.forEach((menuItem) => {
-        menuItem.addEventListener('click', (e) => {
-            if (sidebar.classList.contains('minimize')) return;
+// --- C. DELEGACIÓN DE EVENTOS GLOBAL (SOLUCIÓN DROPDOWNS) ---
+    // Esto maneja clicks en elementos que existen ahora O en el futuro (cargados por fetch)
+    document.addEventListener('click', (e) => {
+        
+        // 1. Manejo de Dropdowns del Sidebar Principal
+        const menuItem = e.target.closest('.menu-item-dropdown');
+        if (menuItem) {
+            if (sidebar && sidebar.classList.contains('minimize')) return;
+            
+            // Cerrar otros menús abiertos
+            document.querySelectorAll('.menu-item-dropdown').forEach((item) => {
+                if (item !== menuItem) {
+                    item.classList.remove('sub-menu-toggle');
+                    const otherSub = item.querySelector('.sub-menu');
+                    if (otherSub) { otherSub.style.height = '0'; otherSub.style.padding = '0'; }
+                }
+            });
 
+            // Abrir/Cerrar el actual
             const subMenu = menuItem.querySelector('.sub-menu');
             const isActive = menuItem.classList.toggle('sub-menu-toggle');
-            
             if (subMenu) {
                 subMenu.style.height = isActive ? `${subMenu.scrollHeight + 6}px` : '0';
                 subMenu.style.padding = isActive ? '0.2rem 0' : '0';
             }
+            return; // Detenemos aquí para no mezclar lógicas
+        }
+
+        // 2. Manejo de "Triggers" internos (ej. botón Transferir dentro del Dashboard)
+        const trigger = e.target.closest('.dropdown-trigger');
+        if (trigger) {
+            e.preventDefault();
+            const parentLi = trigger.closest('li');
+            if (!parentLi) return;
+
+            const submenuWrapper = parentLi.querySelector('.submenu-wrapper');
+            if (!submenuWrapper) return;
+
+            const isOpen = parentLi.classList.toggle('sub-menu-toggle');
             
-            // Cerrar otros menús
-            menuItemsDropDown.forEach((item) => {
-                if (item !== menuItem) {
-                    const otherSubmenu = item.querySelector('.sub-menu');
-                    if (otherSubmenu) {
-                        item.classList.remove('sub-menu-toggle');
-                        otherSubmenu.style.height = '0';
-                        otherSubmenu.style.padding = '0';
-                    }
-                }
-            });
-        });
+            if (isOpen) {
+                submenuWrapper.style.height = `${submenuWrapper.scrollHeight + 6}px`;
+                submenuWrapper.style.padding = '0.2rem 0';
+                submenuWrapper.classList.add('show');
+                if (sidebar) sidebar.classList.add('hover'); // Expandir sidebar visualmente
+                
+                // Enfocar primer elemento si existe
+                const firstLink = submenuWrapper.querySelector('.sub-menu-link');
+                if(firstLink) firstLink.focus();
+            } else {
+                submenuWrapper.style.height = '0';
+                submenuWrapper.style.padding = '0';
+                submenuWrapper.classList.remove('show');
+                if (sidebar) sidebar.classList.remove('hover');
+            }
+            
+            // Limpiar búsqueda si se abre un menú de acción
+            const searchInput = document.getElementById('searchInput');
+            if (isOpen && searchInput) searchInput.value = '';
+        }
     });
 
-    // Iniciar Navegación
+    // --- D. LÓGICA DE BÚSQUEDA GLOBAL ---
+    const searchInput = document.getElementById('searchInput') || document.querySelector('.search input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = (e.target.value || '').toLowerCase().trim();
+
+            // Filtrar filas de cualquier tabla visible
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+
+            // Filtrar menú lateral
+            const navItems = document.querySelectorAll('.nav_list li');
+            navItems.forEach(li => {
+                // Evitamos ocultar el profile o el logout si no queremos
+                if(li.querySelector('.profile') || li.id === 'log_out') return;
+                
+                const text = li.textContent.toLowerCase();
+                li.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
+    }
+
+    // --- E. SIDEBAR: restaurar estado al salir con el mouse ---
+    if (sidebar) {
+        sidebar.addEventListener('mouseleave', () => {
+            // Quitar estilo visual expandido
+            sidebar.classList.remove('hover');
+
+            // Restaurar visibilidad de todos los items del menú (por si se filtraron)
+            document.querySelectorAll('.nav_list li').forEach(li => li.style.display = '');
+
+            // Limpiar input de búsqueda si existe
+            try { const si = document.getElementById('searchInput'); if(si) si.value = ''; } catch(e) {}
+
+            // Cerrar submenus abiertos (pero mantener la sección marcada como active)
+            document.querySelectorAll('.submenu-wrapper.show').forEach(sw => {
+                sw.classList.remove('show');
+                sw.style.height = '0';
+                sw.style.padding = '0';
+            });
+        });
+    }
+
+    // Iniciar el enrutador SPA
     iniciarNavegacionSPA();
 });
 
@@ -78,55 +158,84 @@ const controladores = {
 };
 
 /* =========================================
-   3. LOGICA DE NAVEGACIÓN (SPA)
-   ========================================= */
+3. LOGICA DE NAVEGACIÓN (SPA)
+    ========================================= */
+
 function iniciarNavegacionSPA() {
     const contenedor = document.getElementById('contenedor-dinamico');
-    if (!contenedor) console.error('No se encontró #contenedor-dinamico');
+    if (!contenedor) { console.error('CRÍTICO: No se encontró #contenedor-dinamico'); return; }
 
-    // Función principal de carga
+    // Interceptar clicks en enlaces del sidebar
+    const menuLinks = document.querySelectorAll('.menu-link, .sub-menu-link');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (link.id === 'btn-logout-sidebar') return; // Dejar que el evento de logout lo maneje
+            
+            const ruta = link.getAttribute('data-vista');
+            if (!ruta || ruta === '#') return;
+
+            e.preventDefault();
+            
+            // Gestión de clases active
+            document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
+            link.classList.add('active');
+            if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
+
+            window.cargarVista(ruta);
+            
+            // Si estamos en móvil o sidebar expandido por hover, limpiar estados
+            const sidebar = document.getElementById('sidebar');
+            if(sidebar) sidebar.classList.remove('hover');
+        });
+    });
+
     window.cargarVista = function(rutaArchivo) {
         const rutaLimpia = rutaArchivo.replace('./', '');
+        
+        // Animación simple de salida
         contenedor.style.opacity = '0';
 
         setTimeout(() => {
             fetch(rutaLimpia)
                 .then(respuesta => {
-                    if (!respuesta.ok) throw new Error('No se encontró el archivo: ' + rutaLimpia);
+                    if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status} - ${rutaLimpia}`);
                     return respuesta.text();
                 })
                 .then(html => {
-                    const temp = document.createElement('div');
-                    temp.innerHTML = html;
+                    // Crear un contenedor temporal para procesar scripts
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
 
-                    // 1) Inyectar hojas de estilo
-                    temp.querySelectorAll('link[rel="stylesheet"]').forEach(l => {
-                        const href = l.getAttribute('href');
-                        if (!href) return;
-                        if (!document.querySelector(`link[href="${href}"]`)) {
-                            const nl = document.createElement('link');
-                            nl.rel = 'stylesheet';
-                            nl.href = href;
-                            document.head.appendChild(nl);
+                    // 1. Mover estilos al head (para que no se repitan)
+                    tempDiv.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href && !document.querySelector(`link[href="${href}"]`)) {
+                            const newLink = document.createElement('link');
+                            newLink.rel = 'stylesheet';
+                            newLink.href = href;
+                            document.head.appendChild(newLink);
                         }
+                        link.remove(); // Quitarlos del HTML inyectado
                     });
 
-                    // 2) Insertar HTML
-                    contenedor.innerHTML = temp.innerHTML;
+                    // 2. Insertar HTML limpio
+                    contenedor.innerHTML = tempDiv.innerHTML;
 
-                    // 3) Re-ejecutar scripts
+                    // 3. Ejecutar Scripts incrustados (recursivamente)
                     const scripts = Array.from(contenedor.querySelectorAll('script'));
-                    scripts.forEach(s => s.remove());
+                    scripts.forEach(s => s.remove()); // Quitar los viejos para reinsertarlos y ejecutarlos
 
                     function runScripts(list, i = 0) {
                         if (i >= list.length) {
-                            afterScripts(); return;
+                            finalizarCarga(rutaLimpia); // Ejecutar controlador
+                            return;
                         }
                         const s = list[i];
                         const newS = document.createElement('script');
                         if (s.src) {
                             newS.src = s.src;
                             newS.onload = () => runScripts(list, i + 1);
+                            newS.onerror = () => runScripts(list, i + 1); // Continuar aunque falle uno
                             document.body.appendChild(newS);
                         } else {
                             newS.textContent = s.textContent;
@@ -134,53 +243,89 @@ function iniciarNavegacionSPA() {
                             runScripts(list, i + 1);
                         }
                     }
-
-                    function afterScripts() {
-                        contenedor.style.opacity = '1';
-                        // Ejecutar controlador específico
-                        if (controladores[rutaLimpia]) {
-                            // console.log(`Ejecutando controlador para: ${rutaLimpia}`);
-                            controladores[rutaLimpia]();
-                        }
-                    }
                     runScripts(scripts);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    contenedor.innerHTML = `<div style="padding:2rem;"><h2>Error 404</h2><p>No se pudo cargar la vista.</p></div>`;
+                    console.error('Error SPA:', error);
+                    contenedor.innerHTML = `<div style="padding:2rem; text-align:center;"><h3>Error cargando vista</h3><p>${error.message}</p></div>`;
                     contenedor.style.opacity = '1';
                 });
-        }, 200);
+        }, 150); // Pequeño delay para la transición visual
+    };
+
+    function finalizarCarga(ruta) {
+        contenedor.style.opacity = '1';
+        // Restaurar tema si aplica
+        try { if(window.CredoraTheme) window.CredoraTheme.setTheme(document.body.classList.contains('dark'), false); } catch(e) {}
+
+        // Ejecutar controlador específico
+        if (controladores[ruta]) {
+            console.log(`🚀 Ejecutando controlador: ${ruta}`);
+            // Animación de entrada: aplicar clase y ejecutar controlador
+            try {
+                contenedor.classList.add('view-enter');
+                setTimeout(() => contenedor.classList.remove('view-enter'), 420);
+            } catch (e) {}
+            controladores[ruta]();
+        }
     }
 
-    // Eventos Click en el menú (Delegación de eventos para elementos dinámicos)
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('.menu-link, .sub-menu-link');
-        
-        // Ignorar logout o clicks fuera de enlaces
-        if (!link || link.id === 'btn-logout-sidebar') return;
-
-        const ruta = link.getAttribute('data-vista');
-        if (!ruta || ruta === '#') return;
-
-        e.preventDefault();
-        
-        // Active Class Logic
-        document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
-        link.classList.add('active');
-        if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
-
-        window.cargarVista(ruta);
-    });
-
-    // Cargar Inicio por defecto
+    // Cargar vista inicial
     window.cargarVista('Main_Parts/main_home.html');
 }
 
+// Helper: configura un toggle limpio y sin listeners duplicados para el número de tarjeta
+function configureCardToggle(last4) {
+    const cardNumEl = document.querySelector('.card-number');
+    const cardContainer = document.querySelector('.tarjeta-visual-container');
+    const btn = document.getElementById('btn-toggle-card-data');
+
+    if (!cardNumEl || !cardContainer || !btn) return;
+
+    // Guardar último4 en data attribute
+    cardNumEl.dataset.last4 = String(last4).slice(-4);
+
+    // Estado inicial: enmascarado
+    cardContainer.classList.add('masked');
+    cardNumEl.textContent = '**** **** **** ****';
+
+    // Reemplazar el botón por un clon para eliminar listeners antiguos
+    const cleanBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(cleanBtn, btn);
+
+    // Asegurar el icono y atributos ARIA iniciales
+    const icon = cleanBtn.querySelector('i');
+    if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+    cleanBtn.setAttribute('aria-pressed', 'false');
+    cleanBtn.title = 'Mostrar número';
+
+    // Función que actualiza el estado visible/oculto
+    function setMasked(masked) {
+        if (masked) {
+            cardContainer.classList.add('masked');
+            cardNumEl.textContent = '**** **** **** ****';
+            cleanBtn.setAttribute('aria-pressed', 'false');
+            cleanBtn.title = 'Mostrar número';
+            if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+        } else {
+            cardContainer.classList.remove('masked');
+            cardNumEl.textContent = `**** **** **** ${cardNumEl.dataset.last4 || '0000'}`;
+            cleanBtn.setAttribute('aria-pressed', 'true');
+            cleanBtn.title = 'Ocultar número';
+            if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        }
+    }
+
+    // Añadir listener único
+    cleanBtn.addEventListener('click', () => {
+        const isMasked = cardContainer.classList.contains('masked');
+        setMasked(!isMasked);
+    });
+}
 
 /* =========================================
-   4. FUNCIONES ESPECÍFICAS (CONTROLADORES)
-   ========================================= */
+4. FUNCIONES ESPECÍFICAS (CONTROLADORES)
+========================================= */
 
 // --- A. INICIO (DASHBOARD) ---
 async function iniciarInicio() {

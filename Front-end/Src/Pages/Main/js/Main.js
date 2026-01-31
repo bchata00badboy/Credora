@@ -302,6 +302,8 @@ async function iniciarInicio() {
             });
         }
     }, 100);
+
+    setupModalRecarga();
 }
 
 // --- B. KYC (VERIFICACIÓN) ---
@@ -694,3 +696,42 @@ function iniciarConfiguracion() {
 
 
 function iniciarEducacion() { console.log("Educación..."); }
+
+
+function setupModalRecarga() {
+    const modal = document.getElementById('modal-recarga');
+    const btnAbrir = document.getElementById('btn-abrir-recarga');
+    const btnCerrar = document.getElementById('btn-cerrar-modal');
+    const inputBS = document.getElementById('input-bs');
+    const resUSD = document.getElementById('res-usd');
+    const tasa = 45.50; // Valor simulado
+
+    if (!btnAbrir || !modal) return;
+
+    // Abrir
+    btnAbrir.onclick = () => {
+        modal.style.display = 'flex';
+        inputBS.focus();
+    };
+
+    // Cerrar
+    btnCerrar.onclick = () => {
+        modal.style.display = 'none';
+        inputBS.value = '';
+        resUSD.textContent = '0.00';
+    };
+
+    // Cálculo en tiempo real
+    inputBS.oninput = () => {
+        const montoBS = parseFloat(inputBS.value) || 0;
+        resUSD.textContent = (montoBS / tasa).toFixed(2);
+    };
+
+    // Confirmación simulada
+    document.getElementById('btn-confirmar-pago').onclick = () => {
+        if (parseFloat(resUSD.textContent) > 0) {
+            alert(`Simulación exitosa: Se han enviado $${resUSD.textContent} a tu cuenta.`);
+            btnCerrar.onclick(); // Limpia y cierra
+        }
+    };
+}

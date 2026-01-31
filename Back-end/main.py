@@ -2,39 +2,26 @@
 
 import os
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-# --- IMPORTACIONES DEL PROYECTO ---
-# 1. Configuración (Al importarlo, ya crea las carpetas automáticamente)
+# --- IMPORTACIONES ---
 from configuracion import CARPETA_SUBIDAS
-
-# 2. Base de Datos
 from app.db.sesion import engine, Base
-
-# 3. Routers (Tus endpoints de lógica)
 from app.routers import rutas_autenticacion, rutas_billetera
 
-# --- INICIALIZACIÓN DE TABLAS ---
-# Esto crea las tablas en PostgreSQL si no existen (incluyendo las nuevas columnas)
+# --- INICIALIZACIÓN BD ---
 Base.metadata.create_all(bind=engine)
 
-# --- CONFIGURACIÓN DE LA APP ---
-app = FastAPI(
-    title="Credora API",
-    description="Backend financiero con soporte de IA (KYC) y Billetera Virtual",
-    version="1.0.0"
-)
+# --- APP ---
+app = FastAPI(title="Credora API", version="1.0.0")
 
-# --- CONFIGURACIÓN DE CORS (SEGURIDAD) ---
-# Permite que el Frontend (HTML/JS) se comunique con el Backend
+# --- CORS ---
 origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://127.0.0.1",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:5500",  # Live Server típico de VS Code
-    "*"  # En modo desarrollo permitimos todo para evitar bloqueos
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:5501",
+    "http://localhost:5500",
+    "http://localhost:5501",
+    "*" # Úsalo solo para descartar problemas de conexión
 ]
 
 app.add_middleware(
@@ -45,32 +32,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- EVENTOS DE ARRANQUE ---
-@app.on_event("startup")
-async def startup_event():
-    print("🚀 Iniciando sistema Credora...")
-    
-    # Verificación visual de carpetas
-    if os.path.exists(CARPETA_SUBIDAS):
-        print(f" Sistema de archivos listo en: {CARPETA_SUBIDAS}")
-    else:
-        print(f" Advertencia: La carpeta {CARPETA_SUBIDAS} no existe (se intentará crear al usarla).")
+# --- REGISTRO DE RUTAS (CONFIGURACIÓN CORRECTA) ---
 
-# --- REGISTRO DE RUTAS (ENDPOINTS) ---
-# Autenticación: /api/v1/auth/registro, /api/v1/auth/token
+# 1. Autenticación -> /api/v1/auth
 app.include_router(rutas_autenticacion.router, prefix="/api/v1/auth", tags=["Autenticación"])
 
-# Billetera y KYC: /api/v1/billetera/saldo, /api/v1/billetera/kyc/...
+# 2. Billetera -> /api/v1/billetera
+# NOTA: En rutas_billetera.py el router ya tiene prefix="/billetera".
+# Por lo tanto, aquí usamos SOLO "/api/v1".
+# Resultado matemático: "/api/v1" + "/billetera" = "/api/v1/billetera"
 app.include_router(rutas_billetera.router, prefix="/api/v1", tags=["Billetera"])
 
-# --- ARCHIVOS ESTÁTICOS (OPCIONAL) ---
-# Si necesitas servir las imágenes subidas públicamente (útil para debug), descomenta esto:
-# app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# --- EVENTO DE ARRANQUE Y DIAGNÓSTICO ---
+@app.on_event("startup")
+async def startup_event():
+    # 1. Crear carpetas
+    if not os.path.exists(CARPETA_SUBIDAS):
+        os.makedirs(CARPETA_SUBIDAS)
+    
+    # 2. IMPRIMIR RUTAS DISPONIBLES (DIAGNÓSTICO)
+    print("\n" + "="*50)
+    print("🚀 RUTAS ACTIVAS EN EL SERVIDOR:")
+    print("="*50)
+    for route in app.routes:
+        if hasattr(route, "path"):
+            print(f"Ruta: {route.path}  [{','.join(route.methods)}]")
+    print("="*50 + "\n")
 
 @app.get("/")
 def read_root():
-    return {
-        "estado": "Activo",
-        "proyecto": "Credora",
-        "docs": "/docs"  # Link directo a Swagger UI
-    }
+    return {"estado": "Activo", "sistema": "Credora API v1"}

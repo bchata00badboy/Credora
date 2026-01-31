@@ -1,8 +1,0 @@
-{
-    // Indica a las extensiones de Python dónde encontrar los módulos principales
-    "python.analysis.extraPaths": [
-        "./app"
-    ],
-    // También útil si estás usando un depurador:
-    "python.envFile": "${workspaceFolder}/.env"
-}

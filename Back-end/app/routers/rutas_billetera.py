@@ -1,7 +1,10 @@
 # Back-end\app\routers\rutas_billetera.py
 
+# Back-end\app\routers\rutas_billetera.py
+
 import shutil
 import os
+import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -30,6 +33,26 @@ from configuracion import CARPETA_SUBIDAS
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 router = APIRouter(prefix="/billetera", tags=["Billetera"])
 
+
+def convertir_tipos_numpy(obj):
+    """
+    Convierte recursivamente tipos de NumPy a tipos nativos de Python.
+    Crucial para evitar errores de serialización JSON en FastAPI.
+    """
+    if isinstance(obj, dict):
+        return {k: convertir_tipos_numpy(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convertir_tipos_numpy(i) for i in obj]
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return convertir_tipos_numpy(obj.tolist())
+    else:
+        return obj
+
+
 # --- DEPENDENCIA DE USUARIO ---
 def obtener_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decodificar_token(token)
@@ -42,14 +65,14 @@ def obtener_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = De
     return usuario
 
 # ======================================================================
-# 1. ENDPOINT SALDO (DASHBOARD + BONO BIENVENIDA)
+# 1. ENDPOINT SALDO
 # ======================================================================
 @router.get("/saldo")
 def obtener_saldo(
     db: Session = Depends(get_db), 
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
-    # --- AUTO-REPARACIÓN (Bono de Bienvenida) ---
+    # Auto-reparación (Bono)
     if not usuario.cuenta:
         print(f"⚠️ Usuario {usuario.correo} sin billetera. Generando Bono $100...")
         nueva_cuenta = Cuenta(
@@ -60,9 +83,7 @@ def obtener_saldo(
         db.add(nueva_cuenta)
         db.commit()
         db.refresh(usuario) 
-    # --------------------------------------------
 
-    # Datos Reales
     saldo_real = float(usuario.cuenta.saldo)
     cuenta_real = usuario.numero_cuenta
     tarjeta_real = usuario.numero_tarjeta
@@ -75,7 +96,7 @@ def obtener_saldo(
         "email": usuario.correo,
         "numero_cuenta": cuenta_real,
         "tarjeta_ultimos_4": ultimos_4,
-        "estado_kyc": usuario.estado_kyc, # Enviamos el estado KYC al front
+        "estado_kyc": usuario.estado_kyc,
         "historial": {
             "lineal": {
                 "valores": [saldo_real * 0.9, saldo_real * 0.95, saldo_real, saldo_real * 1.05, saldo_real],
@@ -121,15 +142,12 @@ def historial_movimientos(
         return []
 
 # ======================================================================
-# 3. ENDPOINT TRANSFERENCIAS (ACTUALIZADO CON PIN)
+# 3. ENDPOINT TRANSFERENCIAS
 # ======================================================================
-
-# Esquema actualizado para recibir todos los datos del Frontend
 class EsquemaTransferencia(BaseModel):
-    identificador: str # Correo o Cuenta del destino
+    identificador: str
     monto: float
     motivo: Optional[str] = "Transferencia"
-    # Campos nuevos de seguridad e información
     pin: str
     cedula_destino: Optional[str] = None
     telefono_destino: Optional[str] = None
@@ -141,33 +159,22 @@ def realizar_transferencia(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
-    # 0. Validar Estado KYC (Opcional: Descomentar si quieres obligar KYC)
-    # if usuario.estado_kyc != "APROBADO": # o EstadoKYC.APROBADO
-    #     raise HTTPException(status_code=403, detail="Debes verificar tu identidad (KYC) para transferir.")
-
-    # 1. Validar PIN DE SEGURIDAD
-    # En un caso real, compararíamos con usuario.pin_hash en la BD.
-    # Para la DEMO, aceptamos "1234".
     if datos.pin != "1234":
         raise HTTPException(status_code=403, detail="PIN de seguridad incorrecto.")
 
-    # 2. Validar Saldo
     if usuario.cuenta.saldo < datos.monto:
         raise HTTPException(status_code=400, detail="Saldo insuficiente.")
     
     if datos.monto <= 0:
         raise HTTPException(status_code=400, detail="El monto debe ser mayor a 0.")
 
-    # 3. Buscar Destinatario (Por Correo O Cuenta)
-    # Prioridad: Identificador principal (Cuenta/Correo)
     destinatario = db.query(Usuario).filter(
         (Usuario.correo == datos.identificador) | 
         (Usuario.numero_cuenta == datos.identificador)
     ).first()
 
-    # Si no encuentra por identificador, intentamos por Cédula (si la envió)
+    # Opcional: buscar por cédula si no se encontró por correo/cuenta
     if not destinatario and datos.cedula_destino:
-         # Asumiendo que tienes campo 'cedula' en Usuario, si no, omite este bloque
          # destinatario = db.query(Usuario).filter(Usuario.cedula == datos.cedula_destino).first()
          pass
 
@@ -177,22 +184,18 @@ def realizar_transferencia(
     if destinatario.id_usuario == usuario.id_usuario:
         raise HTTPException(status_code=400, detail="No puedes transferirte a ti mismo.")
 
-    # 4. Ejecutar Transacción (Atomicidad)
     try:
-        # Descontar saldo
+        # Lógica Transaccional
         usuario.cuenta.saldo -= datos.monto
         
-        # Auto-reparación destino (Bono fantasma si no tiene cuenta)
         if not destinatario.cuenta:
             destinatario_cuenta = Cuenta(id_usuario=destinatario.id_usuario, saldo=0.0, moneda='USD')
             db.add(destinatario_cuenta)
             db.commit()
             db.refresh(destinatario)
 
-        # Acreditar saldo
         destinatario.cuenta.saldo += datos.monto
         
-        # Registrar Transacción
         nueva_transaccion = Transaccion(
             remitente_id=usuario.id_usuario,
             destinatario_id=destinatario.id_usuario,
@@ -213,13 +216,13 @@ def realizar_transferencia(
         
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error interno procesando el pago: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
 
 # ======================================================================
-# 4. ENDPOINT KYC: SUBIR DOCUMENTO (IA) - CORREGIDO (Sin Async)
+# 4. ENDPOINT KYC: SUBIR DOCUMENTO (IA) - CORREGIDO
 # ======================================================================
 @router.post("/kyc/subir-documento")
-def subir_documento_kyc(  # <--- CAMBIO AQUÍ: Quitamos 'async'
+def subir_documento_kyc(
     archivo: UploadFile = File(...),
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(obtener_usuario_actual)
@@ -241,27 +244,36 @@ def subir_documento_kyc(  # <--- CAMBIO AQUÍ: Quitamos 'async'
     # 3. Registrar en BD
     solicitud = registrar_subida_en_bd(db, usuario.id_usuario, nombre_seguro)
 
-    # 4. Ejecutar IA (EasyOCR) - AHORA CORRE EN UN HILO SEPARADO
-    # Esto ya no bloqueará la conexión con el Frontend
-    datos_extraidos = extraer_datos_venezuela(ruta_destino)
+    # 4. Ejecutar IA
+    try:
+        datos_extraidos = extraer_datos_venezuela(ruta_destino)
+    except Exception as e:
+        print(f"Error IA: {e}")
+        raise HTTPException(status_code=500, detail="Error interno analizando el documento.")
 
     # 5. Guardar Resultados
+    # CORREGIDO: Aquí estaba el error de duplicación
     resultado_proceso = finalizar_proceso_kyc(db, usuario.id_usuario, solicitud.id_documento, datos_extraidos)
 
     if not resultado_proceso:
         raise HTTPException(status_code=500, detail="Error procesando resultados KYC.")
 
-    return {
+    # 6. Preparar y limpiar respuesta
+    respuesta_final = {
         "mensaje": resultado_proceso["mensaje"],
         "aprobado": resultado_proceso["aprobado"],
         "datos_extraidos": {
-            "nombre": datos_extraidos["nombre_completo"],
-            "fecha_nacimiento": datos_extraidos["fecha_nacimiento"],
-            "documento_valido": not datos_extraidos["documento_vencido"],
-            "mayor_edad": datos_extraidos["es_mayor_de_edad"],
-            "cedula": datos_extraidos["cedula"]
+            "nombre": datos_extraidos.get("nombre_completo", "No legible"),
+            "fecha_nacimiento": datos_extraidos.get("fecha_nacimiento"),
+            "documento_valido": not datos_extraidos.get("documento_vencido", True),
+            "mayor_edad": datos_extraidos.get("es_mayor_de_edad", False),
+            "cedula": datos_extraidos.get("cedula", "No legible")
         }
     }
+
+    # CRÍTICO: Convertir tipos NumPy a nativos para evitar fallo de JSON
+    return convertir_tipos_numpy(respuesta_final)
+
 # ======================================================================
 # 5. ENDPOINT KYC: FINALIZAR (Datos extra)
 # ======================================================================
@@ -276,11 +288,13 @@ def finalizar_kyc_datos(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
+    # CORREGIDO: Validación real en lugar de 'pass'
     if usuario.estado_kyc != EstadoKYC.APROBADO: 
-        pass 
+        raise HTTPException(status_code=403, detail="Debes aprobar la verificación de identidad (foto) primero.")
 
     usuario.direccion = datos.direccion
     usuario.telefono = datos.telefono
+    # Asignación de cuenta negocio
     usuario.es_cuenta_negocio = (datos.tipo_usuario == 'User-Business')
     
     db.commit()

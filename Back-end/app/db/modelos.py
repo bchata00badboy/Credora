@@ -1,3 +1,5 @@
+# Back-end\app\db\sesion.py
+
 import enum
 from sqlalchemy import Column, Integer, String, Numeric, Text, DateTime, ForeignKey, Boolean, Enum
 from sqlalchemy.orm import relationship, declarative_base

@@ -3,7 +3,6 @@
    ============================================ */
 
 // --- REFERENCIAS DOM ---
-
 const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn'); // Botón panel izq
 const loginBtn = document.querySelector('.login-btn');       // Botón panel der

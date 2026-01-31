@@ -466,6 +466,45 @@ body.dark #vista-perfil input[type="password"] {
     border-color: rgba(255,255,255,0.08);
     color: var(--color-text-primary);
 }
+
+/* =========================================
+   ESTILOS DEL BOTÓN DE VERIFICACIÓN (KYC)
+   ========================================= */
+.profile-actions {
+    width: 100%;
+    margin-top: auto; /* Empuja el botón al final si hay espacio */
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    background-color: #003049; /* Color principal Credora */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    box-shadow: 0 4px 6px rgba(0, 48, 73, 0.2);
+}
+
+.btn-action i {
+    font-size: 1.3rem;
+}
+
+.btn-action:hover {
+    background-color: #004e75;
+}
+
+.btn-action:active {
+    transform: scale(0.98);
+}
+
 #vista-perfil input[type="password"]:focus { border-color: #003366; outline: none; }
 #vista-perfil .btn-guardar {
     background-color: #003366; color: white; border: none; padding: 12px 20px;

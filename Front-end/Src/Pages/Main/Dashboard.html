@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/Main.css">
     <link rel="stylesheet" href="css/grafica.css">
     <link rel="stylesheet" href="css/ia.css">
+    <link rel="stylesheet" href="css/profile.css">
     <link rel="stylesheet" href="css/kyc.css">
     <link rel="stylesheet" href="css/loader.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
@@ -17,8 +18,12 @@
 </head>
 <body class="app-root">
 
-    <body>  
-<button id="chatbot-toggler" class="chatbot-toggler" aria-label="Abrir chat">
+    <div id="preloader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">CREDORA</div>
+    </div>
+      
+    <button id="chatbot-toggler" class="chatbot-toggler" aria-label="Abrir chat">
         <i class="fa-solid fa-comment"></i>
     </button>
 
@@ -135,7 +140,7 @@
     <main class="home_content" id="contenedor-dinamico"></main>
 
     <script src="js/theme.js"></script>
-    <!--<script src="js/api.js"></script>--> 
+    <script src="js/api.js"></script> 
     <script src="js/Main.js"></script>
     <script src="js/ia.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

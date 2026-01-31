@@ -1,7 +1,5 @@
 # Back-end\app\routers\rutas_billetera.py
 
-# Back-end\app\routers\rutas_billetera.py
-
 import shutil
 import os
 import numpy as np
@@ -10,6 +8,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel
+from decimal import Decimal
 
 # Importaciones de Base de Datos y Modelos
 from app.db.sesion import get_db
@@ -67,12 +66,15 @@ def obtener_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = De
 # ======================================================================
 # 1. ENDPOINT SALDO
 # ======================================================================
+# ======================================================================
+# 1. ENDPOINT SALDO (DASHBOARD + DATOS DE PERFIL)
+# ======================================================================
 @router.get("/saldo")
 def obtener_saldo(
     db: Session = Depends(get_db), 
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
-    # Auto-reparación (Bono)
+    # --- AUTO-REPARACIÓN (Bono de Bienvenida) ---
     if not usuario.cuenta:
         print(f"⚠️ Usuario {usuario.correo} sin billetera. Generando Bono $100...")
         nueva_cuenta = Cuenta(
@@ -83,7 +85,9 @@ def obtener_saldo(
         db.add(nueva_cuenta)
         db.commit()
         db.refresh(usuario) 
+    # --------------------------------------------
 
+    # Datos Reales
     saldo_real = float(usuario.cuenta.saldo)
     cuenta_real = usuario.numero_cuenta
     tarjeta_real = usuario.numero_tarjeta
@@ -97,6 +101,14 @@ def obtener_saldo(
         "numero_cuenta": cuenta_real,
         "tarjeta_ultimos_4": ultimos_4,
         "estado_kyc": usuario.estado_kyc,
+        
+        # --- NUEVOS CAMPOS PARA EL PERFIL ---
+        # Ahora el Frontend podrá leer estos datos
+        "cedula": usuario.cedula,
+        "direccion": usuario.direccion,
+        "telefono": usuario.telefono,
+        # ------------------------------------
+
         "historial": {
             "lineal": {
                 "valores": [saldo_real * 0.9, saldo_real * 0.95, saldo_real, saldo_real * 1.05, saldo_real],
@@ -299,3 +311,53 @@ def finalizar_kyc_datos(
     
     db.commit()
     return {"mensaje": "Perfil verificado. ¡Cuenta habilitada al 100%!"}
+
+
+# ======================================================================
+# 6. ENDPOINT RECARGA DE SALDO (Simulación Persistente)
+# ======================================================================
+class EsquemaRecarga(BaseModel):
+    monto_usd: float
+
+@router.post("/recargar")
+def recargar_saldo_usuario(
+    datos: EsquemaRecarga,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(obtener_usuario_actual)
+):
+    if datos.monto_usd <= 0:
+        raise HTTPException(status_code=400, detail="El monto debe ser mayor a 0.")
+
+    # 1. Actualizar Saldo en Billetera
+    if not usuario.cuenta:
+        nueva_cuenta = Cuenta(id_usuario=usuario.id_usuario, saldo=0.0)
+        db.add(nueva_cuenta)
+        db.commit()
+        db.refresh(usuario)
+
+    # --- CORRECCIÓN AQUÍ ---
+    # Convertimos el float a Decimal para poder sumarlo al saldo de la BD
+    monto_decimal = Decimal(str(datos.monto_usd)) 
+    
+    usuario.cuenta.saldo += monto_decimal
+    # -----------------------
+
+    # 2. Registrar en el Historial (Tabla Transaccion)
+    nueva_transaccion = Transaccion(
+        remitente_id=None, 
+        destinatario_id=usuario.id_usuario,
+        monto=monto_decimal, # Usamos el decimal aquí también
+        motivo="Recarga de Saldo (BS)",
+        estado="COMPLETADO",
+        fecha=datetime.now()
+    )
+    
+    db.add(nueva_transaccion)
+    db.commit()
+    db.refresh(usuario.cuenta)
+
+    return {
+        "mensaje": "Recarga exitosa",
+        "nuevo_saldo": float(usuario.cuenta.saldo), # Convertimos a float solo para devolver el JSON
+        "monto_recargado": datos.monto_usd
+    }

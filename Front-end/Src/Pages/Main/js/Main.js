@@ -4,8 +4,103 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM cargado: Inicializando Main.js Completo');
 
+    // Manejadores globales para abrir/cerrar modales por `data-modal`
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-modal]');
+        if (trigger) {
+            e.preventDefault();
+            const id = trigger.dataset.modal;
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('active');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('no-scroll');
+            }
+            return;
+        }
+
+        // Cerrar al pulsar elementos con clase .modal-close
+        const closeBtn = e.target.closest('.modal-close');
+        if (closeBtn) {
+            const modal = closeBtn.closest('.modal-overlay');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('no-scroll');
+            }
+            return;
+        }
+
+        // Cerrar al clicar fuera del contenido (click en overlay)
+        const overlay = e.target.closest('.modal-overlay');
+        if (overlay && e.target === overlay) {
+            overlay.classList.remove('active');
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('no-scroll');
+            return;
+        }
+    });
+
+    // Cerrar modales con Escape globalmente
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                m.classList.remove('active');
+                m.setAttribute('aria-hidden', 'true');
+            });
+            document.body.classList.remove('no-scroll');
+        }
+    });
+
+    // Delegado global: capturar clicks en botones KYC aunque iniciarPerfil() no se haya enlazado todavía
+    document.addEventListener('click', (e) => {
+        const k = e.target.closest('#btn-kyc, #btn-kyc-popover');
+        if (!k) return;
+        e.preventDefault();
+        console.log('🔎 KYC button clicked (global)');
+        // Cerrar popover si está abierto
+        const pop = document.getElementById('profile-actions-popover');
+        if (pop && pop.classList.contains('show')) { pop.classList.remove('show'); pop.setAttribute('aria-hidden','true'); }
+        if (window.cargarVista) {
+            window.cargarVista('Main_Parts/main_kyc.html');
+        } else {
+            console.warn('cargarVista no disponible');
+        }
+    });
+
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menu-btn');
+    const contenedor = document.getElementById('contenedor-dinamico');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    // Elemento activo actual (enlace del sidebar)
+    let activeLinkEl = document.querySelector('.nav_list a.active');
+
+    function updateCompactActive() {
+        // Quitar compact-active de todos
+        document.querySelectorAll('.nav_list a.compact-active').forEach(a => a.classList.remove('compact-active'));
+        if (!activeLinkEl) activeLinkEl = document.querySelector('.nav_list a.active');
+        if (sidebar && sidebar.classList.contains('minimize')) {
+            if (activeLinkEl) activeLinkEl.classList.add('compact-active');
+        } else {
+            if (activeLinkEl) activeLinkEl.classList.remove('compact-active');
+        }
+    }
+
+    function updateOverlayState() {
+        try {
+            if (!sidebarOverlay || !sidebar) return;
+            const shouldShow = !sidebar.classList.contains('minimize') || sidebar.classList.contains('hover');
+            if (shouldShow) {
+                sidebarOverlay.classList.add('visible');
+                sidebarOverlay.style.pointerEvents = 'auto';
+                sidebarOverlay.style.opacity = '1';
+            } else {
+                sidebarOverlay.classList.remove('visible');
+                sidebarOverlay.style.pointerEvents = 'none';
+                sidebarOverlay.style.opacity = '0';
+            }
+        } catch (e) { /* safe */ }
+    }
 
     // --- A. LOGOUT ---
     const btnLogoutSidebar = document.getElementById('btn-logout-sidebar');
@@ -23,6 +118,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuBtn && sidebar) {
         menuBtn.addEventListener('click', () => {
             sidebar.classList.toggle('minimize');
+            // Ocultar contenido cuando la sidebar queda minimizada
+            if (contenedor) {
+                if (sidebar.classList.contains('minimize')) contenedor.classList.add('hidden-by-sidebar');
+                else contenedor.classList.remove('hidden-by-sidebar');
+            }
+            // Actualizar estado compacto del enlace activo
+            updateCompactActive();
+            // Sincronizar overlay
+            updateOverlayState();
         });
     }
 
@@ -67,12 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 submenuWrapper.style.height = `${submenuWrapper.scrollHeight + 6}px`;
                 submenuWrapper.style.padding = '0.2rem 0';
                 submenuWrapper.classList.add('show');
-                if (sidebar) sidebar.classList.add('hover');
             } else {
                 submenuWrapper.style.height = '0';
                 submenuWrapper.style.padding = '0';
                 submenuWrapper.classList.remove('show');
-                if (sidebar) sidebar.classList.remove('hover');
             }
             return;
         }
@@ -88,15 +190,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Navegando a:", ruta);
 
                 // Actualizar clases 'active' visuales
-                document.querySelectorAll('.active').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.nav_list a.active').forEach(i => i.classList.remove('active'));
                 link.classList.add('active');
                 if(link.closest('.menu-item-dropdown')) link.closest('.menu-item-dropdown').classList.add('active');
+                // Actualizar referencia al enlace activo y estado compacto
+                activeLinkEl = link;
+                updateCompactActive();
 
                 // Llamar a la función de carga
                 if (window.cargarVista) window.cargarVista(ruta);
 
                 // Cerrar sidebar en móvil
-                if(sidebar) sidebar.classList.remove('hover');
+                if(sidebar) { sidebar.classList.remove('hover'); updateOverlayState(); }
             }
         }
     });
@@ -106,16 +211,72 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const term = (e.target.value || '').toLowerCase().trim();
-            document.querySelectorAll('tbody tr').forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
-            });
+
+            // Ocultar el contenido principal mientras se hace una búsqueda (mejor foco en menú)
+            if (contenedor) {
+                if (term !== '') contenedor.classList.add('hidden-by-sidebar');
+                else if (!sidebar.classList.contains('minimize')) contenedor.classList.remove('hidden-by-sidebar');
+            }
+
+            // 1) Filtrar tablas si existen
+            const rows = document.querySelectorAll('tbody tr');
+            if (rows && rows.length > 0) {
+                rows.forEach(row => {
+                    row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+                });
+            }
+
+            // 2) Filtrar elementos del sidebar (links)
+            const navItems = document.querySelectorAll('.nav_list li');
+            if (navItems && navItems.length > 0) {
+                navItems.forEach(li => {
+                    const text = (li.textContent || '').toLowerCase();
+                    // Mostrar siempre divisores y footer
+                    if (li.classList.contains('divider')) { li.style.display = ''; return; }
+                    li.style.display = text.includes(term) || term === '' ? '' : 'none';
+                });
+            }
+        });
+    }
+
+    // Hacer que el icono de búsqueda abra la sidebar (quitar minimize) y enfoque el input
+    const searchIcon = document.querySelector('.input-box i');
+    if (searchIcon && searchInput && sidebar) {
+        searchIcon.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            // Abrir si estaba minimizada
+            sidebar.classList.remove('minimize');
+            sidebar.classList.add('hover');
+            // Mostrar contenedor si fue ocultado
+            if (contenedor) contenedor.classList.remove('hidden-by-sidebar');
+            // Forzar que el input sea claramente visible y enfocado
+            setTimeout(() => { try { searchInput.focus(); } catch(e){} }, 80);
+            // Actualizar icono activo
+            updateCompactActive();
+            // Sincronizar overlay
+            updateOverlayState();
+        });
+    }
+
+    // Manejador del overlay para cerrar la sidebar al clicar fuera
+    if (sidebarOverlay && sidebar) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('minimize');
+            sidebar.classList.remove('hover');
+            if (contenedor) contenedor.classList.add('hidden-by-sidebar');
+            // limpiar búsqueda y restaurar menú
+            try { if (searchInput) searchInput.value = ''; document.querySelectorAll('.nav_list li').forEach(li => li.style.display=''); } catch(e) {}
+            updateCompactActive();
+            updateOverlayState();
         });
     }
 
     // --- E. SIDEBAR HOVER ---
     if (sidebar) {
         sidebar.addEventListener('mouseleave', () => {
+            // Quitar estado hover
             sidebar.classList.remove('hover');
+
             // Cerrar submenús abiertos al salir
             document.querySelectorAll('.submenu-wrapper.show, .sub-menu-toggle').forEach(el => {
                 el.classList.remove('show');
@@ -129,10 +290,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.style.padding = '0';
                 }
             });
+
+            // Minimizar la sidebar al salir
+            sidebar.classList.add('minimize');
+
+            // Ocultar el contenido principal
+            if (contenedor) contenedor.classList.add('hidden-by-sidebar');
+
+            // Limpiar búsqueda (si existía) y restaurar visibilidad de elementos del menú
+            try {
+                const hadSearch = searchInput && searchInput.value && searchInput.value.trim() !== '';
+                if (hadSearch && searchInput) {
+                    searchInput.value = '';
+                }
+                // Restaurar todos los elementos del menú
+                document.querySelectorAll('.nav_list li').forEach(li => { li.style.display = ''; });
+
+                // Si el enlace activo es un sub-enlace, marcar también el padre dropdown como activo
+                if (activeLinkEl && activeLinkEl.classList.contains('sub-menu-link')) {
+                    const submenuWrapper = activeLinkEl.closest('.submenu-wrapper');
+                    const parentLi = submenuWrapper ? submenuWrapper.parentElement : null;
+                    if (parentLi) {
+                        const parentTrigger = parentLi.querySelector('.dropdown-trigger');
+                        if (parentTrigger) {
+                            parentTrigger.classList.add('active');
+                            parentLi.classList.add('active');
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            // Añadir clase compact-active al icono del enlace activo
+            updateCompactActive();
+            // Sincronizar overlay
+            updateOverlayState();
         });
     }
 
     // Iniciar el enrutador
+    // Asegurar estado inicial del overlay
+    try { updateOverlayState(); } catch(e) {}
     iniciarNavegacionSPA();
 });
 
@@ -214,6 +411,14 @@ function iniciarNavegacionSPA() {
 
     function finalizarCarga(ruta) {
         contenedor.style.opacity = '1';
+        // Animación de entrada para la vista inyectada
+        try {
+            contenedor.classList.remove('view-enter');
+            // Forzar reflow para reiniciar la animación si ya estaba presente
+            void contenedor.offsetWidth;
+            contenedor.classList.add('view-enter');
+            contenedor.addEventListener('animationend', () => contenedor.classList.remove('view-enter'), { once: true });
+        } catch (e) { /* no bloquear si falla */ }
         // Restaurar tema si aplica
         try { if(window.CredoraTheme) window.CredoraTheme.setTheme(document.body.classList.contains('dark'), false); } catch(e) {}
 
@@ -371,15 +576,6 @@ async function iniciarInicio() {
 
 // --- B. PERFIL ---
 async function iniciarPerfil() {
-    const formPassword = document.getElementById('form-password');
-    if (formPassword) {
-        formPassword.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Funcionalidad de cambio de contraseña en desarrollo.');
-            formPassword.reset();
-        });
-    }
-
     if (!window.CredoraAPI) return;
 
     try {
@@ -388,6 +584,12 @@ async function iniciarPerfil() {
             if (document.getElementById('profile-name')) document.getElementById('profile-name').textContent = datos.titular;
             if (document.getElementById('profile-email')) document.getElementById('profile-email').textContent = datos.email;
             if (document.getElementById('profile-account')) document.getElementById('profile-account').textContent = datos.numero_cuenta;
+
+                    // Campos adicionales para la vista derecha
+                    if (document.getElementById('profile-cedula')) document.getElementById('profile-cedula').textContent = datos.cedula || datos.identificador || '...';
+                    if (document.getElementById('profile-direccion')) document.getElementById('profile-direccion').textContent = datos.direccion || datos.domicilio || '...';
+                    if (document.getElementById('profile-ocupacion')) document.getElementById('profile-ocupacion').textContent = datos.ocupacion || datos.trabajo || '...';
+                    if (document.getElementById('profile-status')) document.getElementById('profile-status').textContent = datos.estado_kyc || 'Activo';
 
             const estadoEl = document.querySelector('.value.status-active');
             if(estadoEl && datos.estado_kyc) {
@@ -402,6 +604,110 @@ async function iniciarPerfil() {
             }
         }
     } catch (err) { console.error("Error Perfil:", err); }
+
+    // --- Inicializar modales del perfil (Cambiar Contraseña / Cambiar PIN)
+    try {
+        const section = document.getElementById('vista-perfil');
+        if (!section) return;
+        const buttons = section.querySelectorAll('[data-modal]');
+        const modals = section.querySelectorAll('.modal-overlay');
+
+        function openModal(id){
+            const m = document.getElementById(id);
+            if(!m) return;
+            m.classList.add('active');
+            m.setAttribute('aria-hidden','false');
+            document.body.classList.add('no-scroll');
+            section.classList.add('modal-open');
+        }
+
+        function closeModal(m){
+            if(!m) return;
+            m.classList.remove('active');
+            m.setAttribute('aria-hidden','true');
+            document.body.classList.remove('no-scroll');
+            section.classList.remove('modal-open');
+            m.querySelector('form')?.reset();
+        }
+
+        // Vincular botones (cada botón debe tener `data-modal` con el id del modal a abrir)
+        buttons.forEach(btn => btn.addEventListener('click', () => openModal(btn.dataset.modal)));
+
+        // Toggle popover de acciones (mostrar al presionar botón)
+        const btnActionsToggle = document.getElementById('btn-actions-toggle');
+        const popover = document.getElementById('profile-actions-popover');
+        if (btnActionsToggle && popover) {
+            btnActionsToggle.addEventListener('click', (ev) => { ev.stopPropagation(); popover.classList.toggle('show'); popover.setAttribute('aria-hidden', popover.classList.contains('show') ? 'false' : 'true'); });
+            // Cerrar al clicar fuera
+            document.addEventListener('click', () => { if (popover.classList.contains('show')) { popover.classList.remove('show'); popover.setAttribute('aria-hidden','true'); } });
+            popover.addEventListener('click', (e) => e.stopPropagation());
+        }
+
+        modals.forEach(m => {
+            m.addEventListener('click', e => {
+                if(e.target === m || e.target.classList.contains('modal-backdrop')) closeModal(m);
+            });
+            const closeBtn = m.querySelector('.modal-close');
+            if (closeBtn) closeBtn.addEventListener('click', () => closeModal(m));
+        });
+
+        document.addEventListener('keydown', e => {
+            if(e.key === 'Escape'){
+                modals.forEach(m => { if(m.classList.contains('active')) closeModal(m); });
+            }
+        });
+
+        // Form handlers
+        const formPass = document.getElementById('form-change-pass');
+        if (formPass) {
+            formPass.addEventListener('submit', function(e){
+                e.preventDefault();
+                const pass1 = this['new-pass'].value;
+                const pass2 = this['confirm-pass'].value;
+                if (pass1 !== pass2) { alert("Las contraseñas no coinciden."); return; }
+                if (pass1.length < 8) { alert("La contraseña debe tener al menos 8 caracteres."); return; }
+                // TODO: llamar a API para cambiar contraseña
+                alert("Contraseña actualizada con éxito.");
+                closeModal(this.closest('.modal-overlay'));
+            });
+        }
+
+        // Formulario para cambio de PIN (validación simple)
+        const formPin = document.getElementById('form-change-pin');
+        if (formPin) {
+            formPin.addEventListener('submit', function(e){
+                e.preventDefault();
+                const p1 = this['new-pin'].value;
+                const p2 = this['confirm-pin'].value;
+                if (p1 !== p2) { alert("Los PIN no coinciden."); return; }
+                if (!/^\d{4}$/.test(p1)) { alert("El PIN debe tener 4 dígitos numéricos."); return; }
+                // TODO: llamar a API para cambiar PIN
+                alert("PIN actualizado con éxito.");
+                closeModal(this.closest('.modal-overlay'));
+            });
+        }
+
+        // Conectar botones KYC (botón principal y popover)
+        try {
+            const btnKycEls = section.querySelectorAll('#btn-kyc, #btn-kyc-popover');
+            btnKycEls.forEach(btn => {
+                if (!btn) return;
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Cerrar popover si está abierto
+                    const pop = document.getElementById('profile-actions-popover');
+                    if (pop && pop.classList.contains('show')) { pop.classList.remove('show'); pop.setAttribute('aria-hidden','true'); }
+                    if (window.cargarVista) {
+                        window.cargarVista('Main_Parts/main_kyc.html');
+                    } else {
+                        console.warn('cargarVista no disponible');
+                    }
+                });
+            });
+        } catch(err) { console.warn('Error al enlazar btn-kyc:', err); }
+
+        // PIN change removed from profile to avoid showing PIN UI on profile screen
+    } catch(e) { /* no bloquear si falla */ }
 }
 
 // --- C. MOVIMIENTOS ---

@@ -1,6 +1,6 @@
 <!-- Front-end\Src\Pages\Main\Main_Parts\main_kyc.html -->
 
-<link rel="stylesheet" href="../css/kyc.css">
+<link rel="stylesheet" href="./css/kyc.css">
 
 <section class="content-section">
     <header style="margin-bottom: 2rem;">
@@ -9,6 +9,9 @@
     </header>
 
     <div class="kyc-wrapper">
+        <div style="text-align: right; margin-bottom: 8px;">
+            <a href="#" class="btn-texto" id="btn-back-profile">&larr; Volver al perfil</a>
+        </div>
         
         <div id="vista-subida">
             <form id="form-kyc">
@@ -83,3 +86,18 @@
 
     </div>
 </section>
+
+<script>
+    // Manejar botón de regreso al perfil
+    (function(){
+        try {
+            const btn = document.getElementById('btn-back-profile');
+            if (!btn) return;
+            btn.addEventListener('click', function(e){
+                e.preventDefault();
+                if (window.cargarVista) window.cargarVista('Main_Parts/main_profile.html');
+                else console.warn('cargarVista no disponible');
+            });
+        } catch(err){ console.warn('Error bind back button', err); }
+    })();
+</script>

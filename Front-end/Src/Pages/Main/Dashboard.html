@@ -16,9 +16,47 @@
 </head>
 <body class="app-root">
 
+    <body>  
+<button id="chatbot-toggler" class="chatbot-toggler" aria-label="Abrir chat">
+        <i class="fa-solid fa-comment"></i>
+    </button>
+
+    <div class="chatbot-interface">
+        
+        <header class="ai-header">
+            <div class="header-info">
+                <div class="ai-avatar">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="ai-text">
+                    <h3>Nelly</h3>
+                    <p><span class="dot-online"></span>Asistente Virtual</p>
+                </div>
+            </div>
+            
+            <button id="close-btn" class="close-btn" aria-label="Cerrar chat">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </header>
+
+        <ul class="chat-box" id="chatBox">
+            <li class="chat incoming">
+            <div class="msg-content">
+                    <p>Hola 👋 soy Nelly, tu asistente financiero.<br>Haz click en una opción para empezar.</p>
+                </div>
+            </li>
+        </ul>
+
+        <div class="suggestions-bar">
+            <!-- escritura deshabilitada por diseño: no añadir opción de escribir -->
+        </div>
+
+        <!-- Entrada de texto eliminada: interacción solo por selección -->
+    </div>
+
     <div id="canvas-container"></div>
 
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar minimize" id="sidebar">
         <div class="logo_content">
             <img src="../../Assets/Icons/Favicon.png" alt="Logo">
             <div class="logo_name">Credora</div>
@@ -53,7 +91,7 @@
                         <i class='bx bx-user'></i><span class="links_name">Transferir</span>
                     </a>
                     <a href="#" class="nav-link sub-menu-link" data-vista="Main_Parts/main_mov_data.html">
-                        <i class='bx bx-file-find'></i><span class="links_name">Ver mis datos de cuenta</span>
+                        <i class='bx bx-file-find'></i><span class="links_name">Ver mis datos</span>
                     </a>
                 </div>
             </li>
@@ -81,6 +119,9 @@
             </div>
         </ul>
     </div>
+
+    <!-- Overlay que aparece al abrir la sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 
     <!-- Botón de notificaciones en la esquina superior derecha -->
     <div class="top-actions">
@@ -117,7 +158,7 @@
 
 
     <script src="js/theme.js"></script>
-    <script src="js/api.js"></script> 
+    <!--<script src="js/api.js"></script> -->
     <script src="js/Main.js"></script>
     <script src="js/ia.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

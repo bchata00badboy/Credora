@@ -1,7 +1,4 @@
 <!-- /Front-end/Src/Pages/Main/Main_Parts/main_profile.html -->
-
-<link rel="stylesheet" href="css/profile.css">
-
 <section class="content-section" id="vista-perfil">
     <header> 
         <h1>Mi Perfil</h1>
@@ -9,60 +6,199 @@
     </header>
 
     <div class="perfil-grid">
-        
-        <div class="card-perfil datos-usuario">
-            <div class="avatar-circle" id="profile-avatar">
+        <div class="card-perfil profile-single" id="profile-single">
+            <div style="display:flex; gap:18px; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:18px; align-items:center;">
+                    <div class="avatar-circle" id="profile-avatar"></div>
+                    <div>
+                        <h2 id="profile-name">Cargando usuario...</h2>
+                        <p class="rol">Cliente Credora</p>
+                    </div>
                 </div>
-            
-            <h2 id="profile-name">Cargando usuario...</h2>
-            <p class="rol">Cliente Credora</p>
-            
-            <div class="info-container">
-                <div class="info-row">
-                    <span class="label">Correo:</span>
-                    <span class="value" id="profile-email">...</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="label">Nro. Cuenta:</span>
-                    <span class="value monospace" id="profile-account">...</span>
-                </div>
-                
-                <div class="info-row">
-                    <span class="label">Estado:</span>
-                    <span class="value status-active">Activo</span>
-                </div>
-                
-                <div class="profile-actions">
-                    <button class="btn-action menu-link" data-vista="Main_Parts/main_kyc.html">
-                        <i class='bx bx-id-card'></i> Verificar Identidad (KYC)
-                    </button>
+                <div style="position:relative;">
+                    <div class="actions-popover" id="profile-actions-popover" aria-hidden="true">
+                        <button class="btn btn-blue change-pass" data-modal="modal-pass">Cambiar contraseña</button>
+                            <a class="btn btn-blue register" href="#" role="button" id="btn-kyc-popover">Verificar KYC</a>
+                    </div>
                 </div>
             </div>
 
+            <hr style="border:none; height:1px; background:rgba(0,0,0,0.06); margin:18px 0;" />
+
+            <div class="info-list">
+                <div class="info-row"><span class="label">Correo:</span><span class="value" id="profile-email">...</span></div>
+                <div class="info-row"><span class="label">Nro. Cuenta:</span><span class="value monospace" id="profile-account">...</span></div>
+                <div class="info-row"><span class="label">Cédula:</span><span class="value" id="profile-cedula">...</span></div>
+                <div class="info-row"><span class="label">Dirección:</span><span class="value" id="profile-direccion">...</span></div>
+                <div class="info-row"><span class="label">Ocupación:</span><span class="value" id="profile-ocupacion">...</span></div>
+                <div class="info-row"><span class="label">Estado:</span><span class="value status-active" id="profile-status">Activo</span></div>
+            </div>
+            
+            <div class="seguridad">
+                <h3>Seguridad</h3>
+                <div class="seguridad-actions" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; justify-content:center; align-items:center;">
+                    <button class="btn btn-blue register" id="btn-kyc">Verificarse KYC</button>
+                    <button class="btn btn-blue change-pass" id="btn-change-pass" data-modal="modal-pass">Cambiar contraseña</button>
+                    <button class="btn btn-blue change-pin" id="btn-change-pin" data-modal="modal-pin">Cambiar PIN</button>
+                </div>
+            </div>
+
+            <!-- acciones ahora en popover superior -->
         </div>
-
-        <div class="card-perfil seguridad">
-            <h3>Cambiar Contraseña</h3>
-            <form id="form-password">
-                <div class="form-group">
-                    <label for="pass-actual">Contraseña Actual</label>
-                    <input type="password" id="pass-actual" placeholder="••••••••" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="pass-nueva">Nueva Contraseña</label>
-                    <input type="password" id="pass-nueva" placeholder="Ingresa nueva contraseña" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="pass-confirm">Confirmar Contraseña</label>
-                    <input type="password" id="pass-confirm" placeholder="Repite nueva contraseña" required>
-                </div>
-
-                <button type="submit" class="btn-guardar">Actualizar Contraseña</button>
-            </form>
-        </div>
-
     </div>
+
+    <!-- Modal Cambiar Contraseña -->
+    <div class="modal-overlay" id="modal-pass" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-pass-title">
+            <div class="modal-header">
+                <h3 id="modal-pass-title">Cambiar contraseña</h3>
+                <button class="modal-close" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-change-pass">
+                    <div class="form-group">
+                        <label>Contraseña actual</label>
+                        <input type="password" name="old-pass" placeholder="Contraseña actual">
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva contraseña</label>
+                        <input type="password" name="new-pass" placeholder="Nueva contraseña">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar nueva contraseña</label>
+                        <input type="password" name="confirm-pass" placeholder="Confirmar nueva contraseña">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-blue">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cambiar PIN -->
+    <div class="modal-overlay" id="modal-pin" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-pin-title">
+            <div class="modal-header">
+                <h3 id="modal-pin-title">Cambiar PIN</h3>
+                <button class="modal-close" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-change-pin">
+                    <div class="form-group">
+                        <label>PIN actual</label>
+                        <div class="pin-input" data-group="old">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="PIN actual dígito 1">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="PIN actual dígito 2">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="PIN actual dígito 3">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="PIN actual dígito 4">
+                            <input type="hidden" name="old-pin">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nuevo PIN (4 dígitos)</label>
+                        <div class="pin-input" data-group="new">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Nuevo PIN dígito 1">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Nuevo PIN dígito 2">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Nuevo PIN dígito 3">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Nuevo PIN dígito 4">
+                            <input type="hidden" name="new-pin">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar PIN</label>
+                        <div class="pin-input" data-group="confirm">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Confirmar PIN dígito 1">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Confirmar PIN dígito 2">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Confirmar PIN dígito 3">
+                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit" aria-label="Confirmar PIN dígito 4">
+                            <input type="hidden" name="confirm-pin">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-blue">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </section>
+
+<style>
+    .pin-input{display:flex;gap:8px;justify-content:center;margin-top:6px}
+    .pin-digit{width:44px;height:44px;border:1px solid #d1d5db;border-radius:6px;text-align:center;font-size:18px}
+    .pin-digit:focus{outline:2px solid rgba(37,99,235,0.6)}
+</style>
+
+<script>
+// Verificación y corrección rápida de visibilidad al inyectar la vista
+(function(){
+    try{
+        console.log('main_profile inyectado');
+        const section = document.getElementById('vista-perfil');
+        if(section){
+            // Asegurar que el contenedor padre está visible
+            const cont = document.getElementById('contenedor-dinamico');
+            if(cont){ cont.classList.remove('hidden-by-sidebar'); cont.style.opacity = '1'; }
+            // Quitar clases ocultas que puedan afectar a la sección
+            section.classList.remove('hidden');
+            section.style.display = '';
+        }
+    }catch(e){ console.warn('Error visibilidad perfil:', e); }
+})();
+
+// Inicializar comportamiento para inputs PIN de 4 dígitos
+function initPinInputs(){
+    document.querySelectorAll('.pin-input').forEach(group=>{
+        const digits = Array.from(group.querySelectorAll('.pin-digit'));
+        const hidden = group.querySelector('input[type="hidden"]');
+        digits.forEach((el,idx)=>{
+            el.addEventListener('input', ()=>{
+                el.value = el.value.replace(/\D/g,'').slice(0,1);
+                if(el.value && idx < digits.length-1) digits[idx+1].focus();
+            });
+            el.addEventListener('keydown', (e)=>{
+                if(e.key === 'Backspace' && !el.value && idx>0){ digits[idx-1].focus(); }
+                if(e.key === 'ArrowLeft' && idx>0) digits[idx-1].focus();
+                if(e.key === 'ArrowRight' && idx<digits.length-1) digits[idx+1].focus();
+            });
+            el.addEventListener('paste', (e)=>{
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+                for(let i=0;i<digits.length;i++){ digits[i].value = paste[i]||''; }
+                const next = paste.length >= digits.length ? digits[digits.length-1] : digits[paste.length];
+                if(next) next.focus();
+            });
+        });
+        // optional: focus first input when container gets focus
+        group.addEventListener('click', ()=>{ const first = group.querySelector('.pin-digit'); if(first) first.focus(); });
+    });
+
+    const form = document.getElementById('form-change-pin');
+    if(form){
+        form.addEventListener('submit', (e)=>{
+            document.querySelectorAll('.pin-input').forEach(group=>{
+                const hidden = group.querySelector('input[type="hidden"]');
+                const val = Array.from(group.querySelectorAll('.pin-digit')).map(i=>i.value||'').join('');
+                hidden.value = val;
+            });
+            const newPin = form.querySelector('input[name="new-pin"]').value;
+            const confirmPin = form.querySelector('input[name="confirm-pin"]').value;
+            if(newPin.length !== 4 || confirmPin.length !== 4){
+                e.preventDefault();
+                alert('El PIN debe tener 4 dígitos.');
+                return;
+            }
+            if(newPin !== confirmPin){
+                e.preventDefault();
+                alert('El nuevo PIN y la confirmación no coinciden.');
+                return;
+            }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initPinInputs);
+initPinInputs();
+</script>

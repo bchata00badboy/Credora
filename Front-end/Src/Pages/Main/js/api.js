@@ -1,48 +1,55 @@
 /* /Front-end/Src/Pages/Main/js/api.js */
 
-const API_BASE = "http://localhost:8000/api/v1"; // Ajusta el puerto si es necesario
+// CORRECCIÓN: Usar 127.0.0.1 para evitar conflictos de cookies/CORS con localhost
+const API_BASE = "http://127.0.0.1:8000/api/v1"; 
 
 const api = {
-    // Función genérica para peticiones autenticadas
     async request(endpoint, method = 'GET', body = null) {
         const token = localStorage.getItem('credora_token');
         
-        if (!token) {
-            console.warn("No hay token, redirigiendo a login...");
-            window.location.href = "../login/login.html";
-            return null;
-        }
+        // Manejo de rutas públicas (si las tuvieras)
+        // if (!token && !endpoint.includes('login')) { ... }
 
         const headers = {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
         const config = { method, headers };
         if (body) config.body = JSON.stringify(body);
 
         try {
+            // Log para ver qué URL exacta estamos llamando
+            console.log(`📡 Petición: ${method} ${API_BASE}${endpoint}`);
+            
             const response = await fetch(`${API_BASE}${endpoint}`, config);
             
             if (response.status === 401) {
-                alert("Tu sesión ha expirado.");
-                localStorage.removeItem('credora_token');
-                window.location.href = "../login/login.html";
+                console.warn("Sesión expirada");
+                // localStorage.removeItem('credora_token'); // Opcional: limpiar token
+                // window.location.href = "../Login/login.html"; 
                 return null;
             }
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || "Error en el servidor");
+                // Intentamos leer el error JSON, si falla usamos statusText
+                const errorText = await response.text();
+                let errorJson;
+                try { errorJson = JSON.parse(errorText); } catch(e) {}
+                
+                throw new Error((errorJson && errorJson.detail) || `Error ${response.status}: ${response.statusText}`);
             }
 
             return await response.json();
         } catch (error) {
-            console.error(`Error API [${endpoint}]:`, error);
-            throw error;
+            console.error(`❌ Error API [${endpoint}]:`, error);
+            // No relanzamos el error para no romper todo el script, devolvemos null
+            return null; 
         }
     }
 };
 
-// Exponer globalmente
 window.CredoraAPI = api;

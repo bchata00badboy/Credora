@@ -1229,3 +1229,196 @@ body.dark .btn-copy:hover {
 .notif-btn:hover { background: rgba(255,255,255,0.08); }
 .notif-badge { background: var(--accent-color, #ff3347); color: #fff; font-weight: 700; font-size: 12px; padding: 2px 6px; border-radius: 999px; display: inline-block; min-width: 20px; text-align: center; }
 .notif-badge.hidden { display: none !important; }
+
+/* =========================================
+   SECCIÓN DE RECARGA (MODAL Y BOTÓN)
+   ========================================= */
+
+/* Contenedor del botón principal */
+.recarga-action-container {
+    margin: 25px 0;
+    display: flex;
+    justify-content: center;
+}
+
+/* Botón Llamativo (CTA) */
+.btn-recarga-cta {
+    background: linear-gradient(135deg, #003049 0%, #005f73 100%);
+    color: #ffffff;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0, 48, 73, 0.3);
+}
+
+.btn-recarga-cta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 95, 115, 0.4);
+    filter: brightness(1.1);
+}
+
+/* Estilos del Modal Overlay */
+.modal-recarga-overlay {
+    display: none; /* Se activa con JS (flex) */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px); /* Efecto desenfoque moderno */
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Caja de contenido del Modal */
+.modal-recharge-content {
+    background-color: #ffffff !important; /* Fuerza el color blanco */
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidad */
+    border-top: 6px solid #005f73; /* Línea de color superior */
+    
+    /* Centrado interno */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    position: relative;
+    z-index: 10001; /* Asegura que esté por encima de todo */
+}
+
+/* Animación de entrada */
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Inputs y elementos internos */
+.modal-recharge-content h3 {
+    margin: 0;
+    color: #003049;
+    font-size: 1.4rem;
+}
+
+.modal-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Divide el espacio en dos columnas iguales */
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.btn-cancelar {
+    background-color: #f2f4f7; /* Gris muy claro */
+    color: #5d6d7e;            /* Texto gris azulado */
+    padding: 12px 24px;
+    border: 1px solid #d5dbdb;
+    border-radius: 8px;        /* Redondeado pero no tanto como el principal */
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Efecto al pasar el mouse */
+.btn-cancelar:hover {
+    background-color: #ebedef;
+    color: #2c3e50;
+    border-color: #bdc3c7;
+    transform: translateY(-1px);
+}
+
+/* Efecto al presionar */
+.btn-cancelar:active {
+    background-color: #d5dbdb;
+    transform: translateY(0);
+}
+
+.modal-recarga-content input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.modal-recarga-content .res-box {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 15px 0;
+    border: 1px dashed #005f73;
+}
+
+.res-box strong {
+    font-size: 1.5rem;
+    color: #2a9d8f;
+}
+
+/* Fondo del contenido del modal en modo oscuro */
+body.dark .modal-recharge-content {
+    background-color: #1a1a2e !important; /* Azul muy oscuro o gris oscuro */
+    color: #ffffff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    border-top: 6px solid #005f73; /* Mantenemos el color de acento */
+}
+
+/* Ajuste de títulos y textos secundarios */
+body.dark .modal-recharge-content h3 {
+    color: #ffffff;
+}
+
+body.dark .modal-recharge-content p {
+    color: #b0b0b0;
+}
+
+/* Ajuste del Input en modo oscuro */
+body.dark .modal-recharge-content input[type="number"] {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    color: #ffffff;
+}
+
+body.dark .modal-recharge-content input::placeholder {
+    color: #555;
+}
+
+/* Caja de resultado (Usted recibe) */
+body.dark .res-box {
+    background-color: #16213e;
+    border: 1px dashed #005f73;
+}
+
+body.dark .res-box span {
+    color: #a0a0a0;
+}
+
+/* Botón Cancelar en modo oscuro */
+body.dark .btn-cancelar {
+    background-color: #252a34;
+    color: #e0e0e0;
+    border: 1px solid #393e46;
+}
+
+body.dark .btn-cancelar:hover {
+    background-color: #393e46;
+    color: #ffffff;
+}

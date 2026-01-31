@@ -121,5 +121,36 @@
         </div>
     </div>
 
+
+<div class="recarga-action-container">
+    <button id="btn-abrir-recarga" class="btn-recarga-cta">
+        <i class="fas fa-wallet"></i> Recargar Saldo
+    </button>
+</div>
+
+<div id="modal-recarga" class="modal-recarga-overlay">
+    <div class="modal-recharge-content">
+        <h3>Recarga de Cuenta</h3>
+        <p>Tasa del día: <strong>45.50 BS</strong></p>
+        
+        <label for="input-bs">Monto a pagar (BS):</label>
+        <input type="number" id="input-bs" placeholder="0.00">
+        
+        <div class="res-box">
+            Usted recibe: <br>
+            <strong id="res-usd">0.00</strong> <span>USD</span>
+        </div>
+
+        <div class="modal-buttons">
+    <button id="btn-cerrar-modal" class="btn-cancelar">
+        Cancelar
+    </button>
+    
+    <button id="btn-confirmar-pago" class="btn-recarga-cta">
+        CONFIRMAR
+    </button>
+</div>
+    </div>
+</div>
     <!-- grafica.js se carga dinámicamente desde Main.js; evitar doble inclusión -->
 </section>

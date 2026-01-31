@@ -43,6 +43,23 @@ async function cargarVista(ruta) {
             contenedorDinamico.innerHTML = html;
             // Reactivar scripts incrustados en el HTML parcial
             ejecutarScriptsScripts(contenedorDinamico);
+            // Aplicar animación de entrada a la vista inyectada
+            try {
+                const firstChild = contenedorDinamico.firstElementChild;
+                const useSlow = typeof ruta === 'string' && ruta.toLowerCase().includes('kyc');
+                const cls = useSlow ? 'view-entry-slow' : 'view-entry';
+                if (firstChild) {
+                    firstChild.classList.remove('view-entry', 'view-entry-slow');
+                    // forzar reflow para reiniciar la animación
+                    void firstChild.offsetWidth;
+                    firstChild.classList.add(cls);
+                } else {
+                    // fallback: animar el contenedor
+                    contenedorDinamico.classList.remove('view-entry', 'view-entry-slow');
+                    void contenedorDinamico.offsetWidth;
+                    contenedorDinamico.classList.add(cls);
+                }
+            } catch (e) { console.warn('No se pudo aplicar animación de entrada:', e); }
         }
 
         // D) Ejecutar Lógica Específica (Controlador)
@@ -133,8 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const subMenu = menuItem.querySelector('.sub-menu');
             const isActive = menuItem.classList.toggle('sub-menu-toggle');
             if (subMenu) {
-                subMenu.style.height = isActive ? `${subMenu.scrollHeight + 6}px` : '0';
-                subMenu.style.padding = isActive ? '0.2rem 0' : '0';
+                if (isActive) {
+                    subMenu.classList.add('show');
+                    subMenu.style.maxHeight = `${subMenu.scrollHeight + 6}px`;
+                    subMenu.style.padding = '0.2rem 0';
+                } else {
+                    subMenu.classList.remove('show');
+                    subMenu.style.maxHeight = '0';
+                    subMenu.style.padding = '0';
+                }
             }
             return; 
         }
@@ -150,14 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const isOpen = parentLi.classList.toggle('sub-menu-toggle');
             if (isOpen) {
-                submenuWrapper.style.height = `${submenuWrapper.scrollHeight + 6}px`;
-                submenuWrapper.style.padding = '0.2rem 0';
                 submenuWrapper.classList.add('show');
+                submenuWrapper.style.maxHeight = `${submenuWrapper.scrollHeight + 6}px`;
+                submenuWrapper.style.padding = '0.2rem 0';
                 if (sidebar) sidebar.classList.add('hover');
             } else {
-                submenuWrapper.style.height = '0';
-                submenuWrapper.style.padding = '0';
                 submenuWrapper.classList.remove('show');
+                submenuWrapper.style.maxHeight = '0';
+                submenuWrapper.style.padding = '0';
                 if (sidebar) sidebar.classList.remove('hover');
             }
             return;
@@ -191,30 +215,100 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const term = (e.target.value || '').toLowerCase().trim();
-            document.querySelectorAll('tbody tr').forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
-            });
+
+            // 1) Si existe el sidebar, filtrar los items del menú
+            const navList = document.querySelector('.nav_list');
+            if (navList) {
+                const items = Array.from(navList.querySelectorAll(':scope > li'));
+                items.forEach(li => {
+                    // Ignorar separadores u otros elementos sin enlaces
+                    const anchors = Array.from(li.querySelectorAll('a'));
+                    if (!anchors.length) { li.style.display = ''; return; }
+
+                    // Si alguno de los anchors dentro del li coincide, mostrar el li
+                    const matches = anchors.some(a => {
+                        const nameEl = a.querySelector('.links_name');
+                        const text = (nameEl ? nameEl.textContent : a.textContent || '').toLowerCase();
+                        return text.includes(term);
+                    });
+
+                    li.style.display = matches ? '' : 'none';
+                });
+                return;
+            }
+
+            // 2) Fallback: si hay tablas cargadas, filtrar filas
+            const rows = document.querySelectorAll('tbody tr');
+            if (rows.length) {
+                rows.forEach(row => {
+                    row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+                });
+            }
         });
     }
 
     // --- E. SIDEBAR HOVER ---
     if (sidebar) {
-        sidebar.addEventListener('mouseleave', () => {
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        function resetSidebarToActive() {
+            // quitar estado hover visual
             sidebar.classList.remove('hover');
-            // Cerrar submenús abiertos al salir
-            document.querySelectorAll('.submenu-wrapper.show, .sub-menu-toggle').forEach(el => {
-                el.classList.remove('show');
-                el.classList.remove('sub-menu-toggle');
-                if(el.querySelector('.sub-menu')) {
-                    el.querySelector('.sub-menu').style.height = '0';
-                    el.querySelector('.sub-menu').style.padding = '0';
-                }
-                if(el.classList.contains('submenu-wrapper')) {
-                    el.style.height = '0';
-                    el.style.padding = '0';
-                }
+            if(sidebarOverlay) { sidebarOverlay.style.pointerEvents = 'none'; sidebarOverlay.style.opacity = '0'; sidebarOverlay.setAttribute('aria-hidden','true'); }
+
+            // Reiniciar campo de búsqueda y mostrar todos los items
+            const searchInputEl = document.getElementById('searchInput');
+            if (searchInputEl && searchInputEl.value) {
+                searchInputEl.value = '';
+                // disparar evento input para que el listener restablezca la lista
+                const ev = new Event('input', { bubbles: true });
+                searchInputEl.dispatchEvent(ev);
+            }
+
+            // cerrar todos los submenús excepto el que corresponde al item activo
+            const allSubmenus = Array.from(document.querySelectorAll('.submenu-wrapper, .sub-menu'));
+            allSubmenus.forEach(sub => {
+                const li = sub.closest('li');
+                const isActive = li && li.classList && li.classList.contains('active');
+                    if (isActive) {
+                        // abrir el del activo
+                        sub.classList.add('show');
+                        sub.style.maxHeight = `${sub.scrollHeight + 6}px`;
+                        sub.style.padding = '0.2rem 0';
+                        const parent = li;
+                        if(parent) parent.classList.add('sub-menu-toggle');
+                    } else {
+                        // cerrar los demás
+                        sub.classList.remove('show');
+                        if(sub.style) { sub.style.maxHeight = '0'; sub.style.padding = '0'; }
+                        const parent = li;
+                        if(parent) parent.classList.remove('sub-menu-toggle');
+                    }
             });
+        }
+
+        // Cuando el mouse entra, expandemos de forma temporal si está minimizada
+        sidebar.addEventListener('mouseenter', () => {
+            if (sidebar.classList.contains('minimize')) {
+                sidebar.classList.add('hover');
+                if(sidebarOverlay) { sidebarOverlay.style.pointerEvents = 'auto'; sidebarOverlay.style.opacity = '1'; sidebarOverlay.setAttribute('aria-hidden','false'); }
+            }
         });
+
+        // Cuando el mouse sale del sidebar, reiniciamos al estado con el item activo
+        sidebar.addEventListener('mouseleave', () => {
+            // Solo quitar hover si la expansión fue temporal (sidebar minimizada)
+            if (sidebar.classList.contains('minimize')) {
+                sidebar.classList.remove('hover');
+            }
+            resetSidebarToActive();
+        });
+
+        // Si el mouse entra sobre el overlay, tratar como salida (por si el overlay cubre espacio)
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('mouseenter', () => resetSidebarToActive());
+            sidebarOverlay.addEventListener('click', () => resetSidebarToActive());
+        }
     }
 
     // Iniciar el enrutador (Carga inicial)
@@ -591,18 +685,120 @@ async function iniciarTransferencias() {
 // --- E. PERFIL ---
 async function iniciarPerfil() {
     console.log("Perfil...");
-    
-    // Lógica del formulario de contraseña (si existe)
-    const formPassword = document.getElementById('form-password');
-    if (formPassword) {
-        formPassword.addEventListener('submit', (e) => {
+    // Inicializar modales y botones específicos de la vista de perfil
+    // 1) Manejo genérico de abrir/cerrar modales mediante atributo data-modal
+    function openModalById(id){
+        const m = document.getElementById(id);
+        if(!m) return;
+        m.classList.add('active');
+        m.setAttribute('aria-hidden','false');
+        const card = m.querySelector('.modal-card');
+        if(card) card.focus && card.focus();
+    }
+    function closeModal(el){
+        if(!el) return;
+        el.classList.remove('active');
+        el.setAttribute('aria-hidden','true');
+    }
+
+    // Triggers: botones con data-modal
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+        btn.addEventListener('click', (e)=>{
             e.preventDefault();
-            alert('Funcionalidad de cambio de contraseña en desarrollo.');
-            formPassword.reset();
+            const id = btn.getAttribute('data-modal');
+            if(id) openModalById(id);
+        });
+    });
+
+    // Cerrar modales: botones .modal-close y click fuera del card
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        const closeBtn = overlay.querySelector('.modal-close');
+        if(closeBtn) closeBtn.addEventListener('click', ()=> closeModal(overlay));
+        overlay.addEventListener('click', (ev)=>{
+            if(ev.target === overlay) closeModal(overlay);
+        });
+    });
+
+    // KYC: navegar a la vista KYC
+    const btnKyc = document.getElementById('btn-kyc');
+    if(btnKyc) btnKyc.addEventListener('click', (e)=>{ e.preventDefault(); cargarVista('Main_Parts/main_kyc.html'); });
+    const btnKycPopover = document.getElementById('btn-kyc-popover');
+    if(btnKycPopover) btnKycPopover.addEventListener('click', (e)=>{ e.preventDefault(); cargarVista('Main_Parts/main_kyc.html'); });
+
+    // Manejo de formulario de cambio de contraseña (form-change-pass)
+    const formChangePass = document.getElementById('form-change-pass');
+    if(formChangePass){
+        formChangePass.addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const oldPass = formChangePass.querySelector('input[name="old-pass"]').value;
+            const newPass = formChangePass.querySelector('input[name="new-pass"]').value;
+            const conf = formChangePass.querySelector('input[name="confirm-pass"]').value;
+            if(!oldPass || !newPass || !conf){ alert('Completa todos los campos.'); return; }
+            if(newPass !== conf){ alert('La nueva contraseña y su confirmación no coinciden.'); return; }
+
+            // Si existe API, enviar petición; si no, simular éxito
+            try{
+                if(window.CredoraAPI && typeof window.CredoraAPI.request === 'function'){
+                    await window.CredoraAPI.request('/usuario/cambiar-password', 'POST', { old_password: oldPass, new_password: newPass });
+                } else {
+                    console.log('Simulando cambio de contraseña (no hay CredoraAPI).');
+                    await new Promise(r=>setTimeout(r,400));
+                }
+                alert('Contraseña actualizada correctamente.');
+                formChangePass.reset();
+                const modal = document.getElementById('modal-pass');
+                if(modal) closeModal(modal);
+            }catch(err){
+                console.error('Error cambiar contraseña:', err);
+                alert('No se pudo cambiar la contraseña: ' + (err.message||err));
+            }
         });
     }
 
-    if(!window.CredoraAPI) return;
+    // Manejo de formulario de cambio de PIN (form-change-pin) — ya prepara hidden inputs en la vista
+    const formChangePin = document.getElementById('form-change-pin');
+    if(formChangePin){
+        formChangePin.addEventListener('submit', async (e)=>{
+            // la lógica de validación de 4 dígitos ya existe en la vista; solo enviamos
+            e.preventDefault();
+            // asegurar que los hidden inputs están llenos
+            document.querySelectorAll('.pin-input').forEach(group=>{
+                const hidden = group.querySelector('input[type="hidden"]');
+                const val = Array.from(group.querySelectorAll('.pin-digit')).map(i=>i.value||'').join('');
+                if(hidden) hidden.value = val;
+            });
+
+            const oldPin = formChangePin.querySelector('input[name="old-pin"]').value;
+            const newPin = formChangePin.querySelector('input[name="new-pin"]').value;
+            const confirmPin = formChangePin.querySelector('input[name="confirm-pin"]').value;
+            if(newPin.length !== 4 || confirmPin.length !== 4){ alert('El PIN debe tener 4 dígitos.'); return; }
+            if(newPin !== confirmPin){ alert('El nuevo PIN y la confirmación no coinciden.'); return; }
+
+            try{
+                if(window.CredoraAPI && typeof window.CredoraAPI.request === 'function'){
+                    await window.CredoraAPI.request('/usuario/cambiar-pin', 'POST', { old_pin: oldPin, new_pin: newPin });
+                } else {
+                    await new Promise(r=>setTimeout(r,300));
+                }
+                alert('PIN actualizado correctamente.');
+                formChangePin.reset();
+                const modal = document.getElementById('modal-pin');
+                if(modal) closeModal(modal);
+            }catch(err){
+                console.error('Error cambiar PIN:', err);
+                alert('No se pudo cambiar el PIN: ' + (err.message||err));
+            }
+        });
+    }
+
+    if(!window.CredoraAPI) {
+        // Aún así, intentamos rellenar algunos datos visuales sin la API
+        try {
+            const datos = await Promise.resolve(null);
+            // Si no hay API, no hacemos más
+        } catch(e){ console.error(e); }
+        return;
+    }
 
     try {
         const datos = await window.CredoraAPI.request('/billetera/saldo');

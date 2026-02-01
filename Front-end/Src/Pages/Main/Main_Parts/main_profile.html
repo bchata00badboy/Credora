@@ -21,8 +21,6 @@
                 </div>
             </div>
 
-            <hr style="border:none; height:1px; background:rgba(0, 0, 0, 0); margin:18px 0;" />
-
             <div class="info-list">
                 <div class="info-row"><span class="label">Correo:</span><span class="value" id="profile-email">...</span></div>
                 <div class="info-row"><span class="label">Nro. Cuenta:</span><span class="value monospace" id="profile-account">...</span></div>
@@ -43,25 +41,27 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-pass" aria-hidden="true">
-        <div class="modal-card" role="dialog" aria-modal="true">
+    <!-- Nuevo modal: Cambiar contraseña (reescrito desde 0) -->
+    <div class="modal-overlay profile-modal" id="modal-pass" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-pass-title">
             <div class="modal-header">
-                <h3>Cambiar contraseña</h3>
+                <h3 id="modal-pass-title">Cambiar contraseña</h3>
                 <button class="modal-close" aria-label="Cerrar">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="form-change-pass">
                     <div class="form-group">
-                        <label>Contraseña actual</label>
-                        <input type="password" name="old-pass" placeholder="Contraseña actual" required>
+                        <label for="old-pass">Contraseña actual</label>
+                        <input id="old-pass" type="password" name="old-pass" placeholder="Contraseña actual" required>
                     </div>
                     <div class="form-group">
-                        <label>Nueva contraseña</label>
-                        <input type="password" name="new-pass" placeholder="Nueva contraseña" required>
+                        <label for="new-pass">Nueva contraseña</label>
+                        <input id="new-pass" type="password" name="new-pass" placeholder="Nueva contraseña" required>
+                        <small class="hint">Mínimo 6 caracteres.</small>
                     </div>
                     <div class="form-group">
-                        <label>Confirmar nueva contraseña</label>
-                        <input type="password" name="confirm-pass" placeholder="Confirmar" required>
+                        <label for="confirm-pass">Confirmar nueva contraseña</label>
+                        <input id="confirm-pass" type="password" name="confirm-pass" placeholder="Confirmar" required>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-blue">Guardar</button>
@@ -71,23 +71,22 @@
         </div>
     </div>
 
-<div class="modal-overlay" id="modal-pin" aria-hidden="true">
-        <div class="modal-card" role="dialog" aria-modal="true" style="max-width: 400px;">
+    <!-- Restaurado: modal Cambiar PIN con diseño de 4 inputs por grupo -->
+    <div class="modal-overlay profile-modal" id="modal-pin" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-pin-title" style="max-width:480px;">
             <div class="modal-header">
-                <h3><i class='bx bxs-lock-alt'></i> Cambiar PIN de Seguridad</h3>
+                <h3 id="modal-pin-title"><i class='bx bxs-lock-alt'></i> Cambiar PIN de Seguridad</h3>
                 <button class="modal-close" aria-label="Cerrar">&times;</button>
             </div>
-            
             <div class="modal-body">
                 <form id="form-change-pin">
-                    
                     <div class="form-group" style="text-align: center;">
                         <label style="margin-bottom: 10px; display: block;">PIN Actual</label>
                         <div class="pin-container" data-group="old">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
                         </div>
                     </div>
 
@@ -96,20 +95,20 @@
                     <div class="form-group" style="text-align: center;">
                         <label style="margin-bottom: 10px; display: block;">Nuevo PIN</label>
                         <div class="pin-container" data-group="new">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
                         </div>
                     </div>
 
                     <div class="form-group" style="text-align: center;">
                         <label style="margin-bottom: 10px; display: block;">Confirmar PIN</label>
                         <div class="pin-container" data-group="confirm">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
-                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•" inputmode="numeric" pattern="\d" required>
                         </div>
                     </div>
 

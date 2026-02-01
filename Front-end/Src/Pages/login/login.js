@@ -44,11 +44,23 @@ function resetPasswordUIs() {
     if (submitBtn) submitBtn.disabled = true;
 }
 
-if(registerBtn) registerBtn.addEventListener('click', () => { container.classList.add('active'); clearInputs(); });
-if(loginBtn) loginBtn.addEventListener('click', () => { container.classList.remove('active'); clearInputs(); });
-// Asegurar que al mostrar/ocultar el panel de registro se reinician los indicadores
-if(registerBtn) registerBtn.addEventListener('click', () => { resetPasswordUIs(); });
-if(loginBtn) loginBtn.addEventListener('click', () => { resetPasswordUIs(); });
+if (registerBtn) {
+    registerBtn.addEventListener('click', () => {
+        container.classList.add('active');
+        clearInputs();
+        // Abrir registro: reiniciamos de inmediato para presentar un formulario limpio
+        resetPasswordUIs();
+    });
+}
+
+if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+        container.classList.remove('active');
+        clearInputs();
+        // Al cerrar el panel de registro esperamos a que termine el slide (≈600ms)
+        setTimeout(resetPasswordUIs, 620);
+    });
+}
 
 // --- ANIMACIÓN DE FONDO (BILLETERAS) ---
 function createWallet(isInitial = false) {
@@ -233,7 +245,6 @@ if (formRegister) {
 
             if (res.ok) {
                 // ----------------------------------------------------
-                // AQUÍ ESTABA EL ERROR ANTES: NO HACEMOS LOGIN AUTOMÁTICO
                 // ----------------------------------------------------
                 console.log("✅ Usuario creado. Esperando verificación.");
                 

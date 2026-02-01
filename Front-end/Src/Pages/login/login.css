@@ -127,15 +127,12 @@ body {
     display: flex; align-items: center; justify-content: center;
     color: #333; text-align: center;
     padding: 30px 20px; z-index: 1;
-    /* animate position immediately */
-    transition: right 0.6s ease-in-out;
+    transition: 0.6s ease-in-out 1.2s, visibility 0s 1s;
 }
 
 .container.active .form_box { right: 50%; }
-
-/* Hide register content until slide animation finishes */
-.form_box.register { opacity: 0; pointer-events: none; transition: opacity 220ms ease 0s; }
-.container.active .form_box.register { opacity: 1; pointer-events: auto; transition: opacity 220ms ease 0.6s; }
+.form_box.register { visibility: hidden; }
+.container.active .form_box.register { visibility: visible; }
 
 form { width: 100%; max-width: 280px; }
 
@@ -243,6 +240,12 @@ form { width: 100%; max-width: 280px; }
     width: 140px; height: 45px; background: transparent;
     border: 2px solid #fff; box-shadow: none;
 }
+
+/* --- CORRECCIÓN: evitar botón duplicado durante la transición --- */
+/* Mostrar el botón del panel izquierdo por defecto (estado login),
+   pero ocultarlo cuando `.container` está en estado `active` (registro visible). */
+.toggle_panel.toggle-left .register-btn { display: inline-block; }
+.container.active .toggle_panel.toggle-left .register-btn { display: none; }
 
 .toggle_panel.toggle-left { left: 0; transition-delay: 1.2s; }
 .container.active .toggle_panel.toggle-left { left: -50%; transition-delay: 0.6s; }
@@ -526,7 +529,13 @@ html.modal-open, body.modal-open { overflow: hidden !important; height: 100vh !i
 }
 
 /* Indicador de coincidencia de contraseña */
-/* password-match removed */
+.password-match {
+    margin-top: 2px; font-size: 9px; text-align: left;
+    color: #ef4444; background: transparent; border: none;
+    padding: 0; border-radius: 6px; display: none;
+}
+.password-match.match { display: inline-block; color: #065f46; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.08); padding: 2px 4px; border-radius: 999px; font-size: 9px; }
+.password-match.no-match { display: inline-block; color: #b91c1c; background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.05); padding: 2px 4px; border-radius: 999px; font-size: 9px; }
 
 /* Micro-interacciones en botones para sensación dinámica */
 #modal-recover .btn { transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }

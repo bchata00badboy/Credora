@@ -128,28 +128,29 @@
     </button>
 </div>
 
-<div id="modal-recarga" class="modal-recarga-overlay">
-    <div class="modal-recharge-content">
-        <h3>Recarga de Cuenta</h3>
-        <p>Tasa del día: <strong>45.50 BS</strong></p>
-        
-        <label for="input-bs">Monto a pagar (BS):</label>
-        <input type="number" id="input-bs" placeholder="0.00">
-        
-        <div class="res-box">
-            Usted recibe: <br>
-            <strong id="res-usd">0.00</strong> <span>USD</span>
+<div id="modal-recarga" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Recarga de Cuenta</h3>
+            <button id="btn-cerrar-modal" class="close-modal" aria-label="Cerrar"><i class='bx bx-x'></i></button>
         </div>
-
-        <div class="modal-buttons">
-    <button id="btn-cerrar-modal" class="btn-cancelar">
-        Cancelar
-    </button>
-    
-    <button id="btn-confirmar-pago" class="btn-recarga-cta">
-        CONFIRMAR
-    </button>
-</div>
+        <div class="modal-body">
+            <div class="modal-recharge-content">
+                <p>Tasa del día: <strong>45.50 BS</strong></p>
+                <label for="input-bs">Monto a pagar (BS):</label>
+                <input type="number" id="input-bs" placeholder="0.00" min="0" step="0.01" inputmode="decimal" aria-describedby="res-usd" />
+                <div class="res-box">
+                    Usted recibe: <br>
+                    <strong id="res-usd">0.00</strong> <span>USD</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-buttons">
+                <button id="btn-cerrar-modal-footer" class="btn-cancelar close-modal">Cancelar</button>
+                <button id="btn-confirmar-pago" class="btn-recarga-cta">CONFIRMAR</button>
+            </div>
+        </div>
     </div>
 </div>
     <!-- grafica.js se carga dinámicamente desde Main.js; evitar doble inclusión -->

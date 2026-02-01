@@ -411,21 +411,34 @@ async function iniciarInicio() {
 
         if(!btnAbrir || !modal) return;
 
-        // Abrir Modal
+        // Abrir Modal (usamos la clase 'active' definida en CSS)
         btnAbrir.onclick = () => {
-            modal.style.display = 'flex';
+            // mover modal al body para evitar problemas de posicionamiento
+            if (modal.parentElement !== document.body) document.body.appendChild(modal);
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            modal.style.zIndex = '100000';
+            document.documentElement.classList.add('modal-open');
             inputBs.value = '';
             resUsd.textContent = '0.00';
-            setTimeout(() => inputBs.focus(), 100);
+            setTimeout(() => inputBs.focus(), 120);
         };
 
-        // Cerrar Modal
+        // Cerrar Modal (quita clase 'active' y desbloquea scroll)
         const cerrar = () => {
-            modal.style.display = 'none';
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.style.zIndex = '';
+            document.documentElement.classList.remove('modal-open');
         };
-        btnCerrar.onclick = cerrar;
-        
-        modal.onclick = (e) => { if(e.target === modal) cerrar(); };
+
+        if (btnCerrar) btnCerrar.onclick = cerrar;
+        // fallback: botones con clase .close-modal dentro del modal
+        const closeBtns = modal.querySelectorAll('.close-modal, .btn-cancelar, #btn-cerrar-modal-fallback');
+        closeBtns.forEach(b => b.addEventListener('click', cerrar));
+
+        // Cerrar al clicar fuera del contenido (fondo)
+        modal.onclick = (e) => { if (e.target === modal) cerrar(); };
 
         // Calculadora en tiempo real
         inputBs.oninput = () => {
@@ -940,6 +953,21 @@ async function iniciarPerfil() {
             document.body.style.paddingRight = scrollBarWidth + 'px';
         }
 
+        // Para asegurar que el backdrop-filter afecte a toda la página,
+        // movemos temporalmente los modales sensibles al `body` antes de mostrarlos.
+        if (id === 'modal-pass' || id === 'modal-pin') {
+            try {
+                if (!m._originalParent) {
+                    m._originalParent = m.parentElement;
+                    m._originalNextSibling = m.nextSibling;
+                    document.body.appendChild(m);
+                }
+            } catch (err) {
+                // Si algo falla, seguimos y mostramos el modal donde esté.
+                console.warn('No se pudo mover modal al body:', err);
+            }
+        }
+
         m.classList.add('active');
         m.setAttribute('aria-hidden', 'false');
         document.documentElement.classList.add('modal-open');
@@ -960,6 +988,20 @@ async function iniciarPerfil() {
         // Limpiar formularios al cerrar
         const form = el.querySelector('form');
         if (form) form.reset();
+
+        // Restaurar al padre original si lo movimos al abrir
+        try {
+            if (el._originalParent) {
+                const parent = el._originalParent;
+                const next = el._originalNextSibling;
+                if (next && next.parentElement === parent) parent.insertBefore(el, next);
+                else parent.appendChild(el);
+                delete el._originalParent;
+                delete el._originalNextSibling;
+            }
+        } catch (err) {
+            console.warn('No se pudo restaurar modal a su contenedor original:', err);
+        }
     };
 
     // Eventos para abrir (data-modal)
@@ -1164,6 +1206,46 @@ function iniciarNotificaciones() {
 function iniciarConfiguracion() {
     const t = document.getElementById('config-theme-toggle');
     if(t) t.checked = document.body.classList.contains('dark');
+    
+    // Enlazar modales dentro de la vista inyectada (si existen)
+    try {
+        const scope = contenedorDinamico || document;
+        const opens = scope.querySelectorAll('.open-modal-btn');
+        opens.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modalId = btn.getAttribute('data-modal');
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                // Asegurar posicionamiento correcto
+                if (modal.parentElement !== document.body) document.body.appendChild(modal);
+                modal.classList.add('active');
+                modal.setAttribute('aria-hidden', 'false');
+                modal.style.zIndex = '100000';
+                document.documentElement.classList.add('modal-open');
+            });
+        });
+
+        // Cerrar dentro del scope
+        const closes = scope.querySelectorAll('.close-modal');
+        closes.forEach(c => c.addEventListener('click', (e) => {
+            const overlay = e.target.closest('.modal-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.setAttribute('aria-hidden', 'true');
+                document.documentElement.classList.remove('modal-open');
+            }
+        }));
+
+        const overlays = scope.querySelectorAll('.modal-overlay');
+        overlays.forEach(o => o.addEventListener('click', (e) => {
+            if (e.target === o) {
+                o.classList.remove('active');
+                o.setAttribute('aria-hidden', 'true');
+                document.documentElement.classList.remove('modal-open');
+            }
+        }));
+    } catch (err) { console.warn('iniciarConfiguracion modal binding error:', err); }
 }
 
 
@@ -1208,3 +1290,25 @@ function setupModalRecarga() {
         }
     };
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Abrir modales
+    const openBtns = document.querySelectorAll('.open-modal-btn');
+    openBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const modal = document.getElementById(btn.getAttribute('data-modal'));
+            if(modal) modal.classList.add('active');
+        });
+    });
+
+    // Cerrar modales (X y Fondo)
+    document.querySelectorAll('.close-modal, .modal-overlay').forEach(el => {
+        el.addEventListener('click', (e) => {
+            if (e.target.closest('.close-modal') || e.target.classList.contains('modal-overlay')) {
+                const overlay = e.target.closest('.modal-overlay') || e.target;
+                overlay.classList.remove('active');
+            }
+        });
+    });
+});

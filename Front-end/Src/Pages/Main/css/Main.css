@@ -630,6 +630,21 @@ body.dark th { background-color: rgba(0, 48, 73, 0.15); color: var(--color-text-
 }
 .modal-overlay.active .modal-card { transform: translateY(0) scale(1); opacity: 1; }
 
+/* Ensure modal card has limited height and internal scroll for long content like Términos */
+.modal-overlay .modal-card {
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+.modal-overlay .modal-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.legal-container {
+    padding-right: 6px; /* space for scrollbar */
+}
+
 /* Cabecera / cuerpo / footer del modal (mantener estilos existentes) */
 .modal-header { position: relative; padding: 14px 16px; background: linear-gradient(90deg, var(--color-surface) 0%, var(--ai-blue-dark) 100%); color: #fff; }
 .modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 700; }
@@ -1504,7 +1519,7 @@ body.dark .btn-copy:hover {
     display: none; /* Se activa con JS (flex) */
     position: fixed;
     top: 0;
-    left: 0;
+        background: var(--bg-glass, rgba(0,0,0,0.35));
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
@@ -1517,6 +1532,29 @@ body.dark .btn-copy:hover {
 /* Caja de contenido del Modal */
 .modal-recharge-content {
     background-color: #ffffff !important; /* Fuerza el color blanco */
+    body.dark .modal-overlay { background: rgba(2,6,12,0.32); }
+
+    /* Específico: overlays para cambiar contraseña y PIN menos intrusivos */
+    /* Specific: make profile password/PIN modals fully blurry and darker so the background is obscured */
+    #modal-pass.modal-overlay,
+    #modal-pin.modal-overlay {
+        background: rgba(0,0,0,0.72);
+        -webkit-backdrop-filter: blur(18px) saturate(120%);
+        backdrop-filter: blur(18px) saturate(120%);
+        z-index: 100000; /* ensure above other overlays */
+    }
+
+    body.dark #modal-pass.modal-overlay,
+    body.dark #modal-pin.modal-overlay {
+        background: rgba(0,0,0,0.78);
+    }
+
+    /* Ensure modal card remains readable */
+    #modal-pass.modal-overlay .modal-card,
+    #modal-pin.modal-overlay .modal-card {
+        background: var(--card-bg-light);
+        box-shadow: 0 20px 48px rgba(0,0,0,0.45);
+    }
     padding: 30px;
     border-radius: 16px;
     width: 90%;
@@ -1668,3 +1706,131 @@ body.dark .btn-cancelar:hover {
     from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+/* --- 1. SEPARACIÓN Y ESTRUCTURA --- */
+.settings-card {
+    background-color: #ffffff;      /* Fondo blanco por defecto */
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+/* CLASE NUEVA PARA SEPARARLO DEL CONTENEDOR DE ARRIBA */
+.card-separada {
+    margin-top: 2rem;  /* 32px de espacio arriba */
+    margin-bottom: 2rem; /* Espacio abajo por si acaso */
+}
+
+/* Cabecera pequeña (gris claro) */
+.card-header-small {
+    padding: 1.2rem 1.5rem 0.8rem;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #ffffff;
+}
+
+.card-header-small h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #64748b; /* Gris medio */
+    font-weight: 700;
+    margin: 0;
+}
+
+/* --- 2. LISTA DE BOTONES --- */
+.settings-list { display: flex; flex-direction: column; }
+
+.settings-item {
+    display: flex; align-items: center; padding: 1rem 1.5rem;
+    background: transparent; border: none; width: 100%; text-align: left; cursor: pointer;
+    border-bottom: 1px solid #e2e8f0;
+    transition: background 0.2s ease;
+}
+.settings-item:last-child { border-bottom: none; }
+.settings-item:hover { background-color: #f8fafc; } /* Gris muy clarito al pasar mouse */
+
+/* Iconos */
+.item-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-right: 1rem; flex-shrink: 0;
+}
+.blue-icon { background-color: rgba(0, 48, 73, 0.08); color: #003049; }
+
+/* Textos del botón */
+.item-content { flex: 1; }
+.item-content h4 { font-size: 1rem; font-weight: 600; color: #1a202c; margin: 0 0 2px 0; }
+.item-content p { font-size: 0.85rem; color: #64748b; margin: 0; }
+.item-action { margin-left: 1rem; color: #cbd5e1; font-size: 1.4rem; }
+
+/* --- 3. MODALES Y ANIMACIONES --- */
+.modal-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal-content {
+    background: #ffffff; width: 90%; max-width: 500px;
+    border-radius: 16px; transform: translateY(20px); transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.modal-overlay.active .modal-content { transform: translateY(0); }
+
+.modal-header { padding: 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { font-size: 1.25rem; margin: 0; color: #1a202c; }
+.close-modal { background: transparent; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; }
+.modal-body { padding: 1.5rem; color: #475569; line-height: 1.6; }
+
+.btn-support {
+    padding: 12px; margin-top: 10px; border-radius: 8px;
+    background: #f1f5f9; color: #334155; text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-weight: 500; transition: 0.2s;
+}
+.btn-support:hover { background: #e2e8f0; }
+
+
+/* =========================================
+   4. CORRECCIONES MODO OSCURO (body.dark)
+   ========================================= */
+
+body.dark .settings-card {
+    background-color: #101828 !important; /* Azul oscuro fondo */
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+body.dark .card-header-small {
+    background-color: #101828 !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+body.dark .card-header-small h3 { color: #94a3b8 !important; } /* Título gris claro */
+
+body.dark .settings-item { border-color: rgba(255,255,255,0.08) !important; }
+body.dark .settings-item:hover { background-color: rgba(255,255,255,0.04) !important; }
+
+body.dark .item-content h4 { color: #f8fafc !important; } /* Texto blanco */
+body.dark .item-content p { color: #94a3b8 !important; }  /* Subtítulo gris */
+
+/* Iconos brillantes en oscuro */
+body.dark .blue-icon {
+    background-color: rgba(56, 189, 248, 0.15) !important;
+    color: #38bdf8 !important; /* Azul celeste brillante */
+}
+
+/* Modales en oscuro */
+body.dark .modal-content {
+    background-color: #1e293b !important;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+body.dark .modal-header { border-color: rgba(255,255,255,0.1) !important; }
+body.dark .modal-header h2 { color: #fff !important; }
+body.dark .modal-body { color: #cbd5e1 !important; }
+body.dark .btn-support { background: #334155 !important; color: #fff !important; }
+body.dark .btn-support:hover { background: #475569 !important; }
+

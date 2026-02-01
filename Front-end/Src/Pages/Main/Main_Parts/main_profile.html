@@ -71,46 +71,50 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-pin" aria-hidden="true">
-        <div class="modal-card" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="modal-pin" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" style="max-width: 400px;">
             <div class="modal-header">
-                <h3>Cambiar PIN</h3>
+                <h3><i class='bx bxs-lock-alt'></i> Cambiar PIN de Seguridad</h3>
                 <button class="modal-close" aria-label="Cerrar">&times;</button>
             </div>
+            
             <div class="modal-body">
                 <form id="form-change-pin">
-                    <div class="form-group">
-                        <label>PIN actual</label>
-                        <div class="pin-input" data-group="old">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input type="hidden" name="old-pin">
+                    
+                    <div class="form-group" style="text-align: center;">
+                        <label style="margin-bottom: 10px; display: block;">PIN Actual</label>
+                        <div class="pin-container" data-group="old">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Nuevo PIN (4 dígitos)</label>
-                        <div class="pin-input" data-group="new">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input type="hidden" name="new-pin">
+
+                    <hr style="border: 0; border-top: 1px dashed #ddd; margin: 15px 0;">
+
+                    <div class="form-group" style="text-align: center;">
+                        <label style="margin-bottom: 10px; display: block;">Nuevo PIN</label>
+                        <div class="pin-container" data-group="new">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Confirmar PIN</label>
-                        <div class="pin-input" data-group="confirm">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input inputmode="numeric" pattern="\d*" maxlength="1" class="pin-digit">
-                            <input type="hidden" name="confirm-pin">
+
+                    <div class="form-group" style="text-align: center;">
+                        <label style="margin-bottom: 10px; display: block;">Confirmar PIN</label>
+                        <div class="pin-container" data-group="confirm">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-blue">Guardar</button>
+
+                    <div class="modal-footer" style="justify-content: center; margin-top: 20px;">
+                        <button type="submit" class="btn btn-blue" style="width: 100%;">Actualizar PIN</button>
                     </div>
                 </form>
             </div>

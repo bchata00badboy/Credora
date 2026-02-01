@@ -115,3 +115,43 @@ body.dark .kyc-upload-area {
 body.dark .kyc-upload-area i { color: var(--ai-blue-light, #6ea8d6); }
 body.dark #file-name { color: #8ee6a8; }
 body.dark .kyc-title { color: var(--ai-blue-light, #9cc9e6); }
+
+/* MODAL PIN ESPECÍFICO */
+.pin-modal-box {
+    max-width: 350px !important;
+    text-align: center;
+}
+
+.pin-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.pin-box {
+    width: 50px;
+    height: 60px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 24px;
+    text-align: center;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+    color: #003049;
+    font-weight: bold;
+}
+
+.pin-box:focus {
+    border-color: #003049;
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 48, 73, 0.15);
+    outline: none;
+    transform: translateY(-2px);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}

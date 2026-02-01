@@ -677,11 +677,12 @@ async function iniciarMovimientos() {
     }
 }
 
-// --- D. TRANSFERENCIAS ---
+// --- D. TRANSFERENCIAS (LÓGICA FINAL) ---
+// --- D. TRANSFERENCIAS (VERSIÓN AUTO-REPARABLE DEFINITIVA) ---
 async function iniciarTransferencias() {
-    console.log("💸 Módulo Transferencias Iniciado");
+    console.log("💸 Transferencias: Iniciando...");
 
-    // Saldo
+    // 1. Mostrar Saldo
     if (window.CredoraAPI) {
         window.CredoraAPI.request('/billetera/saldo').then(d => {
             const el = document.querySelector('.acc-balance strong');
@@ -689,82 +690,176 @@ async function iniciarTransferencias() {
         });
     }
 
-    let transferenciaPendiente = null;
-    const modal = document.getElementById('pinModal');
+    // ============================================================
+    // 2. SISTEMA DE AUTO-REPARACIÓN DEL MODAL
+    // ============================================================
+    let modal = document.getElementById('pinModal');
 
-    // Inputs PIN
-    const pinInputs = document.querySelectorAll('.pin-box');
+    // Si el navegador cargó el HTML viejo sin modal, lo creamos aquí mismo:
+    if (!modal) {
+        console.warn("⚠️ Modal no detectado por caché. Inyectando código de emergencia...");
+        
+        const modalHTML = `
+            <div id="pinModal" class="modal-overlay" style="display: none;" aria-hidden="true">
+                <div class="modal-card pin-modal-box">
+                    <div class="modal-header">
+                        <h3><i class='bx bxs-lock-alt'></i> Seguridad</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p style="text-align: center; margin-bottom: 20px;">Ingresa tu PIN de 4 dígitos.</p>
+                        
+                        <div class="pin-container">
+                            <input type="password" class="pin-box" maxlength="1" id="pin1" placeholder="•">
+                            <input type="password" class="pin-box" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box" maxlength="1" placeholder="•">
+                        </div>
+                        
+                        <div class="modal-actions" style="margin-top: 20px;">
+                            <button class="btn-cancelar" id="btn-pin-cancel-dynamic">Cancelar</button>
+                            <button class="btn-confirmar" id="btn-pin-confirm-dynamic">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insertamos el modal al final de la vista
+        const contenedor = document.querySelector('.vista-transferencias') || document.getElementById('contenedor-dinamico');
+        contenedor.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Referenciamos el nuevo modal
+        modal = document.getElementById('pinModal');
+    }
+
+    // ============================================================
+    // 3. LÓGICA DE NEGOCIO
+    // ============================================================
+    
+    let datosTransferencia = null;
+
+    // A. Lógica de Inputs del PIN (Auto-Focus)
+    const pinInputs = document.querySelectorAll('#pinModal .pin-box');
     pinInputs.forEach((input, index) => {
+        // Limpiamos eventos previos clonando
         const ni = input.cloneNode(true);
         input.parentNode.replaceChild(ni, input);
+        
         ni.addEventListener('keyup', (e) => {
-            if (e.key >= 0 && e.key <= 9 && index < 3) document.querySelectorAll('.pin-box')[index+1].focus();
-            if (e.key === 'Backspace' && index > 0) document.querySelectorAll('.pin-box')[index-1].focus();
-            if (e.key === 'Enter') confirmarConPin();
+            // Avanzar
+            if (e.key >= 0 && e.key <= 9 && index < 3 && ni.value.length === 1) {
+                pinInputs[index+1].focus();
+            }
+            // Retroceder
+            if (e.key === 'Backspace' && index > 0) {
+                pinInputs[index-1].focus();
+            }
+            // Confirmar con Enter
+            if (e.key === 'Enter') ejecutarTransferencia();
         });
     });
 
-    window.confirmarConPin = async () => {
-        let pin = "";
-        document.querySelectorAll('.pin-box').forEach(b => pin += b.value);
-        if (pin.length !== 4) { alert("El PIN debe tener 4 dígitos."); return; }
-        if (!transferenciaPendiente) return;
-
-        const datos = { ...transferenciaPendiente, pin: pin };
-        const btn = document.querySelector('.modal-actions .btn-confirmar');
-        const txt = btn.textContent;
-        btn.textContent = "Procesando..."; btn.disabled = true;
-
-        try {
-            const res = await window.CredoraAPI.request('/billetera/transferir', 'POST', datos);
-            if (res) {
-                if(modal) modal.classList.remove('active');
-                alert(`✅ Transferencia Exitosa!\nEnviado a: ${datos.nombre_beneficiario}`);
-                window.cargarVista('Main_Parts/main_home.html');
-            }
-        } catch (e) {
-            alert("❌ " + e.message);
-            document.querySelectorAll('.pin-box').forEach(b => b.value='');
-            document.getElementById('pin1').focus();
-        } finally {
-            btn.textContent = txt; btn.disabled = false;
+    // B. Funciones de Control del Modal
+    const toggleModalPin = (show) => {
+        if(show) {
+            modal.style.display = 'flex'; // Forzamos display flex
+            setTimeout(() => modal.classList.add('active'), 10); // Animación
+            modal.setAttribute('aria-hidden', 'false');
+            
+            // Focus al primer input
+            setTimeout(() => {
+                const first = document.querySelector('#pinModal .pin-box');
+                if(first) first.focus();
+            }, 100);
+        } else {
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300); // Esperar animación
+            modal.setAttribute('aria-hidden', 'true');
+            // Limpiar inputs
+            document.querySelectorAll('#pinModal .pin-box').forEach(b => b.value='');
         }
     };
 
-    // Modal Helpers
-    window.toggleModal = (show) => {
-        if(modal) {
-            if(show) { modal.classList.add('active'); setTimeout(()=>document.getElementById('pin1').focus(),100); }
-            else { modal.classList.remove('active'); document.querySelectorAll('.pin-box').forEach(b=>b.value=''); }
-        }
-    }
-    window.validarPin = window.confirmarConPin;
+    // C. Función que llama a la API
+    const ejecutarTransferencia = async () => {
+        let pin = "";
+        document.querySelectorAll('#pinModal .pin-box').forEach(b => pin += b.value);
+        
+        if (pin.length !== 4) return alert("El PIN debe tener 4 dígitos.");
+        if (!datosTransferencia) return;
 
-    // Formulario
-    const btnCont = document.querySelector('.form-actions .btn-confirmar');
-    if (btnCont) {
-        const nb = btnCont.cloneNode(true);
-        btnCont.parentNode.replaceChild(nb, btnCont);
-        nb.addEventListener('click', () => {
+        const payload = { ...datosTransferencia, pin: pin };
+        
+        // Buscar el botón confirmar (puede ser el del HTML o el inyectado)
+        const btn = modal.querySelector('.btn-confirmar');
+        const textoOriginal = btn.textContent;
+        btn.textContent = "Procesando..."; 
+        btn.disabled = true;
+
+        try {
+            const res = await window.CredoraAPI.request('/billetera/transferir', 'POST', payload);
+            if (res) {
+                toggleModalPin(false);
+                alert(`✅ ¡Transferencia Exitosa!\n\nDestino: ${payload.nombre_beneficiario}\nNuevo Saldo: $${res.nuevo_saldo.toLocaleString('en-US')}`);
+                // Recargar Dashboard para ver cambios
+                if(window.cargarVista) window.cargarVista('Main_Parts/main_home.html');
+            }
+        } catch (e) {
+            alert("❌ Error: " + e.message);
+            // Limpiar PIN para reintentar
+            document.querySelectorAll('#pinModal .pin-box').forEach(b => b.value='');
+            document.querySelector('#pinModal .pin-box').focus();
+        } finally {
+            btn.textContent = textoOriginal; 
+            btn.disabled = false;
+        }
+    };
+
+    // D. Asignar eventos a los botones del Modal (Estático o Dinámico)
+    const btnCancelModal = modal.querySelector('.btn-cancelar');
+    if(btnCancelModal) btnCancelModal.onclick = () => toggleModalPin(false);
+
+    const btnConfirmModal = modal.querySelector('.btn-confirmar');
+    if(btnConfirmModal) btnConfirmModal.onclick = () => ejecutarTransferencia();
+
+
+    // E. Configurar Botón "Continuar" del Formulario Principal
+    const btnContinuarForm = document.querySelector('.form-transferencia .btn-confirmar');
+    if (btnContinuarForm) {
+        // Clonar para limpiar listeners viejos
+        const nuevoBtn = btnContinuarForm.cloneNode(true);
+        btnContinuarForm.parentNode.replaceChild(nuevoBtn, btnContinuarForm);
+        
+        nuevoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Recolectar datos
             const inputs = document.querySelectorAll('.form-transferencia input');
+            // Mapeo basado en tu HTML: [0]Nombre, [1]Cedula, [2]Telf, [3]Monto, [4]Concepto
             const nombre = inputs[0]?.value.trim();
-            const cedula = inputs[1]?.value.trim();
-            const telefono = inputs[2]?.value.trim();
+            const iden = inputs[1]?.value.trim();
+            const tel = inputs[2]?.value.trim();
             const monto = parseFloat(inputs[3]?.value);
             const motivo = inputs[4]?.value.trim();
 
-            if (!nombre || !cedula || !monto) { alert("Datos incompletos."); return; }
+            if (!nombre || !iden || !monto) return alert("Por favor completa los campos obligatorios.");
+            if (monto <= 0) return alert("El monto debe ser mayor a 0.");
 
-            transferenciaPendiente = { nombre_beneficiario: nombre, cedula_destino: cedula, telefono_destino: telefono, identificador: cedula, monto: monto, motivo: motivo||"Pago" };
-            window.toggleModal(true);
+            datosTransferencia = { 
+                nombre_beneficiario: nombre, 
+                identificador: iden, 
+                cedula_destino: iden,
+                telefono_destino: tel,
+                monto: monto, 
+                motivo: motivo || "Transferencia" 
+            };
+            
+            console.log("📝 Datos válidos. Abriendo PIN...");
+            toggleModalPin(true);
         });
     }
-    const btnCan = document.querySelector('.form-actions .btn-cancelar');
-    if(btnCan) btnCan.addEventListener('click', ()=> window.cargarVista('Main_Parts/main_home.html'));
 }
 
-// --- E. PERFIL ---
-// --- E. PERFIL ---
 // --- E. PERFIL (COMPLETA) ---
 async function iniciarPerfil() {
     console.log("👤 Iniciando módulo Perfil...");
@@ -918,42 +1013,82 @@ async function iniciarPerfil() {
         };
     }
 
-    // ------------------------------------------------------
-    // 5. FORMULARIO: CAMBIAR PIN
+// ------------------------------------------------------
+    // 5. FORMULARIO: CAMBIAR PIN (LÓGICA ACTUALIZADA)
     // ------------------------------------------------------
     const formPin = document.getElementById('form-change-pin');
     if (formPin) {
+        
+        // A. Auto-Focus inteligente
+        const pinInputsPerfil = formPin.querySelectorAll('.pin-box'); // Usamos .pin-box ahora
+        pinInputsPerfil.forEach((input, index) => {
+            input.addEventListener('keyup', (e) => {
+                // Avanzar
+                if (e.key >= 0 && e.key <= 9 && input.value.length === 1) {
+                    if (index < pinInputsPerfil.length - 1) {
+                        const nextInput = pinInputsPerfil[index + 1];
+                        // Solo saltar si está en el mismo grupo
+                        if(nextInput.parentNode === input.parentNode) nextInput.focus();
+                    }
+                }
+                // Retroceder
+                if (e.key === 'Backspace' && index > 0) {
+                     const prevInput = pinInputsPerfil[index - 1];
+                     if(prevInput.parentNode === input.parentNode) prevInput.focus();
+                }
+            });
+        });
+
+        // B. Enviar al Backend
         formPin.onsubmit = async (e) => {
             e.preventDefault();
             
-            // Función para concatenar los 4 dígitos de un grupo específico
+            // Helper para obtener el valor de un grupo (old, new, confirm)
             const getPinValue = (groupName) => {
-                const group = formPin.querySelector(`.pin-input[data-group="${groupName}"]`);
-                if(!group) return "";
-                return Array.from(group.querySelectorAll('.pin-digit'))
-                            .map(i => i.value)
-                            .join('');
+                // Buscamos el contenedor por data-group
+                const container = formPin.querySelector(`.pin-container[data-group="${groupName}"]`);
+                if(!container) return "";
+                
+                let pin = "";
+                container.querySelectorAll('.pin-box').forEach(input => pin += input.value);
+                return pin;
             };
 
             const oldP = getPinValue('old');
             const newP = getPinValue('new');
             const confP = getPinValue('confirm');
 
-            if (newP.length < 4 || confP.length < 4) { 
-                alert("Por favor completa los 4 dígitos del PIN."); return; 
-            }
-            if (newP !== confP) { 
-                alert("El nuevo PIN y la confirmación no coinciden."); return; 
-            }
+            // Validaciones frontend
+            if (oldP.length < 4) return alert("Ingresa tu PIN actual completo.");
+            if (newP.length < 4) return alert("El nuevo PIN debe tener 4 dígitos.");
+            if (newP !== confP) return alert("La confirmación del PIN no coincide.");
 
-            // Aquí iría la llamada real a la API
-            // await window.CredoraAPI.request('/auth/cambiar-pin', 'POST', { old: oldP, new: newP });
+            const btn = formPin.querySelector('button[type="submit"]');
+            const txt = btn.textContent;
+            btn.textContent = "Actualizando..."; btn.disabled = true;
 
-            alert("✅ PIN de seguridad actualizado.");
-            closeModal(document.getElementById('modal-pin'));
+            try {
+                // Llamada real a la API
+                const res = await window.CredoraAPI.request('/auth/cambiar-pin', 'POST', { old: oldP, new: newP });
+                
+                if(res) {
+                    alert("✅ PIN actualizado correctamente.");
+                    formPin.reset(); // Limpiar campos
+                    document.getElementById('modal-pin').classList.remove('active'); // Cerrar
+                }
+            } catch (err) {
+                alert("❌ Error: " + err.message);
+                // Si el error es de credenciales, limpiar solo el viejo
+                if(err.message.toLowerCase().includes("actual") || err.message.toLowerCase().includes("incorrecto")) {
+                    const oldContainer = formPin.querySelector('.pin-container[data-group="old"]');
+                    oldContainer.querySelectorAll('input').forEach(i => i.value = '');
+                    oldContainer.querySelector('input').focus();
+                }
+            } finally {
+                btn.textContent = txt; btn.disabled = false;
+            }
         };
     }
-
     // ------------------------------------------------------
     // 6. NAVEGACIÓN A KYC (Desde el perfil)
     // ------------------------------------------------------

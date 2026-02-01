@@ -49,6 +49,10 @@ class Usuario(Base):
     # --- SEGURIDAD ---
     # El PIN para autorizar transferencias
     pin_seguridad = Column(String(4), default="1234") 
+    
+    # --- VERIFICACIÓN Y SEGURIDAD ---
+    codigo_verificacion = Column(String(6), nullable=True) # El código de 6 dígitos
+    correo_verificado = Column(Boolean, default=False)
 
     # Relaciones
     cuenta = relationship("Cuenta", back_populates="usuario", uselist=False)

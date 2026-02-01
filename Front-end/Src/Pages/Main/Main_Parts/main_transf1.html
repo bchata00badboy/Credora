@@ -1,5 +1,3 @@
-<!-- /Front-end/Src/Pages/Main/Main_Parts/main_transf1.html -->
-
 <section class="content-section vista-transferencias">
     <header>
         <h1>Realizar Transferencia</h1>
@@ -12,13 +10,10 @@
             <h3>Detalles de la operación</h3>
             
             <form class="form-transferencia">
-                
                 <div class="form-group">
                     <label>Cuenta de Origen</label>
                     <div class="account-select">
-                        <div class="acc-icon">
-                            <i class='bx bx-wallet'></i>
-                        </div>
+                        <div class="acc-icon"><i class='bx bx-wallet'></i></div>
                         <div class="acc-info">
                             <span class="acc-name">Cuenta Principal</span>
                             <span class="acc-balance">Saldo disponible: <strong>$1,250.00</strong></span>
@@ -30,17 +25,18 @@
                     <label>Nombre del Beneficiario</label>
                     <div class="input-with-icon">
                         <input type="text" placeholder="Ejemplo: Pedro Gonzales">
+                        <i class='bx bx-user'></i>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Cedula del Beneficiario</label>
-                        <input type="text" placeholder="Ejemplo: 33.456.789" class="input-simple">
+                        <label>Cédula / Identificador</label>
+                        <input type="text" placeholder="Correo o Cédula" class="input-simple">
                     </div>
                     <div class="form-group">
-                        <label>Telefono del Beneficiario</label>
-                        <input type="text" placeholder="Ejemplo: 0412-1234567" class="input-simple">
+                        <label>Teléfono</label>
+                        <input type="text" placeholder="Ej: 0412-1234567" class="input-simple">
                     </div>
                 </div>
 
@@ -53,8 +49,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Concepto / Referencia</label>
-                    <input type="text" placeholder="Ej: Pago de renta" class="input-simple">
+                    <label>Concepto</label>
+                    <input type="text" placeholder="Ej: Pago de servicios" class="input-simple">
                 </div>
 
                 <div class="form-actions">
@@ -74,6 +70,29 @@
             </div>
         </div>
 
+    </div>
+
+    <div id="pinModal" class="modal-overlay" aria-hidden="true" style="display: none;">
+        <div class="modal-card pin-modal-box">
+            <div class="modal-header">
+                <h3><i class='bx bxs-lock-alt'></i> Seguridad</h3>
+            </div>
+            <div class="modal-body">
+                <p style="text-align: center; margin-bottom: 20px;">Ingresa tu PIN de 4 dígitos.</p>
+                
+                <div class="pin-container">
+                    <input type="password" class="pin-box" maxlength="1" id="pin1" placeholder="•">
+                    <input type="password" class="pin-box" maxlength="1" placeholder="•">
+                    <input type="password" class="pin-box" maxlength="1" placeholder="•">
+                    <input type="password" class="pin-box" maxlength="1" placeholder="•">
+                </div>
+                
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button class="btn-cancelar" onclick="toggleModal(false)">Cancelar</button>
+                    <button class="btn-confirmar" onclick="confirmarConPin()">Confirmar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </section>

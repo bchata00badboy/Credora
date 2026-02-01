@@ -1,3 +1,5 @@
+<!-- Front-end\Src\Pages\login\login.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -140,8 +142,50 @@
     </div>
     
 
-    
-    <script src="conexion.js"></script>
+<div id="modal-verify" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Verifica tu Correo</h3>
+        </div>
+        <div class="modal-body">
+            <p>Ingresa el código que enviamos a tu correo.</p>
+            <div class="input_box">
+                <input type="text" id="verify-code" placeholder="Código" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+            </div>
+            <button id="btn-verify-action" class="btn" style="margin-top: 15px;">Verificar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-recover" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="recover-title">Recuperar Contraseña</h3>
+            <button class="close-icon" onclick="document.getElementById('modal-recover').style.display='none'">&times;</button>
+        </div>
+        
+        <div id="recover-step-1" class="modal-body">
+            <p>Ingresa tu correo para recibir un código.</p>
+            <div class="input_box">
+                <input type="email" id="recover-email" placeholder="Tu correo electrónico">
+            </div>
+            <button id="btn-send-code" class="btn">Enviar Código</button>
+        </div>
+
+        <div id="recover-step-2" class="modal-body" style="display: none;">
+            <p>Ingresa el código y tu nueva contraseña.</p>
+            <div class="input_box">
+                <input type="text" id="recover-code" placeholder="Código (6 dígitos)" maxlength="6">
+            </div>
+            <div class="input_box" style="margin-top:10px;">
+                <input type="password" id="recover-new-pass" placeholder="Nueva Contraseña">
+            </div>
+            <button id="btn-reset-pass" class="btn">Cambiar Contraseña</button>
+        </div>
+    </div>
+</div>
+
+    <!-- <script src="conexion.js"></script> -->
     <script src="login.js"></script>
 </body>
 </html>

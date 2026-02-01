@@ -1705,3 +1705,80 @@ body.dark .btn-cancelar:hover {
     background-color: #393e46;
     color: #ffffff;
 }
+
+/* =======================================================
+   CORRECCIÓN FINAL DE MODALES (Conflictos resueltos)
+   ======================================================= */
+
+/* Asegurar que el modal ocupe toda la pantalla y esté encima de todo */
+.modal-overlay {
+    position: fixed !important;
+    top: 0; 
+    left: 0;
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7) !important;
+    z-index: 99999 !important; /* Más alto que el sidebar y el header */
+    
+    /* Estado inicial: Oculto */
+    display: none !important;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+/* Estado Activo: Visible */
+.modal-overlay.active,
+.modal-overlay.show {
+    display: flex !important; /* !important gana a cualquier otro CSS */
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Asegurar que la tarjeta del modal tenga un fondo sólido */
+.modal-card, .modal-box {
+    background-color: var(--card-bg-light, #fff) !important;
+    position: relative;
+    z-index: 100000;
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+
+/* Corrección para modo oscuro */
+body.dark .modal-card, 
+body.dark .modal-box {
+    background-color: #101828 !important;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* AL FINAL DE MAIN.CSS */
+.modal-overlay {
+    position: fixed !important;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.7) !important;
+    z-index: 99999 !important;
+    display: none !important; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+    display: flex !important; /* Visible cuando está activo */
+    opacity: 1 !important;
+}
+
+.pin-modal-box {
+    background: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 350px;
+    width: 90%;
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

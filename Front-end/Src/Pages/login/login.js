@@ -1,44 +1,37 @@
-/* ============================================
-   CREDORA LOGIN - SCRIPT PRINCIPAL
-   ============================================ */
+// Front-end\Src\Pages\login\login.js
 
-// --- REFERENCIAS DOM ---
+/* ==========================================================================
+   1. CONFIGURACIÓN Y UTILIDADES
+   ========================================================================== */
+// URL base de tu API (Ajustado a tu puerto)
+const API_BASE = 'http://127.0.0.1:8000/api/v1/auth';
+
+// Referencias DOM principales
 const container = document.querySelector('.container');
-const registerBtn = document.querySelector('.register-btn'); // Botón panel izq
-const loginBtn = document.querySelector('.login-btn');       // Botón panel der
+const registerBtn = document.querySelector('.register-btn');
+const loginBtn = document.querySelector('.login-btn');
 
-// --- DETECTAR HASH PARA IR DIRECTO A REGISTRO ---
+/* ==========================================================================
+   2. INTERFAZ DE USUARIO Y ANIMACIONES (UI)
+   ========================================================================== */
+
+// --- DETECTAR HASH (LINK DIRECTO) ---
 if (window.location.hash === '#register') {
     container.classList.add('active');
 }
 
-// --- REFERENCIAS DEL MODAL ---
-const modalTerms = document.getElementById('modal-terms');
-const btnOpenTerms = document.getElementById('btn-open-terms');
-const btnCloseTerms = document.getElementById('btn-close-terms');
-const btnAcceptTerms = document.getElementById('btn-accept-terms');
-const checkTerms = document.getElementById('checkTerms');
-const btnDownload = document.getElementById('btn-download-pdf');
-
-// --- 1. TOGGLE ENTRE LOGIN Y REGISTRO ---
+// --- TOGGLE LOGIN/REGISTRO ---
 function clearInputs() {
     const inputs = container.querySelectorAll('input');
     inputs.forEach(input => input.value = '');
-    // Resetear checkbox al cambiar de vista
+    const checkTerms = document.getElementById('checkTerms');
     if(checkTerms) checkTerms.checked = false;
 }
 
-registerBtn.addEventListener('click', () => {
-    container.classList.add('active');
-    clearInputs();
-});
+if(registerBtn) registerBtn.addEventListener('click', () => { container.classList.add('active'); clearInputs(); });
+if(loginBtn) loginBtn.addEventListener('click', () => { container.classList.remove('active'); clearInputs(); });
 
-loginBtn.addEventListener('click', () => {
-    container.classList.remove('active');
-    clearInputs();
-});
-
-// --- 2. ANIMACIÓN BILLETERAS (FONDO) ---
+// --- ANIMACIÓN DE FONDO (BILLETERAS) ---
 function createWallet(isInitial = false) {
     const snowflakesContainer = document.getElementById('snowflakes-container');
     if (!snowflakesContainer) return;
@@ -47,90 +40,250 @@ function createWallet(isInitial = false) {
     wallet.className = 'bx bxs-wallet snowflake';
     wallet.style.left = Math.random() * 95 + '%';
     wallet.style.top = '-50px';
-    
     const size = Math.random() * 25 + 15;
     wallet.style.fontSize = size + 'px';
-    
     const duration = Math.random() * 15 + 10;
     wallet.style.animationDuration = duration + 's';
     
-    if (isInitial) {
-        wallet.style.animationDelay = -(Math.random() * duration) + 's';
-    } else {
-        wallet.style.animationDelay = '0s';
-    }
+    if (isInitial) wallet.style.animationDelay = -(Math.random() * duration) + 's';
+    else wallet.style.animationDelay = '0s';
     
     wallet.style.opacity = Math.random() * 0.4 + 0.1;
-    
     snowflakesContainer.appendChild(wallet);
-    
     setTimeout(() => { wallet.remove(); }, duration * 1000);
 }
 
-// Iniciar animación
 for (let i = 0; i < 40; i++) createWallet(true);
-
-function startLoop() {
-    createWallet(false);
-    setTimeout(startLoop, Math.random() * 800 + 400);
-}
+function startLoop() { createWallet(false); setTimeout(startLoop, Math.random() * 800 + 400); }
 startLoop();
 
-// --- 3. LÓGICA DEL MODAL DE TÉRMINOS ---
-function abrirModal() {
-    if(modalTerms) modalTerms.classList.add('active');
-}
+// --- MODAL TÉRMINOS ---
+const modalTerms = document.getElementById('modal-terms');
+const btnOpenTerms = document.getElementById('btn-open-terms');
+const btnCloseTerms = document.getElementById('btn-close-terms');
+const btnAcceptTerms = document.getElementById('btn-accept-terms');
+const checkTerms = document.getElementById('checkTerms');
 
-function cerrarModal() {
-    if(modalTerms) modalTerms.classList.remove('active');
-}
+const toggleModalTerms = (show) => { if(modalTerms) modalTerms.classList.toggle('active', show); };
 
-// Abrir modal
-if (btnOpenTerms) btnOpenTerms.addEventListener('click', abrirModal);
+if (btnOpenTerms) btnOpenTerms.onclick = () => toggleModalTerms(true);
+if (btnCloseTerms) btnCloseTerms.onclick = () => toggleModalTerms(false);
+if (btnAcceptTerms) btnAcceptTerms.onclick = () => { toggleModalTerms(false); if (checkTerms) checkTerms.checked = true; };
+if (modalTerms) modalTerms.onclick = (e) => { if (e.target === modalTerms) toggleModalTerms(false); };
 
-// Cerrar con la X
-if (btnCloseTerms) btnCloseTerms.addEventListener('click', cerrarModal);
-
-// Cerrar con el botón "Aceptar" y marcar el checkbox
-if (btnAcceptTerms) {
-    btnAcceptTerms.addEventListener('click', () => {
-        cerrarModal();
-        if (checkTerms) checkTerms.checked = true;
-    });
-}
-
-// Cerrar haciendo clic afuera
-if (modalTerms) {
-    modalTerms.addEventListener('click', (e) => {
-        if (e.target === modalTerms) cerrarModal();
-    });
-}
-
-// --- 4. LÓGICA DE DESCARGA PDF ---
+// --- DESCARGA PDF ---
+const btnDownload = document.getElementById('btn-download-pdf');
 if (btnDownload) {
-    btnDownload.addEventListener('click', () => {
-        const contenidoOriginal = btnDownload.innerHTML;
-        
-        // Feedback visual (Cargando...)
+    btnDownload.onclick = () => {
+        const originalText = btnDownload.innerHTML;
         btnDownload.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Descargando...";
-        btnDownload.style.opacity = "0.7";
-        btnDownload.style.pointerEvents = "none";
-        
         setTimeout(() => {
             const link = document.createElement('a');
-            
-            // Ruta corregida al archivo PDF en la carpeta Assets
             link.href = '../../Assets/PDF/Terminos_Credora.pdf.pdf'; 
             link.download = 'Terminos_y_Condiciones_Credora.pdf';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Restaurar botón
-            btnDownload.innerHTML = contenidoOriginal;
-            btnDownload.style.opacity = "1";
-            btnDownload.style.pointerEvents = "auto";
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            btnDownload.innerHTML = originalText;
         }, 1000);
+    };
+}
+
+/* ==========================================================================
+   3. LÓGICA DE NEGOCIO (CONEXIÓN AL BACKEND)
+   ========================================================================== */
+
+// --- A. INICIAR SESIÓN ---
+const formLogin = document.getElementById('formLogin');
+if (formLogin) {
+    formLogin.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPass').value.trim();
+        const btn = formLogin.querySelector('button');
+        const txtOriginal = btn.innerText;
+
+        btn.innerText = "Verificando..."; btn.disabled = true;
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('username', email);
+            formData.append('password', pass);
+
+            const res = await fetch(`${API_BASE}/token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem('credora_token', data.access_token);
+                window.location.href = "../Main/Dashboard.html";
+            } else {
+                alert("❌ " + (data.detail || "Credenciales incorrectas"));
+            }
+        } catch (error) {
+            alert("Error de conexión.");
+        } finally {
+            btn.innerText = txtOriginal; btn.disabled = false;
+        }
     });
+}
+
+// --- B. REGISTRO DE USUARIO (SOLUCIÓN DEL PROBLEMA) ---
+const formRegister = document.getElementById('formRegister');
+if (formRegister) {
+    formRegister.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const nombre = document.getElementById('regNombre').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPass').value;
+        const confirmPass = document.getElementById('regConfirmPass').value;
+        const terms = document.getElementById('checkTerms').checked;
+        const btn = formRegister.querySelector('button');
+
+        if (pass !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
+        if (!terms) { alert("Acepta los términos para continuar."); return; }
+
+        btn.innerText = "Procesando..."; btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/registro`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre_completo: nombre, correo: email, contrasena: pass })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                // ----------------------------------------------------
+                // AQUÍ ESTABA EL ERROR ANTES: NO HACEMOS LOGIN AUTOMÁTICO
+                // ----------------------------------------------------
+                console.log("✅ Usuario creado. Esperando verificación.");
+                
+                // 1. Guardar correo temporalmente
+                localStorage.setItem('temp_email', email);
+
+                // 2. Mostrar Modal de Verificación
+                const modalVerify = document.getElementById('modal-verify');
+                if (modalVerify) {
+                    modalVerify.style.display = 'flex';
+                    modalVerify.style.zIndex = '10000'; // Asegurar que esté encima
+                    container.style.filter = 'blur(5px)'; // Efecto visual
+                }
+
+                formRegister.reset(); // Limpiar formulario
+            } else {
+                alert("⚠️ " + (data.detail || "Error al registrarse."));
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error de conexión con el servidor.");
+        } finally {
+            btn.innerText = "Registrarse"; btn.disabled = false;
+        }
+    });
+}
+
+// --- C. VERIFICAR CÓDIGO (BOTÓN DEL MODAL) ---
+const btnVerifyAction = document.getElementById('btn-verify-action');
+if (btnVerifyAction) {
+    btnVerifyAction.addEventListener('click', async () => {
+        const email = localStorage.getItem('temp_email');
+        const code = document.getElementById('verify-code').value.trim();
+
+        if(!code || code.length !== 6) { alert("Ingresa el código de 6 dígitos."); return; }
+
+        btnVerifyAction.innerText = "Validando..."; btnVerifyAction.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/verificar-cuenta`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo: email, codigo: code })
+            });
+
+            if (res.ok) {
+                alert("✅ ¡Cuenta verificada!\nAhora puedes iniciar sesión.");
+                window.location.reload(); // Recargar para ir al login limpio
+            } else {
+                const data = await res.json();
+                alert("❌ " + (data.detail || "Código inválido."));
+                btnVerifyAction.innerText = "Verificar"; btnVerifyAction.disabled = false;
+            }
+        } catch (e) {
+            alert("Error de conexión.");
+            btnVerifyAction.innerText = "Verificar"; btnVerifyAction.disabled = false;
+        }
+    });
+}
+
+// --- D. RECUPERACIÓN DE CONTRASEÑA ---
+const modalRecover = document.getElementById('modal-recover');
+const linkForgot = document.querySelector('.forgot_link a'); // <--- Esto busca el enlace
+
+if (linkForgot && modalRecover) {
+    linkForgot.onclick = (e) => {
+        e.preventDefault();
+        console.log("🔓 Abriendo recuperación de contraseña..."); // Agrega este log para depurar
+        modalRecover.style.display = 'flex';
+        // container.style.filter = 'blur(5px)'; // Si esto da error, coméntalo
+    };
+}
+
+// Paso 1: Enviar Código
+const btnSendCode = document.getElementById('btn-send-code');
+if (btnSendCode) {
+    btnSendCode.onclick = async () => {
+        const email = document.getElementById('recover-email').value.trim();
+        if(!email) return alert("Ingresa tu correo.");
+
+        localStorage.setItem('recover_email', email);
+        btnSendCode.innerText = "Enviando..."; btnSendCode.disabled = true;
+
+        try {
+            await fetch(`${API_BASE}/solicitar-recuperacion`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo: email })
+            });
+            
+            document.getElementById('recover-step-1').style.display = 'none';
+            document.getElementById('recover-step-2').style.display = 'block';
+            alert("Revisa tu correo para ver el código.");
+        } catch (e) { alert("Error de conexión."); }
+        finally { btnSendCode.innerText = "Enviar Código"; btnSendCode.disabled = false; }
+    };
+}
+
+// Paso 2: Cambiar Clave
+const btnResetPass = document.getElementById('btn-reset-pass');
+if (btnResetPass) {
+    btnResetPass.onclick = async () => {
+        const email = localStorage.getItem('recover_email');
+        const code = document.getElementById('recover-code').value.trim();
+        const newPass = document.getElementById('recover-new-pass').value.trim();
+
+        if(!code || !newPass) return alert("Completa todos los campos.");
+
+        btnResetPass.innerText = "Procesando..."; btnResetPass.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/restablecer-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo: email, codigo: code, nueva_password: newPass })
+            });
+
+            if (res.ok) {
+                alert("✅ Contraseña actualizada. Inicia sesión.");
+                window.location.reload();
+            } else {
+                alert("❌ Código incorrecto.");
+                btnResetPass.innerText = "Cambiar Contraseña"; btnResetPass.disabled = false;
+            }
+        } catch (e) { alert("Error de conexión."); }
+    };
 }

@@ -27,9 +27,28 @@ function clearInputs() {
     const checkTerms = document.getElementById('checkTerms');
     if(checkTerms) checkTerms.checked = false;
 }
+// Reiniciar visuales de reglas si existen (se llama al abrir/ocultar paneles)
+function resetPasswordUIs() {
+    const regPass = document.getElementById('regPass');
+    const regConfirm = document.getElementById('regConfirmPass');
+    const ruleContainer = document.getElementById('password-rules');
+    const submitBtn = document.querySelector('#formRegister button');
+    if (regPass) { regPass.value = ''; regPass.dispatchEvent(new Event('input', { bubbles: true })); }
+    if (regConfirm) { regConfirm.value = ''; regConfirm.dispatchEvent(new Event('input', { bubbles: true })); }
+    if (ruleContainer) {
+        ruleContainer.querySelectorAll('.rule').forEach(r => {
+            r.classList.remove('met');
+            const icon = r.querySelector('.rule-icon'); if(icon) { icon.classList.remove('bx-check'); icon.classList.add('bx-x'); }
+        });
+    }
+    if (submitBtn) submitBtn.disabled = true;
+}
 
 if(registerBtn) registerBtn.addEventListener('click', () => { container.classList.add('active'); clearInputs(); });
 if(loginBtn) loginBtn.addEventListener('click', () => { container.classList.remove('active'); clearInputs(); });
+// Asegurar que al mostrar/ocultar el panel de registro se reinician los indicadores
+if(registerBtn) registerBtn.addEventListener('click', () => { resetPasswordUIs(); });
+if(loginBtn) loginBtn.addEventListener('click', () => { resetPasswordUIs(); });
 
 // --- ANIMACIÓN DE FONDO (BILLETERAS) ---
 function createWallet(isInitial = false) {
@@ -133,6 +152,57 @@ if (formLogin) {
 // --- B. REGISTRO DE USUARIO (SOLUCIÓN DEL PROBLEMA) ---
 const formRegister = document.getElementById('formRegister');
 if (formRegister) {
+    // Validación en tiempo real: reglas de contraseña
+    const regPassInput = document.getElementById('regPass');
+    const ruleContainer = document.getElementById('password-rules');
+
+    function testPasswordRules(pw) {
+        return {
+            length: pw.length > 8,
+            case: /(?=.*[a-z])(?=.*[A-Z])/.test(pw),
+            special: /[!@#\$%\^&\*()_\-+=\[\]{}\\|;:'",.<>\/?`~]/.test(pw),
+            number: /\d/.test(pw)
+        };
+    }
+
+    function updateRulesUI(pw) {
+        if(!ruleContainer) return;
+        const results = testPasswordRules(pw);
+        const rules = ruleContainer.querySelectorAll('.rule');
+        rules.forEach(r => {
+            const key = r.getAttribute('data-rule');
+            const ok = !!results[key];
+            const icon = r.querySelector('.rule-icon');
+            if (ok) {
+                if (!r.classList.contains('met')) {
+                    r.classList.add('met');
+                    if(icon) icon.classList.replace('bx-x', 'bx-check');
+                }
+            } else {
+                if (r.classList.contains('met')) {
+                    r.classList.remove('met');
+                    if(icon) icon.classList.replace('bx-check', 'bx-x');
+                }
+            }
+        });
+    }
+
+    const regConfirmInput = document.getElementById('regConfirmPass');
+    const registerSubmitBtn = formRegister.querySelector('button');
+
+    // updateMatchUI removed — visual indicator not used
+
+    function updateFormState() {
+        const pw = regPassInput ? regPassInput.value : '';
+        const cpw = regConfirmInput ? regConfirmInput.value : '';
+        const rules = testPasswordRules(pw);
+        const allOk = Object.values(rules).every(Boolean);
+        const match = pw && (pw === cpw);
+        if (registerSubmitBtn) registerSubmitBtn.disabled = !(allOk && match);
+    }
+
+    if (regPassInput) regPassInput.addEventListener('input', (e) => { updateRulesUI(e.target.value); updateFormState(); });
+    if (regConfirmInput) regConfirmInput.addEventListener('input', () => { updateFormState(); });
     formRegister.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -144,6 +214,10 @@ if (formRegister) {
         const btn = formRegister.querySelector('button');
 
         if (pass !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
+        // Validar reglas antes de enviar
+        const rulesOk = testPasswordRules(pass);
+        const allOk = Object.values(rulesOk).every(Boolean);
+        if (!allOk) { alert("La contraseña no cumple las reglas de seguridad."); return; }
         if (!terms) { alert("Acepta los términos para continuar."); return; }
 
         btn.innerText = "Procesando..."; btn.disabled = true;
@@ -175,6 +249,9 @@ if (formRegister) {
                 }
 
                 formRegister.reset(); // Limpiar formulario
+                // Limpiar indicadores y estado del formulario de registro
+                updateRulesUI('');
+                updateFormState();
             } else {
                 alert("⚠️ " + (data.detail || "Error al registrarse."));
             }

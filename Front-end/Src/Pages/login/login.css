@@ -127,12 +127,15 @@ body {
     display: flex; align-items: center; justify-content: center;
     color: #333; text-align: center;
     padding: 30px 20px; z-index: 1;
-    transition: 0.6s ease-in-out 1.2s, visibility 0s 1s;
+    /* animate position immediately */
+    transition: right 0.6s ease-in-out;
 }
 
 .container.active .form_box { right: 50%; }
-.form_box.register { visibility: hidden; }
-.container.active .form_box.register { visibility: visible; }
+
+/* Hide register content until slide animation finishes */
+.form_box.register { opacity: 0; pointer-events: none; transition: opacity 220ms ease 0s; }
+.container.active .form_box.register { opacity: 1; pointer-events: auto; transition: opacity 220ms ease 0.6s; }
 
 form { width: 100%; max-width: 280px; }
 
@@ -485,6 +488,45 @@ html.modal-open, body.modal-open { overflow: hidden !important; height: 100vh !i
     60% { transform: translateY(6px) scale(1.02) rotate(0.6deg); opacity: 1; }
     100% { transform: translateY(0) scale(1) rotate(0); opacity: 1; }
 }
+
+/* ========================
+   Reglas de contraseña (compactas)
+   ======================== */
+.password-rules {
+    margin: 2px 0 0 0;
+    text-align: left;
+    font-size: 9px;
+    color: #475569;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    padding: 0 2px;
+}
+.password-rules .rule {
+    display: flex; align-items: center; justify-content: flex-start;
+    background: transparent; border: 1px solid rgba(14,30,37,0.01);
+    padding: 2px 4px; border-radius: 4px;
+    transition: all 100ms ease;
+}
+
+.password-rules .rule .rule-icon { font-size: 10px; color: #c2410c; margin-right: 4px; transition: transform 100ms ease, color 100ms ease, background 100ms ease; padding: 0; border-radius: 3px; }
+.password-rules .rule .rule-text { display:block; color: #334155; font-size: 9px; line-height: 1; }
+.password-rules .rule.met { background: rgba(16,185,129,0.04); border-color: rgba(16,185,129,0.10); color: #064e3b; transform: translateY(0); box-shadow: none; }
+.password-rules .rule.met .rule-icon { color: #059669; transform: scale(1.01); background: rgba(6,95,70,0.02); }
+
+/* animación ligera cuando se cumple una regla */
+@keyframes rulePop { 0% { transform: scale(.995); opacity: 0; } 60% { transform: scale(1.002); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+
+.password-rules .rule.met { animation: rulePop 80ms ease; }
+
+/* responsive: una columna en pantallas muy pequeñas */
+@media (max-width: 420px) {
+    .password-rules { grid-template-columns: 1fr; font-size: 9px; gap: 4px; }
+    .password-rules .rule { padding: 2px 4px; }
+}
+
+/* Indicador de coincidencia de contraseña */
+/* password-match removed */
 
 /* Micro-interacciones en botones para sensación dinámica */
 #modal-recover .btn { transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }

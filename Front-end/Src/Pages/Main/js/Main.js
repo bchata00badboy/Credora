@@ -929,16 +929,37 @@ async function iniciarPerfil() {
     // ------------------------------------------------------
     // 2. LÓGICA DE MODALES (ABRIR / CERRAR)
     // ------------------------------------------------------
-    const openModal = (id) => { 
-        const m = document.getElementById(id); 
-        if(m) m.classList.add('active'); 
+    const openModal = (id) => {
+        const m = document.getElementById(id);
+        if (!m) return;
+
+        // Compensar ancho del scrollbar para evitar salto horizontal
+        const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+        if (scrollBarWidth > 0) {
+            document.documentElement.style.paddingRight = scrollBarWidth + 'px';
+            document.body.style.paddingRight = scrollBarWidth + 'px';
+        }
+
+        m.classList.add('active');
+        m.setAttribute('aria-hidden', 'false');
+        document.documentElement.classList.add('modal-open');
+        document.body.classList.add('modal-open');
     };
-    
-    const closeModal = (el) => { 
-        if(el) el.classList.remove('active'); 
+
+    const closeModal = (el) => {
+        if (!el) return;
+        el.classList.remove('active');
+        el.setAttribute('aria-hidden', 'true');
+
+        // Quitar compensación del scrollbar
+        document.documentElement.style.paddingRight = '';
+        document.body.style.paddingRight = '';
+        document.documentElement.classList.remove('modal-open');
+        document.body.classList.remove('modal-open');
+
         // Limpiar formularios al cerrar
         const form = el.querySelector('form');
-        if(form) form.reset();
+        if (form) form.reset();
     };
 
     // Eventos para abrir (data-modal)

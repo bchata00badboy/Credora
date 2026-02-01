@@ -263,16 +263,23 @@ form { width: 100%; max-width: 280px; }
     100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
 }
 
-/* --- MODAL (TÉRMINOS Y CONDICIONES) --- */
+/* --- MODAL (TÉRMINOS Y CONDICIONES) - sincronizado con Main.css --- */
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 9999; /* Por encima de todo */
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden;
-    transition: all 0.3s ease; backdrop-filter: blur(5px);
+    position: fixed;
+    inset: 0;               /* top:0; right:0; bottom:0; left:0 */
+    display: flex;          /* centrar modal */
+    align-items: center;
+    justify-content: center;
+    background: rgba(6,10,18,0.40);          /* oscurece ligeramente */
+    backdrop-filter: blur(12px) saturate(120%);   /* borra lo que queda detrás */
+    -webkit-backdrop-filter: blur(12px) saturate(120%); /* Safari */
+    z-index: 10000;
+    opacity: 0; visibility: hidden; transition: all 0.28s ease;
 }
 .modal-overlay.active { opacity: 1; visibility: visible; }
+
+/* Bloquear scroll del fondo cuando un modal está abierto (coincide con Main.css) */
+html.modal-open, body.modal-open { overflow: hidden !important; height: 100vh !important; }
 
 .modal-box {
     background: #fff; width: 90%; max-width: 500px;
@@ -387,50 +394,117 @@ form { width: 100%; max-width: 280px; }
    CORRECCIÓN DEL MODAL DE RECUPERACIÓN (PASSWORD)
    ======================================================= */
 #modal-recover {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    display: none; /* JS lo activa con style.display = 'flex' */
+    justify-content: center; align-items: center;
     z-index: 10000 !important;
-    
-    /* --- CORRECCIÓN CRÍTICA --- */
-    display: none;        /* JS lo cambia a flex */
-    opacity: 1 !important;       /* Forzamos visibilidad */
-    visibility: visible !important; 
-    
-    justify-content: center;
-    align-items: center;
+    background: rgba(6, 10, 18, 0.45); /* tenue oscuro para foco */
+    backdrop-filter: blur(10px) saturate(120%);
+    /* Compatibilidad con JS que usa inline `style.display = 'flex'`:
+       cuando se muestra por inline style, forzamos visibilidad */
+    opacity: 1 !important; 
+    visibility: visible !important;
 }
 
-/* Estilo de la caja interna */
+/* Caja interna: tarjeta limpia, elevación y borde sutil */
 #modal-recover .modal-box {
-    background: #fff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    border: 2px solid #003049;
-    animation: slideDown 0.4s ease forwards;
+    width: 92%; max-width: 520px; border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.985), rgba(248,249,250,0.98));
+    box-shadow: 0 20px 50px rgba(2,8,20,0.6);
+    border: 1px solid rgba(15,23,42,0.06);
+    padding: 18px 18px 14px 18px; text-align: left;
+    transform: translateY(-8px); opacity: 0;
+    animation: slideDown 320ms cubic-bezier(.2,.9,.3,1) forwards;
 }
 
-/* Animación diferente para distinguirlo */
+/* Header específico para este modal (sobrescribe el global para mayor armonía) */
+#modal-recover .modal-header { background: transparent; padding: 12px 6px; align-items: center; }
+#modal-recover .modal-header h3 { color: #0b2540; font-size: 18px; margin: 0; }
+#modal-recover .close-icon { color: #6b7280; font-size: 20px; }
+
 @keyframes slideDown {
-    0% { transform: translateY(-50px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    from { transform: translateY(-12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-/* Inputs dentro del modal */
+/* Inputs dentro del modal: aspecto más moderno y confortable */
 #modal-recover input {
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    color: #333;
-    padding: 10px;
-    width: 100%;
-    margin-top: 10px;
-    border-radius: 5px;
+    background: #fff; border: 1px solid rgba(15,23,42,0.06);
+    color: #0b2540; padding: 12px 14px; width: 100%; margin-top: 12px;
+    border-radius: 8px; box-shadow: inset 0 1px 0 rgba(0,0,0,0.02);
+    transition: box-shadow .12s ease, border-color .12s ease;
+}
+#modal-recover input:focus { outline: none; border-color: #780000; box-shadow: 0 8px 20px rgba(120,0,0,0.06); }
+
+/* Botones dentro del modal: reutilizamos paleta pero más accesible */
+#modal-recover .btn { width: 100%; margin-top: 14px; height: 44px; border-radius: 10px; font-weight: 700; }
+#modal-recover .btn:hover { transform: translateY(-1px); }
+
+/* Pequeño ajuste para móviles */
+@media (max-width: 480px) {
+    #modal-recover .modal-box { padding: 14px; }
+    #modal-recover input { margin-top: 10px; }
+}
+
+/* -------------------- Dinamismo y animaciones -------------------- */
+/* animación del degradado lateral (usa background-position) */
+#modal-recover .modal-box::before {
+    background-size: 200% 200%;
+    animation: gradientShift 6s linear infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* Blob flotante de acento en el overlay (sutil y responsivo) */
+#modal-recover::after {
+    content: '';
+    position: absolute; right: 6%; top: 8%; width: 220px; height: 220px;
+    background: radial-gradient(circle at 30% 30%, rgba(30,144,255,0.18), rgba(0,75,122,0.06) 40%, transparent 60%);
+    filter: blur(36px); opacity: 0.9; pointer-events: none; z-index: 9999;
+    transform: translate3d(0,0,0);
+    animation: floatBlob 8s ease-in-out infinite;
+}
+
+@keyframes floatBlob {
+    0% { transform: translateY(0) translateX(0) scale(1); }
+    50% { transform: translateY(-12px) translateX(6px) scale(1.02); }
+    100% { transform: translateY(0) translateX(0) scale(1); }
+}
+
+/* Animación de entrada más dinámica */
+#modal-recover .modal-box {
+    animation: modalPop 420ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+@keyframes modalPop {
+    0% { transform: translateY(-16px) scale(.985) rotate(-0.6deg); opacity: 0; }
+    60% { transform: translateY(6px) scale(1.02) rotate(0.6deg); opacity: 1; }
+    100% { transform: translateY(0) scale(1) rotate(0); opacity: 1; }
+}
+
+/* Micro-interacciones en botones para sensación dinámica */
+#modal-recover .btn { transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+#modal-recover .btn:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 18px 40px rgba(2,40,90,0.12); }
+#modal-recover .btn:active { transform: translateY(-1px) scale(.995); }
+
+/* Header underline animado: se expande hasta el ancho del texto */
+#modal-recover .modal-header h3 { position: relative; display: inline-block; }
+#modal-recover .modal-header h3::after {
+    content: '';
+    position: absolute; left: 0; bottom: -8px; height: 3px; width: 0%;
+    background: linear-gradient(90deg,#1e90ff,#004b7a); border-radius: 3px;
+    animation: underlineIn 420ms ease-out forwards;
+}
+@keyframes underlineIn { from { width: 0%; } to { width: 100%; } }
+
+/* Contraste y legibilidad: sombra interior sutil al abrir */
+#modal-recover .modal-box { outline: none; }
+
+/* Reducir opacidad del overlay blob en pantallas pequeñas */
+@media (max-width:600px) {
+    #modal-recover::after { right: 3%; top: 4%; width: 150px; height: 150px; filter: blur(28px); opacity: 0.8; }
 }

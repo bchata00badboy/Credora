@@ -599,102 +599,56 @@ body.dark th { background-color: rgba(0, 48, 73, 0.15); color: var(--color-text-
     #vista-perfil .seguridad .btn.btn-blue { flex: 1 1 100%; }
 }
 
-/* ===== Modal overlay para cambiar contraseña / PIN ===== */
-.modal-overlay {
+.modal-overlay { /* Definición CANÓNICA centralizada para todos los modales */
     position: fixed;
     inset: 0;
-    background: rgba(6,12,22,0.45);
+    background: var(--bg-glass, rgba(5,15,25,0.85));
+    -webkit-backdrop-filter: blur(20px) saturate(100%);
+    backdrop-filter: blur(20px) saturate(100%);
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 120;
+    z-index: 99990; /* Por encima del sidebar (100) y sidebar-overlay (90) */
     padding: 20px;
 }
-.modal-overlay.show { display: flex; }
-/* Compatibilidad: algunos controladores usan la clase 'active' para mostrar modales */
+.modal-overlay.show,
 .modal-overlay.active { display: flex; }
 
-/* ===== Estilos mejorados para modales (Contraseña / PIN) ===== */
-.modal-overlay {
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-}
-
+/* Modal card dentro del overlay */
 .modal-overlay .modal-card {
     width: 100%;
-    max-width: 460px;
+    max-width: 480px;
     border-radius: 12px;
     overflow: hidden;
     background: var(--card-bg-light);
-    box-shadow: 0 14px 34px rgba(2,10,35,0.12);
+    box-shadow: 0 18px 48px rgba(3,10,20,0.24);
     transform: translateY(6px) scale(0.985);
     opacity: 0;
     transition: transform 180ms cubic-bezier(.2,.9,.3,1), opacity 180ms ease;
-}
-
-.modal-overlay.active .modal-card {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-}
-
-.modal-header {
     position: relative;
-    padding: 14px 16px;
-    background: linear-gradient(90deg, var(--color-surface) 0%, var(--ai-blue-dark) 100%);
-    color: #fff;
+    z-index: 99991;
 }
+.modal-overlay.active .modal-card { transform: translateY(0) scale(1); opacity: 1; }
+
+/* Cabecera / cuerpo / footer del modal (mantener estilos existentes) */
+.modal-header { position: relative; padding: 14px 16px; background: linear-gradient(90deg, var(--color-surface) 0%, var(--ai-blue-dark) 100%); color: #fff; }
 .modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 700; }
 .modal-close { position: absolute; right: 12px; top: 10px; background: transparent; border: none; color: rgba(255,255,255,0.95); font-size: 1.4rem; cursor: pointer; }
-
 .modal-body { padding: 14px 16px; background: transparent; }
 .modal-footer { padding: 10px 16px; background: transparent; border-top: none; }
-
 .form-group { margin-bottom: 14px; }
 .form-group label { display:block; margin-bottom:8px; color: var(--ai-blue-dark); font-weight:600; }
-.form-group input {
-    width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border); background: var(--card-bg-light); color: var(--color-text-primary);
-    box-shadow: inset 0 1px 0 rgba(0,0,0,0.02); font-size: 0.92rem; transition: border-color 120ms ease, box-shadow 120ms ease;
-}
+.form-group input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border); background: var(--card-bg-light); color: var(--color-text-primary); box-shadow: inset 0 1px 0 rgba(0,0,0,0.02); font-size: 0.92rem; transition: border-color 120ms ease, box-shadow 120ms ease; }
 .form-group input::placeholder { color: #9fb0c2; }
 .form-group input:focus { outline: none; border-color: #0b63b8; box-shadow: 0 6px 18px rgba(11,99,184,0.08); }
 
-.modal-footer .btn.btn-blue { padding: 8px 14px; border-radius: 8px; font-weight:700; }
-
-/* Mensajes inline (ocultos por defecto) */
-.input-hint { font-size: 0.85rem; color: #64748b; margin-top:6px; }
-.error-message { color: #c62828; font-size: 0.85rem; margin-top:6px; display:none; }
+/* Bloquear scroll del fondo cuando un modal está abierto */
+html.modal-open, body.modal-open { overflow: hidden !important; height: 100vh !important; }
 
 @media (max-width: 520px) {
     .modal-card { max-width: 100%; border-radius: 10px; }
     .modal-header { padding: 14px; }
     .modal-body { padding: 14px; }
-}
-.modal-card {
-    background: var(--card-bg-light);
-    color: var(--color-text-primary);
-    border-radius: 12px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 16px 36px rgba(3,10,20,0.16);
-    overflow: hidden;
-}
-.modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--color-border); }
-.modal-tabs { display:flex; gap:8px; }
-.modal-tab { background: transparent; border: none; padding:8px 12px; border-radius: 8px; cursor: pointer; font-weight:600; color:var(--color-text-secondary); }
-.modal-tab.active { background: rgba(11,99,184,0.08); color: var(--color-text-primary); }
-.modal-close { background: transparent; border: none; font-size: 1.4rem; cursor: pointer; color: var(--color-text-secondary); }
-.modal-body { padding: 16px; }
-.modal-footer { padding: 12px 16px; border-top:1px solid var(--color-border); display:flex; justify-content:flex-end; gap:8px; }
-.tab-panel.hidden { display:none; }
-.form-group { margin-bottom:12px; }
-.form-group label { display:block; font-size:0.9rem; margin-bottom:6px; }
-.form-group input { width:100%; padding:10px; border-radius:8px; border:1px solid var(--color-border); background:var(--card-bg-light); color:var(--color-text-primary); }
-
-@media (max-width: 520px) {
-    .modal-card { max-width: 100%; }
-    .modal-header { padding:10px; }
-    .modal-body { padding: 12px; }
 }
 body.dark td { border-bottom-color: rgba(255,255,255,0.06); }
 .titulo-transaccion { font-weight: 600; color: var(--color-text-primary); }
@@ -862,7 +816,6 @@ input:focus, .select-simple:focus { border-color: var(--color-surface); }
 
 .hidden { display: none !important; opacity: 0; }
 .active-section { display: block !important; animation: fadeIn 0.5s ease-out forwards; }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
 .modal-card { background-color: var(--bg-cream); width: 90%; max-width: 400px; border-radius: var(--border-radius); box-shadow: var(--shadow-soft); overflow: hidden; animation: slideIn 0.3s ease-out; }
 .modal-header { padding: 15px 20px; color: white; }
 .warning-bg { background-color: var(--risk-red); }
@@ -1490,10 +1443,7 @@ body.dark .btn-copy:hover {
     animation: entryFade 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes entryFade {
-    0% { opacity: 0; transform: translateY(-40px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
+/* entryFade ya está definido al inicio del archivo; definición duplicada eliminada */
 
 /* Mantener compatibilidad con modos claro/oscuro: no sobreescribimos variables de color globales */
 
@@ -1582,11 +1532,7 @@ body.dark .btn-copy:hover {
     z-index: 10001; /* Asegura que esté por encima de todo */
 }
 
-/* Animación de entrada */
-@keyframes slideIn {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+/* slideIn ya está definida anteriormente; definición duplicada eliminada */
 
 /* Inputs y elementos internos */
 .modal-recharge-content h3 {
@@ -1706,67 +1652,7 @@ body.dark .btn-cancelar:hover {
     color: #ffffff;
 }
 
-/* =======================================================
-   CORRECCIÓN FINAL DE MODALES (Conflictos resueltos)
-   ======================================================= */
-
-/* Asegurar que el modal ocupe toda la pantalla y esté encima de todo */
-.modal-overlay {
-    position: fixed !important;
-    top: 0; 
-    left: 0;
-    width: 100vw; 
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7) !important;
-    z-index: 99999 !important; /* Más alto que el sidebar y el header */
-    
-    /* Estado inicial: Oculto */
-    display: none !important;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-}
-
-/* Estado Activo: Visible */
-.modal-overlay.active,
-.modal-overlay.show {
-    display: flex !important; /* !important gana a cualquier otro CSS */
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* Asegurar que la tarjeta del modal tenga un fondo sólido */
-.modal-card, .modal-box {
-    background-color: var(--card-bg-light, #fff) !important;
-    position: relative;
-    z-index: 100000;
-    opacity: 1 !important;
-    transform: scale(1) !important;
-}
-
-/* Corrección para modo oscuro */
-body.dark .modal-card, 
-body.dark .modal-box {
-    background-color: #101828 !important;
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-/* AL FINAL DE MAIN.CSS */
-.modal-overlay {
-    position: fixed !important;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.7) !important;
-    z-index: 99999 !important;
-    display: none !important; /* Oculto por defecto */
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(4px);
-}
-
-.modal-overlay.active {
-    display: flex !important; /* Visible cuando está activo */
-    opacity: 1 !important;
-}
+/* Modales: se usa la definición canónica más arriba; duplicados eliminados */
 
 .pin-modal-box {
     background: #fff;

@@ -43,6 +43,10 @@ async function cargarVista(ruta) {
             contenedorDinamico.innerHTML = html;
             // Reactivar scripts incrustados en el HTML parcial
             ejecutarScriptsScripts(contenedorDinamico);
+            // Asegurar que cualquier overlay cargado dentro de la vista se mueva al body
+            moveOverlaysToBody();
+            // Reenganchar eventos para los modales recién insertados
+            bindModalHandlers();
             // Aplicar animación de entrada a la vista inyectada
             try {
                 const firstChild = contenedorDinamico.firstElementChild;
@@ -312,6 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Iniciar el enrutador (Carga inicial)
+    // Mover overlays en caso de que ya existan en el DOM inicial y enganchar handlers
+    moveOverlaysToBody();
+    bindModalHandlers();
     cargarVista('Main_Parts/main_home.html');
 });
 
@@ -926,59 +933,8 @@ async function iniciarPerfil() {
         }
     }
 
-    // ------------------------------------------------------
-    // 2. LÓGICA DE MODALES (ABRIR / CERRAR)
-    // ------------------------------------------------------
-    const openModal = (id) => {
-        const m = document.getElementById(id);
-        if (!m) return;
-
-        // Compensar ancho del scrollbar para evitar salto horizontal
-        const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-        if (scrollBarWidth > 0) {
-            document.documentElement.style.paddingRight = scrollBarWidth + 'px';
-            document.body.style.paddingRight = scrollBarWidth + 'px';
-        }
-
-        m.classList.add('active');
-        m.setAttribute('aria-hidden', 'false');
-        document.documentElement.classList.add('modal-open');
-        document.body.classList.add('modal-open');
-    };
-
-    const closeModal = (el) => {
-        if (!el) return;
-        el.classList.remove('active');
-        el.setAttribute('aria-hidden', 'true');
-
-        // Quitar compensación del scrollbar
-        document.documentElement.style.paddingRight = '';
-        document.body.style.paddingRight = '';
-        document.documentElement.classList.remove('modal-open');
-        document.body.classList.remove('modal-open');
-
-        // Limpiar formularios al cerrar
-        const form = el.querySelector('form');
-        if (form) form.reset();
-    };
-
-    // Eventos para abrir (data-modal)
-    document.querySelectorAll('[data-modal]').forEach(btn => {
-        btn.onclick = (e) => {
-            e.preventDefault();
-            const modalId = btn.getAttribute('data-modal');
-            openModal(modalId);
-        };
-    });
-
-    // Eventos para cerrar (X o fondo oscuro)
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.onclick = (e) => {
-            if (e.target === overlay || e.target.classList.contains('modal-close')) {
-                closeModal(overlay);
-            }
-        };
-    });
+    // Nota: La lógica de apertura/cierre de modales se gestiona globalmente
+    // mediante las funciones `openModal` / `closeModal` y `bindModalHandlers()`.
 
     // ------------------------------------------------------
     // 3. LÓGICA DE INPUTS PIN (AUTO-FOCUS)
@@ -1162,8 +1118,34 @@ function iniciarNotificaciones() {
 
 
 function iniciarConfiguracion() {
+    // Restaurar tema desde localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') document.body.classList.add('dark');
+    else document.body.classList.remove('dark');
+
     const t = document.getElementById('config-theme-toggle');
-    if(t) t.checked = document.body.classList.contains('dark');
+    if (t) {
+        t.checked = document.body.classList.contains('dark');
+        t.addEventListener('change', () => {
+            document.body.classList.toggle('dark', t.checked);
+            localStorage.setItem('theme', t.checked ? 'dark' : 'light');
+        });
+    }
+
+    // Asegurar que los overlays de esta vista estén en body y con handlers
+    moveOverlaysToBody();
+    bindModalHandlers();
+
+    // Vincular acciones de la sección (cerrar sesiones / eliminar cuenta)
+    const cerrarOtrosBtn = document.querySelector('.btn-outline-danger');
+    if (cerrarOtrosBtn) cerrarOtrosBtn.onclick = () => {
+        if (confirm('¿Cerrar sesiones en otros dispositivos?')) alert('Sesiones cerradas (simulado).');
+    };
+
+    const eliminarBtn = document.querySelector('.btn-danger');
+    if (eliminarBtn) eliminarBtn.onclick = () => {
+        if (confirm('¿Eliminar cuenta? Esto es irreversible.')) alert('Cuenta eliminada (simulado).');
+    };
 }
 
 
@@ -1208,3 +1190,181 @@ function setupModalRecarga() {
         }
     };
 }
+
+// Mover overlays al body para asegurar que `backdrop-filter` funcione globalmente
+function moveOverlaysToBody() {
+    try {
+        document.querySelectorAll('.modal-overlay, .modal-recarga-overlay, .confirm-modal')
+            .forEach(el => {
+                if (el && el.parentNode !== document.body) document.body.appendChild(el);
+            });
+    } catch (e) { console.warn('No se pudo mover overlays al body:', e); }
+}
+
+// Reenganchar eventos para modales (útil después de inyectar vistas dinámicas)
+function bindModalHandlers() {
+    try {
+        // Abrir modales (data-modal)
+        document.querySelectorAll('[data-modal]').forEach(btn => {
+            if (btn._modalBound) return; // evitar múltiples bindings
+            btn._modalBound = true;
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modalId = btn.getAttribute('data-modal');
+                if (typeof openModal === 'function') openModal(modalId);
+            });
+        });
+
+        // Cerrar modales al clicar fondo o botón .modal-close / .close-modal
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            if (overlay._overlayBound) return;
+            overlay._overlayBound = true;
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay || e.target.classList.contains('modal-close') || e.target.closest('.close-modal')) {
+                    if (typeof closeModal === 'function') closeModal(overlay);
+                }
+            });
+
+            // Vincular botones de cierre internos
+            overlay.querySelectorAll('.modal-close, .close-modal').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (typeof closeModal === 'function') closeModal(overlay);
+                });
+            });
+        });
+    } catch (e) { console.warn('bindModalHandlers error:', e); }
+}
+
+// FUNCIONES GLOBALES DE MODAL (disponibles para todas las vistas)
+function openModal(id) {
+    const m = typeof id === 'string' ? document.getElementById(id) : id;
+    if (!m) return;
+
+    // Compensar ancho del scrollbar para evitar salto horizontal
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollBarWidth > 0) {
+        document.documentElement.style.paddingRight = scrollBarWidth + 'px';
+        document.body.style.paddingRight = scrollBarWidth + 'px';
+    }
+
+    // Si el propio overlay solicita fullscreen, aplicar clase
+    if (m.dataset && m.dataset.fullscreen === 'true') m.classList.add('fullscreen');
+    if (m.classList && m.classList.contains('modal-fullscreen')) m.classList.add('fullscreen');
+
+    m.classList.add('active');
+    m.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('modal-open');
+    document.body.classList.add('modal-open');
+}
+
+function closeModal(el) {
+    const m = typeof el === 'string' ? document.getElementById(el) : el;
+    if (!m) return;
+    m.classList.remove('active');
+    m.classList.remove('fullscreen');
+    m.setAttribute('aria-hidden', 'true');
+
+    // Quitar compensación del scrollbar
+    document.documentElement.style.paddingRight = '';
+    document.body.style.paddingRight = '';
+    document.documentElement.classList.remove('modal-open');
+    document.body.classList.remove('modal-open');
+
+    // Limpiar formularios al cerrar
+    const form = m.querySelector('form');
+    if (form) form.reset();
+}
+
+
+function setupModalRecarga() {
+    const modal = document.getElementById('modal-recarga');
+    const btnAbrir = document.getElementById('btn-abrir-recarga');
+    const btnCerrar = document.getElementById('btn-cerrar-modal');
+    const inputBS = document.getElementById('input-bs');
+    const resUSD = document.getElementById('res-usd');
+    const tasa = 45.50; // Valor simulado
+
+    if (!btnAbrir || !modal) return;
+
+    // Abrir
+    btnAbrir.onclick = () => {
+        modal.style.display = 'flex';
+        inputBS.focus();
+    };
+
+    // Cerrar
+    btnCerrar.onclick = () => {
+        modal.style.display = 'none';
+        inputBS.value = '';
+        resUSD.textContent = '0.00';
+    };
+
+    // Cálculo en tiempo real
+    inputBS.oninput = () => {
+        const montoBS = parseFloat(inputBS.value) || 0;
+        resUSD.textContent = (montoBS / tasa).toFixed(2);
+    };
+
+    // Confirmación simulada
+    document.getElementById('btn-confirmar-pago').onclick = () => {
+        if (parseFloat(resUSD.textContent) > 0) {
+            alert(`Simulación exitosa: Se han enviado $${resUSD.textContent} a tu cuenta.`);
+            btnCerrar.onclick(); // Limpia y cierra
+        }
+    };
+}
+
+/* =========================================
+   FUNCIONES GLOBALES DE UTILIDAD
+   ========================================= */
+
+// --- FUNCIÓN EXPORTAR PDF (GLOBAL) ---
+window.descargarPDF = async function() {
+    const btn = document.querySelector('.btn-descargar');
+    if (!btn) return;
+    
+    // Guardar estado original
+    const htmlOriginal = btn.innerHTML;
+    
+    // Feedback visual
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Generando...";
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+
+    try {
+        const token = localStorage.getItem('credora_token');
+        
+        // Petición al Backend (Ajusta la URL si es necesario)
+        const response = await fetch('http://127.0.0.1:8000/api/v1/billetera/movimientos/exportar-pdf', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            const fecha = new Date().toISOString().slice(0,10);
+            a.download = `Credora_Movimientos_${fecha}.pdf`;
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } else {
+            const errorData = await response.json();
+            alert("Error: " + (errorData.detail || "No se pudo generar el reporte"));
+        }
+    } catch (error) {
+        console.error("Error descarga:", error);
+        alert("Error de conexión con el servidor.");
+    } finally {
+        btn.innerHTML = htmlOriginal;
+        btn.disabled = false;
+        btn.style.opacity = "1";
+    }
+};

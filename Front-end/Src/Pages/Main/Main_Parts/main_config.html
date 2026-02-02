@@ -43,6 +43,94 @@
             <button class="btn-outline-danger">Cerrar sesiones en otros dispositivos</button>
             <button class="btn-danger">Eliminar Cuenta</button>
         </div>
-
     </div>
+
+    <div class="settings-card card-separada">
+    <div class="card-header-small">
+        <h3>Ayuda y Legal</h3>
+    </div>
+    <div class="settings-list">
+        <button class="settings-item open-modal-btn" data-modal="modal-soporte">
+            <div class="item-icon blue-icon"><i class='bx bx-support'></i></div>
+            <div class="item-content">
+                <h4>Soporte Técnico</h4>
+                <p>Ayuda y contacto.</p>
+            </div>
+            <div class="item-action"><i class='bx bx-chevron-right'></i></div>
+        </button>
+
+        <button class="settings-item open-modal-btn" data-modal="modal-terminos">
+            <div class="item-icon blue-icon"><i class='bx bx-file-blank'></i></div>
+            <div class="item-content">
+                <h4>Términos y Condiciones</h4>
+                <p>Reglas de uso.</p>
+            </div>
+            <div class="item-action"><i class='bx bx-chevron-right'></i></div>
+        </button>
+    </div>
+
+<div class="modal-overlay modal-fullscreen" id="modal-soporte" data-fullscreen="true">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>📞 Centro de Ayuda</h2>
+            <button class="close-modal"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="modal-body">
+            <p>Elige una opción para contactarnos:</p>
+            <div class="support-options">
+                <a href="https://wa.me/584243370461?text=Hola%20Soporte%20Credora,%20necesito%20ayuda." class="btn-support"><i class='bx bxl-whatsapp'></i> Chat por WhatsApp</a>
+                <a href="https://www.instagram.com/credora_oficial?igsh=MXVyMzdoczlra3FmdQ==" class="btn-support"><i class='bx bxl-instagram'></i> Instagram</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay modal-fullscreen" id="modal-terminos" data-fullscreen="true">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>📄 Términos y Condiciones</h2>
+            <button class="close-modal"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="legal-container">
+                <h4>1. ACEPTACIÓN Y NATURALEZA DEL SERVICIO</h4>
+                <p>Bienvenido a Credora. Al registrarse y utilizar nuestros servicios, usted acepta vincularse legalmente por estos Términos. <strong>AVISO IMPORTANTE:</strong> Credora es un proyecto universitario de carácter académico. La plataforma simula un entorno de billetera digital. Los fondos reflejados no tienen valor comercial real.</p>
+
+                <h4>2. ELEGIBILIDAD Y REGISTRO</h4>
+                <p>Para acceder a los servicios de Credora, el Usuario debe cumplir con:</p>
+                <ul>
+                    <li><strong>Mayoría de Edad:</strong> Tener al menos dieciocho (18) años cumplidos.</li>
+                    <li><strong>Datos de Contacto:</strong> Se requiere un nombre real y un correo electrónico válido para el registro.</li>
+                </ul>
+
+                <h4>3. MONEDA Y SALDOS</h4>
+                <p>La plataforma opera exclusivamente con "Dólar Digital" (simulado). Credora no custodia dinero real.</p>
+
+                <h4>4. SERVICIOS Y OPERATORIA</h4>
+                <p>Credora habilita Transferencias Internas, Tarjeta de Débito Virtual y Historial de Transacciones con fines educativos.</p>
+
+                <h4>5. LÍMITES TRANSACCIONALES</h4>
+                <p><strong>Límite Diario Global:</strong> El Usuario podrá movilizar un máximo de $2,000.00 USD (Simulados) por día.</p>
+
+                <h4>6. SEGURIDAD</h4>
+                <p>El Usuario es responsable de resguardar su contraseña. Credora se reserva el derecho de suspender cuentas con patrones de fraude técnico.</p>
+
+                <h4>7. CIERRE DE CUENTA</h4>
+                <p>Para eliminar la cuenta, el saldo debe ser exactamente $0.00. El sistema bloqueará la eliminación si existen fondos simulados pendientes.</p>
+
+                <h4>8. PRIVACIDAD DE DATOS</h4>
+                <p>La información personal suministrada (Nombre, Correo) se utiliza estrictamente para el funcionamiento de la plataforma académica. Credora se compromete a no difundir públicamente esta información.</p>
+
+                <h4>9. RESPONSABILIDAD TÉCNICA</h4>
+                <p>Al tratarse de un software en fase Beta/Académica, Credora no garantiza la disponibilidad del 100% del servicio ni se hace responsable por pérdida de datos simulados.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a id="btn-download-terminos" href="../../Assets/PDF/Terminos_Credora.pdf.pdf" class="btn-support" download>
+                <i class='bx bxs-file-pdf'></i> Descargar PDF
+            </a>
+        </div>
+    </div>
+</div>
 </section>

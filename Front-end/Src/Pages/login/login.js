@@ -26,6 +26,21 @@ function clearInputs() {
     inputs.forEach(input => input.value = '');
     const checkTerms = document.getElementById('checkTerms');
     if(checkTerms) checkTerms.checked = false;
+    // Reset rules UI
+    resetPasswordRules();
+}
+
+// Reset password rules UI
+function resetPasswordRules() {
+    const rules = document.querySelectorAll('.password-rules .rule');
+    rules.forEach(r => {
+        r.classList.remove('valid');
+        r.classList.remove('invalid');
+        const mark = r.querySelector('.mark');
+        if (mark) mark.className = 'bx bx-x mark';
+    });
+    const err = document.querySelector('.password-error');
+    if (err) err.classList.remove('show');
 }
 
 if(registerBtn) registerBtn.addEventListener('click', () => { container.classList.add('active'); clearInputs(); });
@@ -156,6 +171,14 @@ if (formRegister) {
         const btn = formRegister.querySelector('button');
 
         if (pass !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
+        // Validar reglas de contraseña
+        const rulesOk = validatePasswordRules(pass);
+        if (!rulesOk) {
+            const errEl = document.querySelector('.password-error') || createPasswordError();
+            errEl.classList.add('show');
+            errEl.textContent = 'Tu contraseña debe cumplir las reglas indicadas.';
+            return;
+        }
         if (!terms) { alert("Acepta los términos para continuar."); return; }
 
         btn.innerText = "Procesando..."; btn.disabled = true;
@@ -187,6 +210,7 @@ if (formRegister) {
                 }
 
                 formRegister.reset(); // Limpiar formulario
+                resetPasswordRules();
             } else {
                 alert("⚠️ " + (data.detail || "Error al registrarse."));
             }
@@ -197,6 +221,53 @@ if (formRegister) {
             btn.innerText = "Registrarse"; btn.disabled = false;
         }
     });
+}
+
+// ---------------- Password rules logic ----------------
+const regPassInput = document.getElementById('regPass');
+const passwordRulesEl = document.getElementById('passwordRules');
+if (regPassInput && passwordRulesEl) {
+    regPassInput.addEventListener('input', () => {
+        const val = regPassInput.value;
+        updateRule('length', /.{8,}/);
+        updateRule('case', /(?=.*[a-z])(?=.*[A-Z])/);
+        updateRule('number', /(?=.*\d)/);
+        updateRule('special', /(?=.*[!@#\$%\^&\*\(\)_\+\-\=\[\]{};:'"\\|,.<>\/?`~])/);
+    });
+}
+
+function updateRule(name, regex) {
+    const ruleEl = document.querySelector(`.password-rules .rule[data-rule="${name}"]`);
+    if (!ruleEl) return false;
+    const val = regPassInput.value || '';
+    if (regex.test(val)) {
+        ruleEl.classList.add('valid');
+        ruleEl.classList.remove('invalid');
+        ruleEl.querySelector('.mark').className = 'bx bxs-check-square mark';
+        return true;
+    } else {
+        ruleEl.classList.remove('valid');
+        ruleEl.classList.add('invalid');
+        ruleEl.querySelector('.mark').className = 'bx bx-x mark';
+        return false;
+    }
+}
+
+function validatePasswordRules(value) {
+    if (!value) return false;
+    const lenOk = /.{8,}/.test(value);
+    const caseOk = /(?=.*[a-z])(?=.*[A-Z])/.test(value);
+    const numOk = /(?=.*\d)/.test(value);
+    const specOk = /(?=.*[!@#\$%\^&\*\(\)_\+\-\=\[\]{};:'"\\|,.<>\/?`~])/.test(value);
+    return lenOk && caseOk && numOk && specOk;
+}
+
+function createPasswordError() {
+    const el = document.createElement('div');
+    el.className = 'password-error';
+    const form = document.getElementById('formRegister');
+    if (form) form.appendChild(el);
+    return el;
 }
 
 // --- C. VERIFICAR CÓDIGO (BOTÓN DEL MODAL) ---
@@ -240,8 +311,8 @@ if (linkForgot && modalRecover) {
     linkForgot.onclick = (e) => {
         e.preventDefault();
         console.log("🔓 Abriendo recuperación de contraseña..."); // Agrega este log para depurar
-        modalRecover.style.display = 'flex';
-        // container.style.filter = 'blur(5px)'; // Si esto da error, coméntalo
+        modalRecover.classList.add('active');
+        container.style.filter = 'blur(4px)';
     };
 }
 
@@ -299,3 +370,28 @@ if (btnResetPass) {
         } catch (e) { alert("Error de conexión."); }
     };
 }
+
+// Close modal listeners (for any modal using data-close)
+document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const id = btn.getAttribute('data-close');
+        const m = document.getElementById(id);
+        if (m) {
+            m.classList.remove('active');
+            container.style.filter = '';
+        }
+    });
+});
+
+// Clicking outside modal-body should close recover modal
+if (modalRecover) {
+    modalRecover.addEventListener('click', (e) => {
+        if (e.target === modalRecover) {
+            modalRecover.classList.remove('active');
+            container.style.filter = '';
+        }
+    });
+}
+
+// Ensure rules cleared initially
+resetPasswordRules();

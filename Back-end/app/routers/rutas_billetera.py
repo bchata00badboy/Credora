@@ -12,6 +12,15 @@ from pydantic import BaseModel
 from decimal import Decimal
 import random
 
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as ImageRL
+from reportlab.lib.units import inch
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+
 # Importaciones de Base de Datos y Modelos
 from app.db.sesion import get_db
 from app.db.modelos import Usuario, Transaccion, Cuenta, SolicitudKYC, EstadoKYC
@@ -402,3 +411,136 @@ def recargar_saldo_usuario(
         "nuevo_saldo": float(usuario.cuenta.saldo), 
         "referencia": ref_unica # <--- MOSTRAR REFERENCIA
     }
+    
+# ======================================================================
+# 7. ENDPOINT EXPORTAR PDF (CON RUTA AL LOGO DEL FRONTEND)
+# ======================================================================
+@router.get("/movimientos/exportar-pdf")
+def exportar_historial_pdf(
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(obtener_usuario_actual)
+):
+    # 1. Obtener datos
+    movimientos = db.query(Transaccion).filter(
+        (Transaccion.remitente_id == usuario.id_usuario) | 
+        (Transaccion.destinatario_id == usuario.id_usuario)
+    ).order_by(Transaccion.fecha.desc()).limit(50).all()
+
+    # 2. Configuración del PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    # --- A. ENCABEZADO (LOGO) ---
+    
+    # Construimos la ruta relativa: Salir de Back-end (..) -> Entrar a Front-end -> Src -> Assets -> Images
+    ruta_logo = os.path.join("..", "Front-end", "Src", "Assets", "Images", "credora2.0.png")
+    
+    # Convertimos a absoluta para evitar errores de sistema operativo
+    ruta_absoluta = os.path.abspath(ruta_logo)
+    print(f"📄 Buscando logo en: {ruta_absoluta}") # Diagnóstico en consola
+
+    if os.path.exists(ruta_absoluta):
+        try:
+            # Ajustamos el tamaño del logo (2 pulgadas de ancho, aspect ratio mantenido aprox)
+            logo = ImageRL(ruta_absoluta, width=2.0*inch, height=0.6*inch)
+            logo.hAlign = 'LEFT'
+            elements.append(logo)
+        except Exception as e:
+            print(f"⚠️ Error renderizando imagen: {e}")
+            elements.append(Paragraph("<b>CREDORA</b>", styles['Title']))
+    else:
+        print("❌ El archivo de imagen no se encontró en la ruta especificada.")
+        elements.append(Paragraph("<b>CREDORA FINTECH</b>", styles['Title']))
+    
+    elements.append(Spacer(1, 12))
+    
+    # Título del Reporte
+    estilo_titulo = ParagraphStyle(name='Titulo', parent=styles['Heading1'], alignment=TA_CENTER, textColor=colors.HexColor("#003049"))
+    elements.append(Paragraph("Estado de Cuenta", estilo_titulo))
+    elements.append(Spacer(1, 20))
+
+    # --- B. DATOS DEL CLIENTE ---
+    datos_cliente = [
+        [Paragraph(f"<b>Titular:</b> {usuario.nombre_completo}", styles['Normal']), 
+         Paragraph(f"<b>Fecha de Emisión:</b> {datetime.now().strftime('%d/%m/%Y')}", styles['Normal'])],
+        [Paragraph(f"<b>Cédula/ID:</b> {usuario.cedula or 'N/A'}", styles['Normal']), 
+         Paragraph(f"<b>Nro. Cuenta:</b> {usuario.numero_cuenta}", styles['Normal'])]
+    ]
+    t_info = Table(datos_cliente, colWidths=[3.5*inch, 3.5*inch])
+    t_info.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('TEXTCOLOR', (0,0), (-1,-1), colors.HexColor("#333333")),
+    ]))
+    elements.append(t_info)
+    elements.append(Spacer(1, 20))
+
+    # --- C. TABLA DE TRANSACCIONES ---
+    # Encabezados
+    data = [['Fecha', 'Referencia', 'Categoría', 'Descripción', 'Monto']]
+    
+    for mov in movimientos:
+        es_ingreso = (mov.destinatario_id == usuario.id_usuario)
+        signo = "+" if es_ingreso else "-"
+        color_monto = colors.HexColor("#059669") if es_ingreso else colors.HexColor("#ef4444")
+        
+        if mov.remitente_id is None:
+            categoria = "Recarga"
+        elif es_ingreso:
+            categoria = "Recibido"
+        else:
+            categoria = "Enviado"
+
+        fecha_fmt = mov.fecha.strftime("%d/%m/%Y")
+        
+        # Estilos de celda
+        cat_fmt = Paragraph(categoria, styles['Normal'])
+        desc_fmt = Paragraph(mov.motivo or "Sin detalle", styles['Normal'])
+        monto_fmt = Paragraph(f"<font color='{color_monto}'><b>{signo} ${float(mov.monto):,.2f}</b></font>", styles['Normal'])
+        
+        # Usamos mov.referencia si existe, sino un placeholder
+        ref_texto = getattr(mov, "referencia", f"REF-{mov.id_transaccion}")
+
+        data.append([fecha_fmt, ref_texto, cat_fmt, desc_fmt, monto_fmt])
+
+    # Tabla
+    t_movs = Table(data, colWidths=[0.9*inch, 1.1*inch, 1.2*inch, 2.5*inch, 1.1*inch])
+    t_movs.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#003049")),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        ('BOTTOMPADDING', (0,0), (-1,0), 10),
+        ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#F9FAFB")),
+        ('GRID', (0,0), (-1,-1), 1, colors.HexColor("#E5E7EB")),
+        ('ALIGN', (-1,1), (-1,-1), 'RIGHT'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    elements.append(t_movs)
+    elements.append(Spacer(1, 30))
+
+    # --- D. LEGAL ---
+    elements.append(Paragraph("_______________________________", styles['Normal']))
+    elements.append(Paragraph("<b>Autorizado por Credora S.A.</b>", styles['Normal']))
+    elements.append(Spacer(1, 10))
+    
+    legal_text = """
+    <font size="8" color="grey">
+    Este documento ha sido generado electrónicamente a través de la plataforma segura de Credora. 
+    La información contenida es confidencial. © 2026 Credora Inc.
+    </font>
+    """
+    elements.append(Paragraph(legal_text, styles['Normal']))
+
+    doc.build(elements)
+    buffer.seek(0)
+    
+    filename = f"Credora_{usuario.nombre_completo.split()[0]}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    
+    return StreamingResponse(
+        buffer, 
+        media_type="application/pdf", 
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

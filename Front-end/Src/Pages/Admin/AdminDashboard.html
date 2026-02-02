@@ -1,0 +1,140 @@
+<!-- Front-end\Src\Pages\Admin\AdminDashboard.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credora Admin</title>
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div style="display:flex; justify-content:center; padding-top:20px;">
+            <i class='bx bxs-shield-security' style="font-size: 32px; color: white;"></i>
+        </div>
+        <ul style="list-style:none; padding:0; margin-top:30px;">
+            <li style="text-align:center; margin-bottom:20px;">
+                <a href="#" onclick="cambiarVista('usuarios')" id="link-users" style="color:#4fd1c5; font-size:24px;" title="Usuarios">
+                    <i class='bx bx-user'></i>
+                </a>
+            </li>
+            <li style="text-align:center; margin-bottom:20px;">
+                <a href="#" onclick="cambiarVista('transacciones')" id="link-tx" style="color:white; font-size:24px;" title="Transacciones">
+                    <i class='bx bx-transfer-alt'></i>
+                </a>
+            </li>
+            <li style="text-align:center;">
+                <a href="#" id="btn-logout" style="color:#ff6b6b; font-size:24px;"><i class='bx bx-log-out'></i></a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="admin-container">
+        <header style="margin-bottom: 30px; border-bottom:1px solid #ddd; padding-bottom:15px;">
+            <h1 style="margin:0; color:#003049;">Panel de Control</h1>
+            <p style="margin:5px 0 0; color:#666;">Gestión integral de usuarios y seguridad</p>
+        </header>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>Usuarios Totales</h3>
+                <div class="number" id="stat-users">--</div>
+            </div>
+            <div class="metric-card">
+                <h3>Dinero en Sistema</h3>
+                <div class="number" id="stat-money">--</div>
+            </div>
+            <div class="metric-card" style="border-left-color: #f59e0b;">
+                <h3>Validaciones KYC</h3>
+                <div class="number" id="stat-kyc">--</div>
+            </div>
+        </div>
+
+        <div id="view-usuarios" class="table-wrapper">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="margin:0; color:#003049; font-size:1.2rem;">Base de Usuarios</h2>
+                <button class="btn-action btn-view" onclick="cargarDashboard()" title="Actualizar"><i class='bx bx-refresh'></i></button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Saldo</th>
+                        <th>KYC</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <tr><td colspan="7" style="text-align: center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="view-transacciones" class="table-wrapper" style="display: none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="margin:0; color:#003049; font-size:1.2rem;">Historial de Transacciones</h2>
+                <button class="btn-action btn-view" onclick="cargarTransacciones()" title="Actualizar"><i class='bx bx-refresh'></i></button>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Remitente</th>
+                        <th>Destinatario</th>
+                        <th>Motivo</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="tx-table-body">
+                    <tr><td colspan="7" style="text-align: center;">Cargando transacciones...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modal-kyc" class="modal-overlay" style="display: none;">
+        <div class="modal-card" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class='bx bxs-id-card'></i> Auditoría de Identidad</h3>
+                <button class="modal-close" onclick="cerrarModalKYC()">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="text-align: center;">
+                <p style="color: #666; margin-bottom: 10px;">Revisando documento de:</p>
+                <h2 id="kyc-user-name" style="margin: 0 0 20px 0; color: #003049;">--</h2>
+                
+                <div style="background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 20px; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                    <img id="kyc-img-preview" src="" alt="Documento de Identidad" style="max-width: 100%; max-height: 350px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <p id="kyc-no-img" style="display: none; color: #999;">🚫 Sin imagen disponible</p>
+                </div>
+
+                <div class="form-group" style="text-align: left;">
+                    <label>Motivo (Solo si rechazas)</label>
+                    <input type="text" id="kyc-motivo" placeholder="Ej: Documento borroso, vencido...">
+                </div>
+            </div>
+
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button class="btn-action btn-block" onclick="enviarVeredicto(false)" style="width: 48%; padding: 10px;">
+                    <i class='bx bx-x-circle'></i> Rechazar
+                </button>
+                <button class="btn-action btn-unblock" onclick="enviarVeredicto(true)" style="width: 48%; padding: 10px;">
+                    <i class='bx bx-check-circle'></i> Aprobar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

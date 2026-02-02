@@ -91,7 +91,7 @@ if (btnDownload) {
    3. LÓGICA DE NEGOCIO (CONEXIÓN AL BACKEND)
    ========================================================================== */
 
-// --- A. INICIAR SESIÓN ---
+// --- A. INICIAR SESIÓN (CON REDIRECCIÓN POR ROL) ---
 const formLogin = document.getElementById('formLogin');
 if (formLogin) {
     formLogin.addEventListener('submit', async (e) => {
@@ -117,13 +117,25 @@ if (formLogin) {
             const data = await res.json();
 
             if (res.ok) {
+                // 1. Guardar el token
                 localStorage.setItem('credora_token', data.access_token);
-                window.location.href = "../Main/Dashboard.html";
+                
+                // 2. Redirección Inteligente según el ROL
+                // Nota: Asegúrate de haber creado la carpeta Admin
+                if (data.rol === 'admin') {
+                    console.log("👑 Acceso concedido: Administrador");
+                    window.location.href = "../Admin/AdminDashboard.html";
+                } else {
+                    console.log("👤 Acceso concedido: Cliente");
+                    window.location.href = "../Main/Dashboard.html";
+                }
+
             } else {
                 alert("❌ " + (data.detail || "Credenciales incorrectas"));
             }
         } catch (error) {
-            alert("Error de conexión.");
+            console.error(error);
+            alert("Error de conexión con el servidor.");
         } finally {
             btn.innerText = txtOriginal; btn.disabled = false;
         }

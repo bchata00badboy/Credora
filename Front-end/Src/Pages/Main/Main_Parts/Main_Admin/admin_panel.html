@@ -1,0 +1,101 @@
+<!-- Front-end\Src\Pages\Main\Main_Parts\Main_Admin\admin_panel.html -->
+
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - Credora</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+<section class="admin-panel">
+    <aside class="admin-sidebar">
+        <div class="sidebar-top">
+            <div class="logo-area">
+                    <img src="../../../../Assets/Icons/Favicon.png" alt="Credora Wallet" class="logo-img" onerror="this.style.display='none'">
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active pop-anim" title="Inicio">
+                    <i class='bx bx-home-alt-2'></i>
+                </button>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+            <button class="nav-item pop-anim" id="theme-toggle" title="Cambiar tema">
+                <i class='bx bx-moon'></i>
+            </button>
+            
+            <button class="nav-item pop-anim btn-logout" id="btn-logout" title="Cerrar Sesión" aria-label="Cerrar sesión">
+                <i class='bx bx-log-out'></i>
+            </button>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-header">
+            <div class="header-text">
+                <h1>Panel Administrativo</h1>
+                <p class="muted">Gestión integral de accesos y estados.</p>
+            </div>
+        </header>
+
+        <section class="admin-content">
+            <div class="filtros-container">
+                <div class="input-group">
+                    <i class='bx bx-search icon-search'></i>
+                    <input id="admin-search" type="text" placeholder="Buscar usuario...">
+                </div>
+                <div class="controls-row">
+                    <select class="select-filtro hover-anim" id="filter-status">
+                        <option value="all">Todos los estados</option>
+                        <option value="aprobado">Aprobados</option>
+                        <option value="pendiente">Pendientes</option>
+                        <option value="suspendido">Suspendidos</option>
+                    </select>
+                    <div class="controls-sep" aria-hidden="true"></div>
+                    <button id="export-data" class="btn-export hover-lift">
+                        <i class='bx bx-download'></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div class="tabla-container card">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre Completo</th>
+                            <th>Email</th>
+                            <th>Cédula / ID</th>
+                            <th>Estado</th>
+                            <th class="text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</section>
+
+        <!-- Modal de confirmación reutilizable -->
+        <div id="confirm-modal" class="confirm-modal" aria-hidden="true">
+            <div class="confirm-overlay"></div>
+            <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+                <h3 id="confirm-title">Confirmar</h3>
+                <p id="confirm-message">¿Estás seguro?</p>
+                <div class="confirm-actions">
+                    <button id="confirm-cancel" class="btn-action btn-cancel">No</button>
+                    <button id="confirm-ok" class="btn-action btn-confirm">Si</button>
+                </div>
+            </div>
+        </div>
+
+<script src="admin.js"></script>
+</body>
+</html>

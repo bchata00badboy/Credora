@@ -7,7 +7,7 @@ from typing import Optional
 class EsquemaToken(BaseModel):
     access_token: str
     token_type: str
-
+    rol: str
 # ----------------------------------------------------------------------
 # 2. Esquemas de Usuario
 # ----------------------------------------------------------------------

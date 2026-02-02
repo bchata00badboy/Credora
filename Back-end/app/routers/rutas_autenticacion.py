@@ -150,25 +150,37 @@ def restablecer_password(
     return {"mensaje": "Contraseña restablecida. Ya puedes iniciar sesión."}
 
 # --------------------------------------------------------------------------
-# 5. LOGIN (VERIFICAR QUE ESTÉ ACTIVO)
+# 5. LOGIN (MODIFICADO PARA DEVOLVER EL ROL)
 # --------------------------------------------------------------------------
 @router.post("/token", response_model=EsquemaToken)
 def login_para_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    # 1. Autenticar
     usuario = autenticar_usuario(db, form_data.username, form_data.password)
     
     if not usuario:
-        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Credenciales incorrectas"
+        )
+
+    # --- AGREGAR ESTA VALIDACIÓN DE BLOQUEO ---
+    if usuario.esta_bloqueado:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Tu cuenta ha sido bloqueada por un administrador. Contacta a soporte."
+        )
+    # ------------------------------------------
         
-    # Opcional: Bloquear si no ha verificado correo
-    # if not usuario.correo_verificado:
-    #     raise HTTPException(status_code=403, detail="Debes verificar tu correo primero")
-    
+    # 2. Generar Token
     tiempo = timedelta(minutes=60)
     token = crear_token_acceso(data={"sub": str(usuario.id_usuario)}, expires_delta=tiempo)
     
-    return {"access_token": token, "token_type": "bearer"}
-
-
+    return {
+        "access_token": token, 
+        "token_type": "bearer",
+        "rol": usuario.rol
+    }
+    
 # Agregar Esquema para cambio de PIN
 class EsquemaCambioPin(BaseModel):
     old: str

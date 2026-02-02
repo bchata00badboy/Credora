@@ -1,4 +1,5 @@
 # Back-end\app\routers\rutas_billetera.py
+# Back-end/app/routers/rutas_billetera.py
 
 import shutil
 import os
@@ -9,6 +10,7 @@ from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel
 from decimal import Decimal
+import random
 
 # Importaciones de Base de Datos y Modelos
 from app.db.sesion import get_db
@@ -23,14 +25,25 @@ from app.servicios.servicio_kyc import (
     es_extension_permitida,
     generar_nombre_seguro,
     registrar_subida_en_bd,
-    extraer_datos_venezuela,
-    finalizar_proceso_kyc
+    extraer_datos_venezuela
 )
 from configuracion import CARPETA_SUBIDAS
 
 # Configuración del Router
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 router = APIRouter(prefix="/billetera", tags=["Billetera"])
+
+
+def generar_referencia_unica(db: Session):
+    """Genera un código de 8 dígitos que no choque con ninguno existente"""
+    while True:
+        # Genera un número entre 10000000 y 99999999
+        ref = str(random.randint(10000000, 99999999))
+
+        # Verifica si ya existe en la BD
+        existe = db.query(Transaccion).filter(Transaccion.referencia == ref).first()
+        if not existe:
+            return ref
 
 
 def convertir_tipos_numpy(obj):
@@ -63,9 +76,6 @@ def obtener_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = De
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return usuario
 
-# ======================================================================
-# 1. ENDPOINT SALDO
-# ======================================================================
 # ======================================================================
 # 1. ENDPOINT SALDO (DASHBOARD + DATOS DE PERFIL)
 # ======================================================================
@@ -107,6 +117,7 @@ def obtener_saldo(
         "cedula": usuario.cedula,
         "direccion": usuario.direccion,
         "telefono": usuario.telefono,
+        "alias": usuario.nombre_completo.split(" ")[0], # Para mostrar un nombre corto
         # ------------------------------------
 
         "historial": {
@@ -145,7 +156,7 @@ def historial_movimientos(
                 "monto": float(mov.monto),
                 "tipo": "INGRESO" if es_ingreso else "EGRESO",
                 "estado": mov.estado,
-                "referencia": f"REF-{mov.id_transaccion}"
+                "referencia": mov.referencia
             })
         return datos_formateados
 
@@ -198,7 +209,7 @@ def realizar_transferencia(
 
     try:
         # Lógica Transaccional
-        usuario.cuenta.saldo -= datos.monto
+        usuario.cuenta.saldo -= Decimal(str(datos.monto))
         
         if not destinatario.cuenta:
             destinatario_cuenta = Cuenta(id_usuario=destinatario.id_usuario, saldo=0.0, moneda='USD')
@@ -206,23 +217,26 @@ def realizar_transferencia(
             db.commit()
             db.refresh(destinatario)
 
-        destinatario.cuenta.saldo += datos.monto
+        destinatario.cuenta.saldo += Decimal(str(datos.monto))
         
+        ref_unica = generar_referencia_unica(db)
+
         nueva_transaccion = Transaccion(
             remitente_id=usuario.id_usuario,
             destinatario_id=destinatario.id_usuario,
-            monto=datos.monto,
+            monto=Decimal(str(datos.monto)),
             motivo=datos.motivo,
             estado="COMPLETADO",
-            fecha=datetime.now()
+            fecha=datetime.now(),
+            referencia=ref_unica # <--- GUARDAR LA REFERENCIA
         )
         db.add(nueva_transaccion)
         db.commit()
-        
+
         return {
             "mensaje": "Transferencia exitosa",
             "destinatario": destinatario.nombre_completo,
-            "id_transaccion": nueva_transaccion.id_transaccion,
+            "referencia": ref_unica, # <--- DEVOLVER AL FRONTEND
             "nuevo_saldo": float(usuario.cuenta.saldo)
         }
         
@@ -231,7 +245,7 @@ def realizar_transferencia(
         raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
 
 # ======================================================================
-# 4. ENDPOINT KYC: SUBIR DOCUMENTO (IA) - CORREGIDO
+# 4. ENDPOINT KYC: SUBIR DOCUMENTO (A PRUEBA DE FALLOS)
 # ======================================================================
 @router.post("/kyc/subir-documento")
 def subir_documento_kyc(
@@ -243,49 +257,76 @@ def subir_documento_kyc(
     if not es_extension_permitida(archivo.filename):
         raise HTTPException(status_code=400, detail="Formato no permitido. Use JPG o PNG.")
 
-    # 2. Guardar archivo
-    nombre_seguro = generar_nombre_seguro(archivo.filename)
-    ruta_destino = os.path.join(CARPETA_SUBIDAS, nombre_seguro)
-    
+    # 2. Guardar archivo físico
     try:
+        nombre_seguro = generar_nombre_seguro(archivo.filename)
+        ruta_destino = os.path.join(CARPETA_SUBIDAS, nombre_seguro)
+        
         with open(ruta_destino, "wb") as buffer:
             shutil.copyfileobj(archivo.file, buffer)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error guardando imagen: {e}")
+        print(f"❌ Error guardando archivo físico: {e}")
+        raise HTTPException(status_code=500, detail="Error al guardar la imagen en el servidor.")
 
-    # 3. Registrar en BD
-    solicitud = registrar_subida_en_bd(db, usuario.id_usuario, nombre_seguro)
-
-    # 4. Ejecutar IA
+    # 3. Registrar en BD (Crear la fila en SolicitudKYC)
+    # Esto es vital para que el Admin encuentre la foto luego
     try:
-        datos_extraidos = extraer_datos_venezuela(ruta_destino)
+        solicitud = registrar_subida_en_bd(db, usuario.id_usuario, nombre_seguro)
     except Exception as e:
-        print(f"Error IA: {e}")
-        raise HTTPException(status_code=500, detail="Error interno analizando el documento.")
+        print(f"❌ Error registrando en BD: {e}")
+        raise HTTPException(status_code=500, detail="Error de base de datos al registrar documento.")
 
-    # 5. Guardar Resultados
-    # CORREGIDO: Aquí estaba el error de duplicación
-    resultado_proceso = finalizar_proceso_kyc(db, usuario.id_usuario, solicitud.id_documento, datos_extraidos)
+    # 4. Ejecutar IA (OCR)
+    datos_extraidos = {}
+    try:
+        print(f"🧠 Analizando imagen: {nombre_seguro}")
+        datos_extraidos = extraer_datos_venezuela(ruta_destino)
+        print(f"✅ Resultado IA: {datos_extraidos}")
+    except Exception as e:
+        print(f"⚠️ Advertencia: La IA falló, pero el proceso continúa. Error: {e}")
+        # Definimos un fallback para que no rompa el flujo
+        datos_extraidos = {"exito": False, "mensaje": "Lectura manual requerida", "cedula": "", "nombre_completo": ""}
 
-    if not resultado_proceso:
-        raise HTTPException(status_code=500, detail="Error procesando resultados KYC.")
+    # 5. ACTUALIZACIÓN DE DATOS (LÓGICA BLINDADA)
+    
+    # A. Actualizar la solicitud con lo que haya visto la IA
+    solicitud.info_extraida = datos_extraidos
+    solicitud.estado = "PENDIENTE_REVISION" # Estado interno de la solicitud
+    
+    # B. Intentar rellenar datos del usuario si la IA vio algo
+    # Usamos .get() para evitar errores si la clave no existe
+    nombre_detectado = datos_extraidos.get("nombre_completo")
+    cedula_detectada = datos_extraidos.get("cedula")
 
-    # 6. Preparar y limpiar respuesta
+    if nombre_detectado and len(nombre_detectado) > 3:
+        usuario.nombre_completo = nombre_detectado
+    
+    if cedula_detectada and len(cedula_detectada) > 5:
+        # Limpiamos la cédula para que guarde solo números o formato estándar
+        usuario.cedula = str(cedula_detectada).strip().upper()
+
+    # C. CAMBIO DE ESTADO (CRÍTICO)
+    # Siempre ponemos al usuario en PENDIENTE para que el Admin lo vea
+    usuario.estado_kyc = "PENDIENTE_VERIFICACION"
+    
+    # Guardamos todo
+    db.commit()
+    db.refresh(solicitud) # Aseguramos que se guardó
+
+    # 6. Respuesta al Frontend
+    # Devolvemos datos seguros para evitar 'null' errors en JS
     respuesta_final = {
-        "mensaje": resultado_proceso["mensaje"],
-        "aprobado": resultado_proceso["aprobado"],
+        "mensaje": "Documento recibido. Un administrador revisará tu perfil.",
+        "aprobado": False,
         "datos_extraidos": {
-            "nombre": datos_extraidos.get("nombre_completo", "No legible"),
-            "fecha_nacimiento": datos_extraidos.get("fecha_nacimiento"),
-            "documento_valido": not datos_extraidos.get("documento_vencido", True),
-            "mayor_edad": datos_extraidos.get("es_mayor_de_edad", False),
-            "cedula": datos_extraidos.get("cedula", "No legible")
+            "nombre": nombre_detectado if nombre_detectado else "No detectado (Se requiere revisión manual)",
+            "cedula": cedula_detectada if cedula_detectada else "No detectada",
+            "documento_valido": True, # Asumimos true para no bloquear el flujo visual
+            "mensaje_estado": "Tu documento ha sido enviado a la cola de auditoría."
         }
     }
 
-    # CRÍTICO: Convertir tipos NumPy a nativos para evitar fallo de JSON
     return convertir_tipos_numpy(respuesta_final)
-
 # ======================================================================
 # 5. ENDPOINT KYC: FINALIZAR (Datos extra)
 # ======================================================================
@@ -300,17 +341,15 @@ def finalizar_kyc_datos(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(obtener_usuario_actual)
 ):
-    # CORREGIDO: Validación real en lugar de 'pass'
-    if usuario.estado_kyc != EstadoKYC.APROBADO: 
-        raise HTTPException(status_code=403, detail="Debes aprobar la verificación de identidad (foto) primero.")
-
+    # En este modelo híbrido, el usuario puede guardar sus datos extras
+    # aunque la foto aún no esté aprobada por el admin.
+    
     usuario.direccion = datos.direccion
     usuario.telefono = datos.telefono
-    # Asignación de cuenta negocio
     usuario.es_cuenta_negocio = (datos.tipo_usuario == 'User-Business')
     
     db.commit()
-    return {"mensaje": "Perfil verificado. ¡Cuenta habilitada al 100%!"}
+    return {"mensaje": "Datos guardados. Tu perfil será revisado por un administrador en breve."}
 
 
 # ======================================================================
@@ -335,29 +374,31 @@ def recargar_saldo_usuario(
         db.commit()
         db.refresh(usuario)
 
-    # --- CORRECCIÓN AQUÍ ---
-    # Convertimos el float a Decimal para poder sumarlo al saldo de la BD
-    monto_decimal = Decimal(str(datos.monto_usd)) 
+    # Convertimos el float a Decimal para operaciones monetarias
+    monto_decimal = Decimal(str(datos.monto_usd))
     
     usuario.cuenta.saldo += monto_decimal
-    # -----------------------
 
     # 2. Registrar en el Historial (Tabla Transaccion)
+    # GENERAR REFERENCIA
+    ref_unica = generar_referencia_unica(db)
+
     nueva_transaccion = Transaccion(
         remitente_id=None, 
         destinatario_id=usuario.id_usuario,
-        monto=monto_decimal, # Usamos el decimal aquí también
+        monto=monto_decimal, 
         motivo="Recarga de Saldo (BS)",
         estado="COMPLETADO",
-        fecha=datetime.now()
+        fecha=datetime.now(),
+        referencia=ref_unica # <--- GUARDAR LA REFERENCIA
     )
-    
+
     db.add(nueva_transaccion)
     db.commit()
     db.refresh(usuario.cuenta)
 
     return {
         "mensaje": "Recarga exitosa",
-        "nuevo_saldo": float(usuario.cuenta.saldo), # Convertimos a float solo para devolver el JSON
-        "monto_recargado": datos.monto_usd
+        "nuevo_saldo": float(usuario.cuenta.saldo), 
+        "referencia": ref_unica # <--- MOSTRAR REFERENCIA
     }

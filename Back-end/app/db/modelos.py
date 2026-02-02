@@ -23,6 +23,7 @@ class Usuario(Base):
     __tablename__ = 'usuario'
 
     id_usuario = Column(Integer, primary_key=True, index=True)
+    rol = Column(String(20), default='cliente', nullable=False)
     nombre_completo = Column(String(100), nullable=False)
     correo = Column(String(100), unique=True, nullable=False)
     # Nota: Asegúrate de que tu login use este nombre de columna
@@ -53,6 +54,9 @@ class Usuario(Base):
     # --- VERIFICACIÓN Y SEGURIDAD ---
     codigo_verificacion = Column(String(6), nullable=True) # El código de 6 dígitos
     correo_verificado = Column(Boolean, default=False)
+    
+    rol = Column(String(20), default='cliente', nullable=False)
+    esta_bloqueado = Column(Boolean, default=False)
 
     # Relaciones
     cuenta = relationship("Cuenta", back_populates="usuario", uselist=False)
@@ -87,6 +91,7 @@ class Cuenta(Base):
 class Transaccion(Base):
     __tablename__ = 'transaccion'
     id_transaccion = Column(Integer, primary_key=True, index=True)
+    referencia = Column(String(8), unique=True, index=True, nullable=False)
     
     # Soporte para P2P (Remitente y Destinatario)
     remitente_id = Column(Integer, ForeignKey('usuario.id_usuario'), nullable=True)

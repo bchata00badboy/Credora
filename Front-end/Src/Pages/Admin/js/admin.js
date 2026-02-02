@@ -11,10 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarDashboard();
     document.getElementById('btn-logout').addEventListener('click', (e) => {
         e.preventDefault();
-        if(confirm("¿Cerrar sesión?")) {
-            localStorage.removeItem('credora_token');
-            window.location.href = "../Login/login.html";
-        }
+        (async () => {
+            const ok = (typeof showConfirm === 'function')
+                ? await showConfirm('Cerrar sesión', '¿Cerrar sesión?')
+                : confirm('¿Cerrar sesión?');
+            if (ok) {
+                try { showToast('Sesión cerrada', 'success', 1000); } catch(e) {}
+                localStorage.removeItem('credora_token');
+                setTimeout(() => window.location.href = "../Login/login.html", 900);
+            }
+        })();
     });
 });
 
@@ -188,7 +194,10 @@ window.enviarVeredicto = async (aprobado) => {
 };
 
 window.cambiarEstadoUsuario = async (id, bloquear) => {
-    if(!confirm("¿Confirmar acción?")) return;
+    const ok = (typeof showConfirm === 'function')
+        ? await showConfirm('Confirmar acción', '¿Confirmar acción?')
+        : confirm('¿Confirmar acción?');
+    if(!ok) return;
     try {
         const res = await fetch(`${API_BASE_URL}/admin/usuarios/${id}/estado`, {
             method: 'PATCH',
@@ -254,4 +263,73 @@ async function cargarTransacciones() {
         console.error(e);
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color:red;">Error de conexión</td></tr>';
     }
+}
+
+// Función local para mostrar modal de confirmación con fondo borroso (promise)
+function showConfirm(title, message) {
+    return new Promise(resolve => {
+        let modal = document.getElementById('admin-confirm-modal');
+        if (!modal) {
+            const html = `
+                <div id="admin-confirm-modal" class="modal-overlay" style="display:none;">
+                    <div class="modal-card" style="max-width:420px;">
+                        <div class="modal-header"><h3 id="admin-confirm-title">Confirmar</h3></div>
+                        <div class="modal-body" style="text-align:center;">
+                            <p id="admin-confirm-message">¿Estás seguro?</p>
+                        </div>
+                        <div class="modal-footer" style="justify-content:flex-end;">
+                            <button id="admin-confirm-cancel" class="btn-action btn-view">No</button>
+                            <button id="admin-confirm-ok" class="btn-action btn-block">Si</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', html);
+            modal = document.getElementById('admin-confirm-modal');
+        }
+
+        const elTitle = modal.querySelector('#admin-confirm-title');
+        const elMsg = modal.querySelector('#admin-confirm-message');
+        const btnOk = modal.querySelector('#admin-confirm-ok');
+        const btnCancel = modal.querySelector('#admin-confirm-cancel');
+
+        elTitle.textContent = title || 'Confirmar';
+        elMsg.textContent = message || '';
+
+        function cleanup(res) {
+            modal.style.display = 'none';
+            btnOk.removeEventListener('click', onOk);
+            btnCancel.removeEventListener('click', onCancel);
+            resolve(res);
+        }
+
+        function onOk(e) { e.stopPropagation(); cleanup(true); }
+        function onCancel(e) { e.stopPropagation(); cleanup(false); }
+
+        btnOk.addEventListener('click', onOk);
+        btnCancel.addEventListener('click', onCancel);
+
+        modal.style.display = 'flex';
+        btnOk.focus();
+    });
+}
+
+// Toast helper para admin (si no existe uno global)
+function showToast(message, type = 'success', duration = 1200) {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">${type === 'success' ? "<i class='bx bx-check'></i>" : "<i class='bx bx-info-circle'></i>"}</div>
+        <div class="toast-msg">${message}</div>
+    `;
+    container.appendChild(toast);
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(()=>container.removeChild(toast), 300); }, duration);
 }

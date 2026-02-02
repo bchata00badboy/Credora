@@ -675,6 +675,34 @@ body.dark th { background-color: rgba(0, 48, 73, 0.15); color: var(--color-text-
     position: relative;
     z-index: 99991;
 }
+/* --- Modal de confirmación reutilizable (global) --- */
+.confirm-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1400; pointer-events: none; }
+.confirm-modal.active { display: flex; pointer-events: auto; }
+.confirm-overlay { position: absolute; inset: 0; background: rgba(2,6,23,0.48); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.confirm-dialog { position: relative; background: var(--card-bg-light); color: var(--color-text-primary); padding: 22px 26px; border-radius: 12px; width: min(520px, calc(100% - 96px)); max-width: 520px; box-shadow: 0 20px 60px rgba(2,6,23,0.25); transform: translateY(12px) scale(0.98); opacity: 0; transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 180ms ease; }
+.confirm-modal.active .confirm-dialog { transform: translateY(0) scale(1); opacity: 1; }
+.confirm-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: -40px auto 10px auto; background: linear-gradient(180deg, rgba(14,165,233,0.08), rgba(14,165,233,0.03)); color: var(--accent-color); font-size: 26px; box-shadow: 0 8px 30px rgba(2,6,23,0.06); }
+.confirm-icon.danger { background: linear-gradient(180deg, rgba(239,68,68,0.09), rgba(239,68,68,0.03)); color: #e73b3b; }
+.confirm-dialog h3 { margin: 0 0 8px 0; font-size: 1.125rem; text-align: center; }
+.confirm-dialog p { margin: 0 0 16px 0; color: var(--color-text-secondary); text-align: center; }
+.confirm-actions { display: flex; justify-content: flex-end; gap: 9px; }
+.btn-cancel { background: transparent; border: 1px solid var(--color-border); padding: 8px 12px; border-radius: 8px; }
+.btn-confirm { background: linear-gradient(90deg, #ef4444, #dc2626); color: #fff; border: none; padding: 8px 12px; border-radius: 8px; box-shadow: 0 8px 24px rgba(220,38,38,0.18); }
+.btn-cancel:hover { transform: translateY(-4px); }
+.btn-confirm:hover { transform: translateY(-2px); filter: brightness(1.04); }
+
+/* Toast notifications */
+.toast-container { position: fixed; right: 20px; bottom: 24px; z-index: 200000; display: flex; flex-direction: column; gap: 10px; }
+.toast { display: flex; gap: 12px; align-items: center; min-width: 220px; max-width: 380px; padding: 12px 14px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); color: #fff; font-weight: 600; opacity: 0; transform: translateY(8px); transition: opacity 260ms ease, transform 260ms cubic-bezier(.2,.9,.2,1); backdrop-filter: blur(6px); }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { background: linear-gradient(90deg, #059669, #047857); }
+.toast.info { background: linear-gradient(90deg, #0ea5e9, #0369a1); }
+.toast.warn { background: linear-gradient(90deg, #f59e0b, #b45309); }
+.toast.error { background: linear-gradient(90deg, #ef4444, #b91c1c); }
+.toast .toast-icon { width: 36px; height: 36px; display:flex; align-items:center; justify-content:center; font-size:18px; opacity: 0.95; }
+.toast .toast-msg { flex: 1; font-size: 0.95rem; }
+
+
 .modal-overlay.active .modal-card { transform: translateY(0) scale(1); opacity: 1; }
 
 /* Cabecera / cuerpo / footer del modal (mantener estilos existentes) */

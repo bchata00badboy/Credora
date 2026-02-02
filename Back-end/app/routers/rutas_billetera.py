@@ -413,7 +413,7 @@ def recargar_saldo_usuario(
     }
     
 # ======================================================================
-# 7. ENDPOINT EXPORTAR PDF (CON RUTA AL LOGO DEL FRONTEND)
+# 7. ENDPOINT EXPORTAR PDF (DISEÑO PROFESIONAL CORREGIDO)
 # ======================================================================
 @router.get("/movimientos/exportar-pdf")
 def exportar_historial_pdf(
@@ -428,111 +428,141 @@ def exportar_historial_pdf(
 
     # 2. Configuración del PDF
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    # Márgenes ajustados para que se vea más elegante
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
     elements = []
     styles = getSampleStyleSheet()
 
-    # --- A. ENCABEZADO (LOGO) ---
-    
-    # Construimos la ruta relativa: Salir de Back-end (..) -> Entrar a Front-end -> Src -> Assets -> Images
-    ruta_logo = os.path.join("..", "Front-end", "Src", "Assets", "Images", "credora2.0.png")
-    
-    # Convertimos a absoluta para evitar errores de sistema operativo
-    ruta_absoluta = os.path.abspath(ruta_logo)
-    print(f"📄 Buscando logo en: {ruta_absoluta}") # Diagnóstico en consola
+    # Estilos Personalizados
+    style_right = ParagraphStyle(name='Right', parent=styles['Normal'], alignment=TA_RIGHT, fontSize=9)
+    style_title_right = ParagraphStyle(name='TitleRight', parent=styles['Heading2'], alignment=TA_RIGHT, textColor=colors.HexColor("#003049"))
+    style_bold = ParagraphStyle(name='Bold', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10)
 
+    # --- A. ENCABEZADO (TABLA INVISIBLE PARA ALINEACIÓN PERFECTA) ---
+    
+    # Ruta del logo
+    ruta_logo = os.path.join("..", "Front-end", "Src", "Assets", "Images", "credora2.0.png")
+    ruta_absoluta = os.path.abspath(ruta_logo)
+
+    logo_obj = []
     if os.path.exists(ruta_absoluta):
         try:
-            # Ajustamos el tamaño del logo (2 pulgadas de ancho, aspect ratio mantenido aprox)
-            logo = ImageRL(ruta_absoluta, width=2.0*inch, height=0.6*inch)
-            logo.hAlign = 'LEFT'
-            elements.append(logo)
-        except Exception as e:
-            print(f"⚠️ Error renderizando imagen: {e}")
-            elements.append(Paragraph("<b>CREDORA</b>", styles['Title']))
+            # preserveAspectRatio=True evita que la imagen se deforme/estire
+            img = ImageRL(ruta_absoluta, width=2.0*inch, height=0.8*inch)
+            img.hAlign = 'LEFT'
+            logo_obj = img
+        except:
+            logo_obj = Paragraph("<b>CREDORA</b>", styles['Heading1'])
     else:
-        print("❌ El archivo de imagen no se encontró en la ruta especificada.")
-        elements.append(Paragraph("<b>CREDORA FINTECH</b>", styles['Title']))
-    
-    elements.append(Spacer(1, 12))
-    
-    # Título del Reporte
-    estilo_titulo = ParagraphStyle(name='Titulo', parent=styles['Heading1'], alignment=TA_CENTER, textColor=colors.HexColor("#003049"))
-    elements.append(Paragraph("Estado de Cuenta", estilo_titulo))
-    elements.append(Spacer(1, 20))
+        logo_obj = Paragraph("<b>CREDORA</b>", styles['Heading1'])
 
-    # --- B. DATOS DEL CLIENTE ---
-    datos_cliente = [
-        [Paragraph(f"<b>Titular:</b> {usuario.nombre_completo}", styles['Normal']), 
-         Paragraph(f"<b>Fecha de Emisión:</b> {datetime.now().strftime('%d/%m/%Y')}", styles['Normal'])],
-        [Paragraph(f"<b>Cédula/ID:</b> {usuario.cedula or 'N/A'}", styles['Normal']), 
-         Paragraph(f"<b>Nro. Cuenta:</b> {usuario.numero_cuenta}", styles['Normal'])]
+    # Contenido de la derecha del encabezado
+    datos_empresa = [
+        Paragraph("<b>ESTADO DE CUENTA</b>", style_title_right),
+        Paragraph(f"Fecha de Emisión: {datetime.now().strftime('%d/%m/%Y')}", style_right),
+        Paragraph("Credora Fintech S.A.", style_right)
     ]
-    t_info = Table(datos_cliente, colWidths=[3.5*inch, 3.5*inch])
-    t_info.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('TEXTCOLOR', (0,0), (-1,-1), colors.HexColor("#333333")),
+
+    # TABLA DEL ENCABEZADO: [ Logo | Datos Empresa ]
+    header_data = [[logo_obj, datos_empresa]]
+    t_header = Table(header_data, colWidths=[3.5*inch, 4.0*inch])
+    t_header.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'), # Centrar verticalmente
+        ('LEFTPADDING', (0,0), (-1,-1), 0),
+        ('RIGHTPADDING', (0,0), (-1,-1), 0),
+        # ('GRID', (0,0), (-1,-1), 1, colors.black), # Descomenta para ver los bordes (debug)
     ]))
-    elements.append(t_info)
-    elements.append(Spacer(1, 20))
+    elements.append(t_header)
+    elements.append(Spacer(1, 15))
+    
+    # Línea divisoria elegante
+    elements.append(Paragraph("<hr width='100%' color='#003049' thickness='2'/>", styles['Normal']))
+    elements.append(Spacer(1, 15))
+
+    # --- B. DATOS DEL CLIENTE (FORMATO FICHA) ---
+    # Organizamos los datos del cliente en una tabla limpia
+    cliente_data = [
+        [Paragraph("DATOS DEL TITULAR", style_bold), Paragraph("DETALLES DE CUENTA", style_bold)],
+        [Paragraph(f"<b>Nombre:</b> {usuario.nombre_completo}", styles['Normal']), 
+         Paragraph(f"<b>Nro. Cuenta:</b> {usuario.numero_cuenta}", styles['Normal'])],
+        [Paragraph(f"<b>Cédula/ID:</b> {usuario.cedula or 'No registrado'}", styles['Normal']), 
+         Paragraph(f"<b>Moneda:</b> USD (Dólar Americano)", styles['Normal'])],
+        [Paragraph(f"<b>Email:</b> {usuario.correo}", styles['Normal']), 
+         Paragraph(f"<b>Saldo al corte:</b> ${float(usuario.cuenta.saldo):,.2f}", styles['Normal'])]
+    ]
+
+    t_cliente = Table(cliente_data, colWidths=[3.75*inch, 3.75*inch])
+    t_cliente.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor("#003049")), # Títulos en Azul
+        ('LINEBELOW', (0,0), (-1,0), 1, colors.HexColor("#E5E7EB")), # Línea debajo de títulos
+        ('BOTTOMPADDING', (0,0), (-1,0), 8),
+        ('TOPPADDING', (0,1), (-1,-1), 8),
+    ]))
+    elements.append(t_cliente)
+    elements.append(Spacer(1, 25))
 
     # --- C. TABLA DE TRANSACCIONES ---
-    # Encabezados
-    data = [['Fecha', 'Referencia', 'Categoría', 'Descripción', 'Monto']]
+    elements.append(Paragraph("<b>HISTORIAL DE MOVIMIENTOS RECIENTES</b>", styles['Heading3']))
+    elements.append(Spacer(1, 10))
+
+    data_movs = [['FECHA', 'REF.', 'CATEGORÍA', 'DESCRIPCIÓN', 'MONTO']]
     
     for mov in movimientos:
         es_ingreso = (mov.destinatario_id == usuario.id_usuario)
         signo = "+" if es_ingreso else "-"
-        color_monto = colors.HexColor("#059669") if es_ingreso else colors.HexColor("#ef4444")
+        color_monto = colors.HexColor("#16a34a") if es_ingreso else colors.HexColor("#dc2626") # Verde/Rojo vibrante
         
-        if mov.remitente_id is None:
-            categoria = "Recarga"
-        elif es_ingreso:
-            categoria = "Recibido"
-        else:
-            categoria = "Enviado"
+        # Categoría lógica
+        if mov.remitente_id is None: cat = "Recarga"
+        elif es_ingreso: cat = "Recibido"
+        else: cat = "Enviado"
 
-        fecha_fmt = mov.fecha.strftime("%d/%m/%Y")
-        
-        # Estilos de celda
-        cat_fmt = Paragraph(categoria, styles['Normal'])
-        desc_fmt = Paragraph(mov.motivo or "Sin detalle", styles['Normal'])
-        monto_fmt = Paragraph(f"<font color='{color_monto}'><b>{signo} ${float(mov.monto):,.2f}</b></font>", styles['Normal'])
-        
-        # Usamos mov.referencia si existe, sino un placeholder
-        ref_texto = getattr(mov, "referencia", f"REF-{mov.id_transaccion}")
+        # Formato de celdas
+        estilo_celda = ParagraphStyle('cell', parent=styles['Normal'], fontSize=9)
+        estilo_monto = ParagraphStyle('monto', parent=styles['Normal'], fontSize=9, alignment=TA_RIGHT, textColor=color_monto)
 
-        data.append([fecha_fmt, ref_texto, cat_fmt, desc_fmt, monto_fmt])
+        ref_texto = getattr(mov, "referencia", str(mov.id_transaccion))
 
-    # Tabla
-    t_movs = Table(data, colWidths=[0.9*inch, 1.1*inch, 1.2*inch, 2.5*inch, 1.1*inch])
+        data_movs.append([
+            Paragraph(mov.fecha.strftime("%d/%m/%Y"), estilo_celda),
+            Paragraph(ref_texto, estilo_celda),
+            Paragraph(cat, estilo_celda),
+            Paragraph(mov.motivo or "--", estilo_celda),
+            Paragraph(f"<b>{signo} ${float(mov.monto):,.2f}</b>", estilo_monto)
+        ])
+
+    # Tabla Movimientos
+    t_movs = Table(data_movs, colWidths=[0.9*inch, 1.1*inch, 1.0*inch, 3.0*inch, 1.5*inch])
     t_movs.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#003049")),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#003049")), # Cabecera Azul Oscuro
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('ALIGN', (0,0), (-1,0), 'CENTER'),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,0), 9),
-        ('BOTTOMPADDING', (0,0), (-1,0), 10),
-        ('BACKGROUND', (0,1), (-1,-1), colors.HexColor("#F9FAFB")),
-        ('GRID', (0,0), (-1,-1), 1, colors.HexColor("#E5E7EB")),
-        ('ALIGN', (-1,1), (-1,-1), 'RIGHT'),
+        ('BOTTOMPADDING', (0,0), (-1,0), 8),
+        ('TOPPADDING', (0,0), (-1,0), 8),
+        
+        # Filas alternas (Zebra striping)
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#f3f4f6")]),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#e5e7eb")), # Bordes muy finos
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
     ]))
     elements.append(t_movs)
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 40))
 
-    # --- D. LEGAL ---
-    elements.append(Paragraph("_______________________________", styles['Normal']))
-    elements.append(Paragraph("<b>Autorizado por Credora S.A.</b>", styles['Normal']))
+    # --- D. PIE DE PÁGINA / LEGAL ---
+    elements.append(Paragraph("_" * 40, ParagraphStyle('Center', alignment=TA_CENTER)))
+    elements.append(Paragraph("Firma Autorizada", ParagraphStyle('Center', parent=styles['Normal'], alignment=TA_CENTER, fontSize=8)))
     elements.append(Spacer(1, 10))
     
     legal_text = """
-    <font size="8" color="grey">
-    Este documento ha sido generado electrónicamente a través de la plataforma segura de Credora. 
-    La información contenida es confidencial. © 2026 Credora Inc.
+    <font size="7" color="grey">
+    Este documento es un comprobante digital emitido por Credora Fintech S.A. La información contenida es confidencial y para uso exclusivo del titular.
+    Cualquier alteración o falsificación de este documento será sancionada por la ley.
+    © 2026 Credora Inc. | RIF: J-12345678-9
     </font>
     """
-    elements.append(Paragraph(legal_text, styles['Normal']))
+    elements.append(Paragraph(legal_text, ParagraphStyle('Legal', parent=styles['Normal'], alignment=TA_CENTER)))
 
     doc.build(elements)
     buffer.seek(0)

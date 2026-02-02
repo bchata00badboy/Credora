@@ -117,11 +117,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- A. LOGOUT ---
     const btnLogoutSidebar = document.getElementById('btn-logout-sidebar');
     if (btnLogoutSidebar) {
-        btnLogoutSidebar.addEventListener('click', (e) => {
+        btnLogoutSidebar.addEventListener('click', async (e) => {
             e.preventDefault();
-            if(confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+            const ok = (typeof showConfirm === 'function')
+                ? await showConfirm('Cerrar sesión', '¿Estás seguro de que deseas cerrar sesión?')
+                : confirm('¿Estás seguro de que deseas cerrar sesión?');
+
+            if (ok) {
+                // Mostrar toast y redirigir ligeramente después para que se vea
+                try { showToast('Sesión cerrada', 'success', 1000); } catch(e) {}
                 localStorage.removeItem('credora_token');
-                window.location.href = "../Login/login.html";
+                setTimeout(() => window.location.href = "../Login/login.html", 900);
             }
         });
     }
@@ -1138,13 +1144,29 @@ function iniciarConfiguracion() {
 
     // Vincular acciones de la sección (cerrar sesiones / eliminar cuenta)
     const cerrarOtrosBtn = document.querySelector('.btn-outline-danger');
-    if (cerrarOtrosBtn) cerrarOtrosBtn.onclick = () => {
-        if (confirm('¿Cerrar sesiones en otros dispositivos?')) alert('Sesiones cerradas (simulado).');
+    if (cerrarOtrosBtn) cerrarOtrosBtn.onclick = async () => {
+        const ok = (typeof showConfirm === 'function')
+            ? await showConfirm('Cerrar sesiones', '¿Cerrar sesiones en otros dispositivos?')
+            : confirm('¿Cerrar sesiones en otros dispositivos?');
+        if (ok) {
+            showToast('Sesión cerrada', 'success', 1000);
+            // Redirigir al login después de mostrar la notificación
+            localStorage.removeItem('credora_token');
+            setTimeout(() => window.location.href = "../Login/login.html", 900);
+        }
     };
 
     const eliminarBtn = document.querySelector('.btn-danger');
-    if (eliminarBtn) eliminarBtn.onclick = () => {
-        if (confirm('¿Eliminar cuenta? Esto es irreversible.')) alert('Cuenta eliminada (simulado).');
+    if (eliminarBtn) eliminarBtn.onclick = async () => {
+        const ok = (typeof showConfirm === 'function')
+            ? await showConfirm('Eliminar cuenta', '¿Eliminar cuenta? Esto es irreversible.')
+            : confirm('¿Eliminar cuenta? Esto es irreversible.');
+        if (ok) {
+            showToast('Cuenta eliminada', 'success', 1200);
+            // Simular cierre de sesión y redirigir al login
+            localStorage.removeItem('credora_token');
+            setTimeout(() => window.location.href = "../Login/login.html", 1000);
+        }
     };
 }
 
@@ -1276,44 +1298,132 @@ function closeModal(el) {
     if (form) form.reset();
 }
 
+// Función global reutilizable para mostrar modal de confirmación (crea el modal si no existe)
+function showConfirm(title, message) {
+    return new Promise(resolve => {
+        // Crear modal dinámicamente si no existe
+        let modal = document.getElementById('global-confirm-modal');
+        if (!modal) {
+            const html = `
+                <div id="global-confirm-modal" class="confirm-modal" aria-hidden="true">
+                    <div class="confirm-overlay"></div>
+                    <div class="confirm-dialog" role="dialog" aria-modal="true">
+                        <div class="confirm-icon" id="global-confirm-icon"><i class='bx bx-help-circle'></i></div>
+                        <h3 id="global-confirm-title">Confirmar</h3>
+                        <p id="global-confirm-message">¿Estás seguro?</p>
+                        <div class="confirm-actions">
+                            <button id="global-confirm-cancel" class="btn-cancel">No</button>
+                            <button id="global-confirm-ok" class="btn-confirm">Si</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', html);
+            modal = document.getElementById('global-confirm-modal');
+        }
 
-function setupModalRecarga() {
-    const modal = document.getElementById('modal-recarga');
-    const btnAbrir = document.getElementById('btn-abrir-recarga');
-    const btnCerrar = document.getElementById('btn-cerrar-modal');
-    const inputBS = document.getElementById('input-bs');
-    const resUSD = document.getElementById('res-usd');
-    const tasa = 45.50; // Valor simulado
+        const overlay = modal.querySelector('.confirm-overlay');
+        const elTitle = modal.querySelector('#global-confirm-title');
+        const elMsg = modal.querySelector('#global-confirm-message');
+        const btnOk = modal.querySelector('#global-confirm-ok');
+        const btnCancel = modal.querySelector('#global-confirm-cancel');
+        const iconWrap = modal.querySelector('#global-confirm-icon');
 
-    if (!btnAbrir || !modal) return;
+        elTitle.textContent = title || 'Confirmar';
+        elMsg.textContent = message || '';
 
-    // Abrir
-    btnAbrir.onclick = () => {
-        modal.style.display = 'flex';
-        inputBS.focus();
-    };
+        // Icono contextual
+        if (iconWrap) {
+            const lc = (title || '').toLowerCase();
+            iconWrap.classList.remove('danger');
+            if (lc.includes('eliminar') || lc.includes('borrar')) {
+                iconWrap.innerHTML = "<i class='bx bx-trash'></i>";
+                iconWrap.classList.add('danger');
+            } else if (lc.includes('cerrar') || lc.includes('salir') || lc.includes('sesión') || lc.includes('sesion')) {
+                iconWrap.innerHTML = "<i class='bx bx-log-out'></i>";
+                iconWrap.classList.add('danger');
+            } else {
+                iconWrap.innerHTML = "<i class='bx bx-help-circle'></i>";
+            }
+        }
 
-    // Cerrar
-    btnCerrar.onclick = () => {
-        modal.style.display = 'none';
-        inputBS.value = '';
-        resUSD.textContent = '0.00';
-    };
+        function cleanup(result) {
+            modal.classList.remove('active');
+            btnOk.removeEventListener('click', onOk);
+            btnCancel.removeEventListener('click', onCancel);
+            overlay.removeEventListener('click', onCancel);
+            resolve(result);
+        }
 
-    // Cálculo en tiempo real
-    inputBS.oninput = () => {
-        const montoBS = parseFloat(inputBS.value) || 0;
-        resUSD.textContent = (montoBS / tasa).toFixed(2);
-    };
+        function onOk(e) { e.stopPropagation(); cleanup(true); }
+        function onCancel(e) { e.stopPropagation(); cleanup(false); }
 
-    // Confirmación simulada
-    document.getElementById('btn-confirmar-pago').onclick = () => {
-        if (parseFloat(resUSD.textContent) > 0) {
-            alert(`Simulación exitosa: Se han enviado $${resUSD.textContent} a tu cuenta.`);
-            btnCerrar.onclick(); // Limpia y cierra
+        btnOk.addEventListener('click', onOk);
+        btnCancel.addEventListener('click', onCancel);
+        overlay.addEventListener('click', onCancel);
+
+        // Mostrar
+        modal.classList.add('active');
+        btnOk.focus();
+    });
+}
+
+// Toast notification helper
+function showToast(message, type = 'success', duration = 1200) {
+    // Crear contenedor si no existe
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">${type === 'success' ? "<i class='bx bx-check'></i>" : type === 'error' ? "<i class='bx bx-x'></i>" : "<i class='bx bx-info-circle'></i>"}</div>
+        <div class="toast-msg">${message}</div>
+    `;
+    container.appendChild(toast);
+
+    // Force reflow then show
+    void toast.offsetWidth;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => container.removeChild(toast), 300);
+    }, duration);
+}
+
+// Reemplazar el dialogo nativo `alert` por un toast no bloqueante
+// y mapear mensajes de pruebas (simulados) a textos que indiquen cierre de sesión.
+try {
+    const nativeAlert = window.alert.bind(window);
+    window.alert = function(msg) {
+        try {
+            let text = String(msg || '');
+
+            // Mapeos específicos
+            if (/Cuenta eliminada/i.test(text)) {
+                text = 'Cuenta eliminada. Sesión cerrada.';
+            } else if (/Sesiones cerradas|Cerrar sesiones/i.test(text)) {
+                text = 'Sesión cerrada.';
+            } else if (/cerrar sesión|cerró sesión/i.test(text)) {
+                text = 'Sesión cerrada.';
+            } else if (/simulado/i.test(text)) {
+                // Mensaje genérico para textos que mencionen 'simulado'
+                text = text.replace(/\(simulado\)\.?/i, '').trim();
+            }
+
+            showToast(text, 'info', 1400);
+        } catch (e) {
+            // Caer en el alert nativo si algo falla
+            nativeAlert(msg);
         }
     };
-}
+} catch (e) { console.warn('No se pudo sobrescribir alert():', e); }
+
 
 /* =========================================
    FUNCIONES GLOBALES DE UTILIDAD

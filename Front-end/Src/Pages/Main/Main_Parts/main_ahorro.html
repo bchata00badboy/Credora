@@ -1,0 +1,113 @@
+<div class="content-section">
+    <header>
+        <h1>Mis Metas Financieras</h1>
+        <p>Gestiona tus objetivos y visualiza tu progreso</p>
+    </header>
+
+    <div class="dashboard-grid-kpi">
+        
+        <div class="card">
+            <div class="kpi-card-content">
+                <div class="kpi-text">
+                    <h3>Metas Activas</h3>
+                    <h2 id="kpiCount">0</h2>
+                </div>
+                <div class="kpi-icon-wrapper">
+                    <i class="fa-solid fa-bullseye"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="kpi-card-content">
+                <div class="kpi-text">
+                    <h3>Ahorro Total</h3>
+                    <h2 id="kpiTotal">$0.00</h2>
+                </div>
+                <div class="kpi-icon-wrapper kpi-green">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="kpi-card-content">
+                <div class="kpi-text">
+                    <h3>Progreso General</h3>
+                    <h2 id="kpiGlobal">0%</h2>
+                </div>
+                <div class="kpi-icon-wrapper kpi-red">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gridMetas" class="goals-grid-container">
+        <div class="empty-state">
+            <i class="fa-solid fa-clipboard-list" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <h3>No tienes metas activas</h3>
+            <p>Usa el botón + para empezar a ahorrar.</p>
+        </div>
+    </div>
+</div>
+
+<button class="fab-main" onclick="abrirModal('modalCrear')">
+    <i class="fa-solid fa-plus"></i>
+</button>
+
+<div class="modal-overlay" id="modalCrear">
+    <div class="modal-content"> <div class="modal-header">
+            <h2>Nueva Meta</h2>
+            <button class="close-modal" onclick="intentarCerrarModal('modalCrear')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre del objetivo</label>
+                <input type="text" id="inNombre" placeholder="Ej. Viaje a Cancún">
+            </div>
+            <div class="form-group">
+                <label>Monto Objetivo</label>
+                <div class="monto-input-container">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="inMonto" class="input-monto" placeholder="0.00" min="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Fecha Límite</label>
+                <input type="date" id="inFecha">
+            </div>
+            <button class="btn-support" style="background: var(--color-surface); color: white; width: 100%; justify-content: center;" onclick="guardarMeta()">
+                Crear Meta
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalAbonar">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Registrar Ahorro</h2>
+            <button class="close-modal" onclick="cerrarModal('modalAbonar')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom: 20px; color: var(--color-text-secondary);">
+                Ingresa la cantidad a depositar en esta meta.
+            </p>
+            <div class="form-group">
+                <label>Monto a depositar</label>
+                <div class="monto-input-container">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="inDeposito" class="input-monto" placeholder="0.00" min="1">
+                </div>
+            </div>
+            <button class="btn-support" style="background: var(--color-surface); color: white; width: 100%; justify-content: center;" onclick="confirmarDeposito()">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>

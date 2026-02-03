@@ -371,47 +371,134 @@ form { width: 100%; max-width: 260px; }
 
 
 /* =======================================
-   CORRECCIÓN DEL MODAL DE VERIFICACIÓN 
+   NUEVO ESTILO MODAL DE VERIFICACIÓN
+   (Igual al de recuperar contraseña)
    ======================================= */
 
 #modal-verify {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7); /* Fondo un poco más oscuro */
-    backdrop-filter: blur(8px);      /* Blur más fuerte */
-    z-index: 10000 !important;       
-    
-    /* --- CORRECCIÓN CRÍTICA --- */
-    display: none;        /* JS lo cambia a flex */
-    opacity: 1 !important;       /* Forzamos que se vea (sobrescribe .modal-overlay) */
-    visibility: visible !important; /* Forzamos visibilidad */
-    
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 10000 !important;
+    display: none; /* Controlado por JS (flex al activar) */
     justify-content: center;
     align-items: center;
 }
 
-/* Estilo para la caja interna del modal de verificación */
+/* Caja del modal específica para verificación */
 #modal-verify .modal-box {
-    background: #fff;
-    padding: 40px 30px;
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background: linear-gradient(180deg, #ffffff, #fbfbff);
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 18px 48px rgba(3, 10, 20, 0.28);
     text-align: center;
-    max-width: 400px;
+    max-width: 420px;
     width: 90%;
-    border: 2px solid #003049; /* Borde elegante */
-    animation: zoomIn 0.3s ease forwards; /* Forwards asegura que se quede ahí */
-    transform: scale(0.8); /* Inicio de la animación */
+    border: 1px solid rgba(0, 48, 73, 0.06);
+    animation: popInVerify 0.4s cubic-bezier(.2,.9,.3,1);
 }
 
-/* Animación de entrada */
-@keyframes zoomIn {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+@keyframes popInVerify {
+    0% { transform: translateY(-12px) scale(0.98); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
 }
+
+/* Header con línea azul animada */
+#modal-verify .modal-header {
+    background: transparent;
+    padding: 18px 20px 8px;
+    color: #072233;
+    display: flex;
+    justify-content: center; /* Centrado para verificación */
+    position: relative;
+    border: none; /* Quitamos bordes antiguos */
+}
+
+#modal-verify .modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #072233;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+#modal-verify .modal-header::after {
+    content: '';
+    position: absolute;
+    left: 18px; right: 18px; bottom: 10px;
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #2b8fd6, #0b6b9a);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: slideLineVerify 0.6s cubic-bezier(.2,.9,.3,1) forwards 0.2s;
+}
+
+@keyframes slideLineVerify { to { transform: scaleX(1); } }
+
+/* Cuerpo y Texto */
+#modal-verify .modal-body {
+    padding: 14px 8px;
+    overflow: visible; /* Importante para las sombras */
+}
+
+#modal-verify .modal-body p {
+    margin: 8px 0 20px;
+    color: #54606a;
+    font-size: 14px;
+}
+
+/* Input del Código */
+#modal-verify .input-code {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 15px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 5px;
+    text-align: center;
+    font-size: 24px;
+    letter-spacing: 8px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+#modal-verify .input-code:focus {
+    background: #fff;
+    border-color: #0b6b9a;
+    box-shadow: 0 0 0 4px rgba(11, 107, 154, 0.1);
+    outline: none;
+}
+
+/* Botón Píldora con Sombra Profunda */
+#modal-verify .btn {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #7b0000 0%, #041a2b 100%);
+    color: #fff;
+    border: none;
+    /* LA SOMBRA EXACTA SOLICITADA */
+    box-shadow: 0 10px 30px rgba(3, 10, 20, 0.32), inset 0 -6px 24px rgba(0, 0, 0, 0.08);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#modal-verify .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba(3, 10, 20, 0.36);
+}
+
+#modal-verify .btn:active { transform: translateY(1px); }
+
+
 
 
 /* =======================================================

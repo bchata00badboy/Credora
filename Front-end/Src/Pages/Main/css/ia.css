@@ -30,7 +30,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0b3d91 0%, #0a2c6b 100%);
+    background: linear-gradient(90deg, var(--color-surface) 0%, var(--ai-blue-dark) 100%);
+    color: #fff;;
     transition: all 0.3s ease;
     z-index: 9999;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -55,6 +56,13 @@ body.show-chatbot .chatbot-toggler { transform: scale(0) rotate(180deg); opacity
     transition: all 0.28s cubic-bezier(0.22, 0.9, 0.3, 1);
     z-index: 9998;
     border: 1px solid rgba(6,50,120,0.08);
+}
+/* Ocultar FAB cuando el chatbot está abierto (evita solapamiento) */
+body.show-chatbot .fab-main {
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
 }
 body.show-chatbot .chatbot-interface { opacity: 1; pointer-events: auto; transform: scale(1); }
 

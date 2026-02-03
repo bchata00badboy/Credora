@@ -132,6 +132,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // También enlazar el botón superior de cierre de sesión si existe
+    const btnLogoutTop = document.getElementById('btn-logout-top');
+    if (btnLogoutTop) {
+        btnLogoutTop.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const ok = (typeof showConfirm === 'function')
+                ? await showConfirm('Cerrar sesión', '¿Estás seguro de que deseas cerrar sesión?')
+                : confirm('¿Estás seguro de que deseas cerrar sesión?');
+
+            if (ok) {
+                try { showToast('Sesión cerrada', 'success', 1000); } catch(e) {}
+                localStorage.removeItem('credora_token');
+                setTimeout(() => window.location.href = "../Login/login.html", 900);
+            }
+        });
+    }
+
     // --- B. MINIMIZAR SIDEBAR ---
     if (menuBtn && sidebar) {
         menuBtn.addEventListener('click', () => {

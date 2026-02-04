@@ -11,6 +11,46 @@ const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn');
 const loginBtn = document.querySelector('.login-btn');
 
+// Helper local showToast (usa las clases definidas en login.css)
+function ensureToastContainer() {
+    let c = document.querySelector('.toast-container');
+    if (!c) {
+        c = document.createElement('div');
+        c.className = 'toast-container';
+        document.body.appendChild(c);
+    }
+    return c;
+}
+
+function showToast(message, type = 'info', duration = 1600) {
+    try {
+        const container = ensureToastContainer();
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+
+        const icon = document.createElement('div');
+        icon.className = 'toast-icon';
+        icon.innerHTML = type === 'success' ? "<i class='bx bx-check'></i>" : type === 'error' ? "<i class='bx bx-x'></i>" : "<i class='bx bx-info-circle'></i>";
+
+        const msg = document.createElement('div');
+        msg.className = 'toast-msg';
+        msg.innerText = message;
+
+        t.appendChild(icon);
+        t.appendChild(msg);
+        container.appendChild(t);
+
+        // force reflow then show
+        void t.offsetWidth;
+        t.classList.add('show');
+
+        setTimeout(() => {
+            t.classList.remove('show');
+            setTimeout(() => { try { container.removeChild(t); } catch(e){} }, 300);
+        }, duration);
+    } catch (e) { console.warn('showToast error', e); }
+}
+
 /* ==========================================================================
    2. INTERFAZ DE USUARIO Y ANIMACIONES (UI)
    ========================================================================== */
@@ -146,11 +186,11 @@ if (formLogin) {
                 }
 
             } else {
-                alert("❌ " + (data.detail || "Credenciales incorrectas"));
+                showToast("❌ " + (data.detail || "Credenciales incorrectas"), 'error');
             }
         } catch (error) {
             console.error(error);
-            alert("Error de conexión con el servidor.");
+            showToast("Error de conexión con el servidor.", 'error');
         } finally {
             btn.innerText = txtOriginal; btn.disabled = false;
         }
@@ -170,7 +210,7 @@ if (formRegister) {
         const terms = document.getElementById('checkTerms').checked;
         const btn = formRegister.querySelector('button');
 
-        if (pass !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
+        if (pass !== confirmPass) { showToast("Las contraseñas no coinciden.", 'error'); return; }
         // Validar reglas de contraseña
         const rulesOk = validatePasswordRules(pass);
         if (!rulesOk) {
@@ -179,7 +219,7 @@ if (formRegister) {
             errEl.textContent = 'Tu contraseña debe cumplir las reglas indicadas.';
             return;
         }
-        if (!terms) { alert("Acepta los términos para continuar."); return; }
+        if (!terms) { showToast("Acepta los términos para continuar.", 'info'); return; }
 
         btn.innerText = "Procesando..."; btn.disabled = true;
 
@@ -212,11 +252,11 @@ if (formRegister) {
                 formRegister.reset(); // Limpiar formulario
                 resetPasswordRules();
             } else {
-                alert("⚠️ " + (data.detail || "Error al registrarse."));
+                showToast("⚠️ " + (data.detail || "Error al registrarse."), 'error');
             }
         } catch (error) {
             console.error(error);
-            alert("Error de conexión con el servidor.");
+            showToast("Error de conexión con el servidor.", 'error');
         } finally {
             btn.innerText = "Registrarse"; btn.disabled = false;
         }
@@ -277,7 +317,7 @@ if (btnVerifyAction) {
         const email = localStorage.getItem('temp_email');
         const code = document.getElementById('verify-code').value.trim();
 
-        if(!code || code.length !== 6) { alert("Ingresa el código de 6 dígitos."); return; }
+        if(!code || code.length !== 6) { showToast("Ingresa el código de 6 dígitos.", 'info'); return; }
 
         btnVerifyAction.innerText = "Validando..."; btnVerifyAction.disabled = true;
 
@@ -289,15 +329,15 @@ if (btnVerifyAction) {
             });
 
             if (res.ok) {
-                alert("✅ ¡Cuenta verificada!\nAhora puedes iniciar sesión.");
+                showToast("✅ ¡Cuenta verificada!\nAhora puedes iniciar sesión.", 'success');
                 window.location.reload(); // Recargar para ir al login limpio
             } else {
                 const data = await res.json();
-                alert("❌ " + (data.detail || "Código inválido."));
+                showToast("❌ " + (data.detail || "Código inválido."), 'error');
                 btnVerifyAction.innerText = "Verificar"; btnVerifyAction.disabled = false;
             }
         } catch (e) {
-            alert("Error de conexión.");
+            showToast("Error de conexión.", 'error');
             btnVerifyAction.innerText = "Verificar"; btnVerifyAction.disabled = false;
         }
     });
@@ -321,7 +361,7 @@ const btnSendCode = document.getElementById('btn-send-code');
 if (btnSendCode) {
     btnSendCode.onclick = async () => {
         const email = document.getElementById('recover-email').value.trim();
-        if(!email) return alert("Ingresa tu correo.");
+        if(!email) return showToast("Ingresa tu correo.", 'info');
 
         localStorage.setItem('recover_email', email);
         btnSendCode.innerText = "Enviando..."; btnSendCode.disabled = true;
@@ -335,8 +375,8 @@ if (btnSendCode) {
             
             document.getElementById('recover-step-1').style.display = 'none';
             document.getElementById('recover-step-2').style.display = 'block';
-            alert("Revisa tu correo para ver el código.");
-        } catch (e) { alert("Error de conexión."); }
+            showToast("Revisa tu correo para ver el código.", 'info');
+        } catch (e) { showToast("Error de conexión.", 'error'); }
         finally { btnSendCode.innerText = "Enviar Código"; btnSendCode.disabled = false; }
     };
 }
@@ -349,7 +389,7 @@ if (btnResetPass) {
         const code = document.getElementById('recover-code').value.trim();
         const newPass = document.getElementById('recover-new-pass').value.trim();
 
-        if(!code || !newPass) return alert("Completa todos los campos.");
+        if(!code || !newPass) return showToast("Completa todos los campos.", 'info');
 
         btnResetPass.innerText = "Procesando..."; btnResetPass.disabled = true;
 
@@ -361,13 +401,13 @@ if (btnResetPass) {
             });
 
             if (res.ok) {
-                alert("✅ Contraseña actualizada. Inicia sesión.");
+                showToast("✅ Contraseña actualizada. Inicia sesión.", 'success');
                 window.location.reload();
             } else {
-                alert("❌ Código incorrecto.");
+                showToast("❌ Código incorrecto.", 'error');
                 btnResetPass.innerText = "Cambiar Contraseña"; btnResetPass.disabled = false;
             }
-        } catch (e) { alert("Error de conexión."); }
+        } catch (e) { showToast("Error de conexión.", 'error'); }
     };
 }
 

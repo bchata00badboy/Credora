@@ -1,0 +1,112 @@
+<!-- Front-end/Src/Pages/MainComercio/DashboardComercio.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credora - Dashboard</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/MainCom.css">
+    <link rel="stylesheet" href="css/graficaCom.css">
+    <link rel="stylesheet" href="css/iaCom.css">
+    <link rel="stylesheet" href="css/profileCom.css">
+    <link rel="stylesheet" href="css/kycCom.css">
+    <link rel="stylesheet" href="css/loaderCom.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" referrerpolicy="no-referrer" />
+
+</head>
+<body class="app-root">
+
+    <div id="preloader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">CREDORA</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="sidebar minimize" id="sidebar">
+        <div class="logo_content">
+            <img src="../../Assets/Icons/Favicon.png" alt="Logo">
+            <div class="logo_name">Credora</div>
+        </div>
+
+        <div class="input-box">
+            <i class='bx bx-search'></i>
+            <input type="text" placeholder="Buscar..." id="searchInput">
+        </div>
+
+        <ul class="nav_list">
+            <li style="--i:1">
+                <a href="#" class="active nav-link menu-link" data-vista="Main_Parts/main_homeCom.html">
+                    <i class='bx bx-home-smile'></i>
+                    <span class="links_name">Inicio</span>
+                </a>
+            </li>
+            <li style="--i:2">
+                <a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_movCom.html">
+                    <i class='bx bx-list-check'></i>
+                    <span class="links_name">Movimientos</span>
+                </a>
+            </li>
+
+            <li style="--i:3" id="transfer-item">
+                <a href="#" class="dropdown-trigger nav-link">
+                    <i class='bx bx-send'></i>
+                    <span class="links_name">Transferencia</span>
+                    <i class='bx bx-chevron-down arrow'></i>
+                </a>
+                <div class="submenu-wrapper">
+                    <a href="#" class="nav-link sub-menu-link" data-vista="Main_Parts/main_transf1Com.html">
+                        <i class='bx bx-user'></i><span class="links_name">Transferir</span>
+                    </a>
+                    <a href="#" class="nav-link sub-menu-link" data-vista="Main_Parts/main_mov_dataCom.html">
+                        <i class='bx bx-file-find'></i><span class="links_name">Ver mis datos</span>
+                    </a>
+
+                    <a href="#" class="nav-link sub-menu-link" data-vista="Main_Parts/main_RetirarCom.html">
+                        <i class='bx bx-wallet'></i><span class="links_name">Retirar Fondos</span>
+                    </a>
+                </div>
+            </li>
+            <li style="--i:5">
+                <a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_configCom.html">
+                    <i class='bx bx-cog'></i>
+                    <span class="links_name">Configuración</span>
+                </a>
+            </li>
+            <li style="--i:6">
+                <a href="#" class="nav-link" id="btn-logout-sidebar">
+                    <i class='bx bx-exit'></i>
+                    <span class="links_name">Cerrar Sesión</span>
+                </a>
+            </li>
+            <li class="divider" style="--i:7"></li>
+            <li class="footer_div" style="--i:9">
+                <a href="#" class="nav-link menu-link" data-vista="Main_Parts/main_profileCom.html"><i class='bx bx-id-card'></i><span class="links_name">Perfil</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Overlay que aparece al abrir la sidebar -->
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- Botón de notificaciones en la esquina superior derecha -->
+    <div class="top-actions">
+        <button id="notif-button" class="notif-btn" aria-label="Notificaciones" title="Notificaciones" onclick="window.cargarVista && window.cargarVista('Main_Parts/main_notifCom.html')">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notif-badge">0</span>
+        </button>
+    </div>
+
+    <main class="home_content" id="contenedor-dinamico"></main>
+
+    <script src="js/themeCom.js"></script>
+    <script src="js/api.js"></script> 
+    <script src="js/MainCom.js"></script>
+    <script src="js/iaCom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/graficaCom.js"></script>
+
+</body>
+</html>

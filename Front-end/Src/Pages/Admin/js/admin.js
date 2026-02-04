@@ -184,11 +184,11 @@ window.enviarVeredicto = async (aprobado) => {
         });
 
         if (res.ok) {
-            alert(`✅ Usuario ${aprobado ? 'APROBADO' : 'RECHAZADO'}`);
+            showToast(`✅ Usuario ${aprobado ? 'APROBADO' : 'RECHAZADO'}`, 'success');
             cerrarModalKYC();
             cargarDashboard();
         } else {
-            alert("Error al procesar");
+            showToast("Error al procesar", 'error');
         }
     } catch (e) { console.error(e); }
 };

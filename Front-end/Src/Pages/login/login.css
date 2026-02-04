@@ -609,3 +609,43 @@ form { width: 100%; max-width: 260px; }
     #modal-recover .modal-header h3 { font-size: 18px; }
     #modal-recover .modal-header h3::after { width: 56px; height: 3px; }
 }
+
+/* ==========================
+   TOASTS / NOTIFICACIONES
+   Diseño similar al admin (sombra profunda, bordes redondeados)
+   ========================== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 11000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast {
+    pointer-events: auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-width: 240px;
+    max-width: 420px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(3,10,20,0.32);
+    color: #fff;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 260ms ease, transform 260ms cubic-bezier(.2,.9,.3,1);
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast .toast-icon { width: 36px; height: 36px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.toast .toast-msg { flex: 1; font-size: 14px; line-height:1.2; color: inherit; }
+.toast.success { background: linear-gradient(90deg,#059669,#047857); }
+.toast.error   { background: linear-gradient(90deg,#ef4444,#b91c1c); }
+.toast.info    { background: linear-gradient(90deg,#0ea5e9,#0369a1); }
+
+/* modo oscuro ligero dentro del login (si existiera) */
+body.dark .toast { box-shadow: 0 12px 36px rgba(0,0,0,0.6); }

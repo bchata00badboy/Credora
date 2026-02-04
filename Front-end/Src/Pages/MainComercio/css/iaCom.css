@@ -1,0 +1,212 @@
+/* Front-end/Src/Pages/Main/css/ia.css */
+
+
+/* =======================================================
+   1. VARIABLES GLOBALES Y RESET
+   ======================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+/* =======================================================
+   2. ESTILOS CHATBOT FLOTANTE
+   ======================================================= */
+
+/* Botón Flotante */
+.chatbot-toggler {
+    position: fixed;
+    bottom: 20px;
+    right: 35px;
+    outline: none;
+    border: none;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(90deg, var(--color-surface) 0%, var(--ai-blue-dark) 100%);
+    color: #fff;;
+    transition: all 0.3s ease;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.chatbot-toggler i { color: #fff; font-size: 1.4rem; transition: all 0.3s ease; }
+body.show-chatbot .chatbot-toggler { transform: scale(0) rotate(180deg); opacity: 0; pointer-events: none; }
+
+/* Ventana Principal */
+.chatbot-interface {
+    position: fixed;
+    right: 35px;
+    bottom: 20px;
+    width: 380px;
+    background: #071833;
+    border-radius: 18px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+    transform-origin: bottom right;
+    box-shadow: 0 10px 30px rgba(5,30,90,0.35);
+    transition: all 0.28s cubic-bezier(0.22, 0.9, 0.3, 1);
+    z-index: 9998;
+    border: 1px solid rgba(6,50,120,0.08);
+}
+/* Ocultar FAB cuando el chatbot está abierto (evita solapamiento) */
+body.show-chatbot .fab-main {
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+body.show-chatbot .chatbot-interface { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+/* Header */
+.ai-header {
+    background: linear-gradient(135deg, #0b3d91 0%, #0a2c6b 100%);
+    padding: 14px 18px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.header-info { display: flex; align-items: center; gap: 12px; }
+.ai-avatar {
+    width: 40px; height: 40px;
+    background: #0b66d1;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(11,102,209,0.18);
+}
+.ai-text h3 { margin: 0; font-size: 0.95rem; color: #fff; font-weight: 600; }
+.ai-text p { margin: 0; font-size: 0.75rem; color: #8899a6; }
+.dot-online { height: 7px; width: 7px; background-color: #00d26a; border-radius: 50%; display: inline-block; margin-right: 3px; }
+
+.close-btn {
+    position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: #8899a6; cursor: pointer;
+    font-size: 1.1rem; transition: all 0.3s; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; border-radius: 50%;
+}
+.close-btn:hover { color: #fff; background-color: rgba(255,255,255,0.06); transform: translateY(-50%) rotate(10deg); }
+
+/* --- SCROLLBAR INVISIBLE: completamente ocultas (chat y sugerencias) --- */
+
+/* 1. Área de mensajes */
+.chat-box {
+    overflow-y: auto;
+    height: 320px;
+    padding: 18px;
+    background: linear-gradient(180deg, rgba(3,18,45,0.12), rgba(3,18,45,0.02));
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    /* Firefox */
+    scrollbar-width: none;
+    /* IE/Edge */
+    -ms-overflow-style: none;
+}
+
+/* WebKit: ocultar completamente la barra */
+#chatBox::-webkit-scrollbar { display: none; width: 0; height: 0; background: transparent; }
+
+/* 2. Área de sugerencias (Chips) */
+.suggestions-bar {
+    display: flex; gap: 8px; overflow-x: auto;
+    padding: 0 18px 12px 18px;
+    background: transparent;
+
+    /* Firefox */
+    scrollbar-width: none;
+    /* IE/Edge */
+    -ms-overflow-style: none;
+}
+
+.suggestions-bar::-webkit-scrollbar { display: none; width: 0; height: 0; background: transparent; }
+
+/* --- FIN SCROLLBAR INVISIBLE --- */
+
+.chat { display: flex; list-style: none; }
+.chat .msg-content {
+    max-width: 82%; padding: 12px 16px; font-size: 0.95rem;
+    border-radius: 18px; line-height: 1.45; color: #e9f6f2;
+    box-shadow: 0 6px 18px rgba(3,30,27,0.12);
+}
+.chat.incoming { justify-content: flex-start; }
+.chat.incoming .msg-content { background: #0f3566; color: #f1fbff; border-bottom-left-radius: 18px; }
+.chat.outgoing { justify-content: flex-end; }
+.chat.outgoing .msg-content { background: #0f4a8a; color: #fff; border-bottom-right-radius: 18px; }
+
+.chip {
+    padding: 7px 14px; font-size: 0.82rem; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.04); border-radius: 999px; color: #d9f3ee;
+    cursor: pointer; white-space: nowrap; transition: 0.18s ease;
+}
+.chip:hover { background: rgba(11,61,145,0.12); color: #eaf4ff; border-color: rgba(11,61,145,0.18); transform: translateY(-2px); }
+
+/* Input Area */
+.chat-input {
+    display: flex; gap: 8px; align-items: center; padding: 14px 18px;
+    border-top: 1px solid rgba(255,255,255,0.03); background: transparent;
+}
+.chat-input textarea {
+    height: 44px; width: 100%; border: none; outline: none; resize: none;
+    padding: 12px 15px; font-size: 0.92rem; border-radius: 999px;
+    background: rgba(255,255,255,0.02); color: #e9f6f2; font-family: inherit;
+}
+
+/* Ocultar scrollbar del textarea de entrada (cross-browser) */
+.chat-input textarea {
+    /* Firefox */
+    scrollbar-width: none;
+}
+.chat-input textarea::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.chat-input button {
+    align-self: flex-end; color: #fff; height: 40px; width: 40px; border: none;
+    background: linear-gradient(135deg,#0b3d91,#0a2c6b); border-radius: 50%; font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 2px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 6px 14px rgba(11,61,145,0.18);
+}
+.chat-input button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(11,61,145,0.22); }
+
+@media (max-width: 490px) {
+    .chatbot-interface { right: 0; bottom: 0; height: 100%; width: 100%; border-radius: 0; }
+    .chatbot-interface .chat-box { height: calc(100% - 140px); }
+    .chatbot-toggler { bottom: 20px; right: 20px; }
+}
+
+/* Animación de 3 Puntos (Typing) */
+.typing-animation {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 0;
+    min-height: 20px; /* Asegura altura mínima */
+}
+
+.typing-animation .dot {
+    height: 7px;
+    width: 7px;
+    border-radius: 50%;
+    background-color: #b0b3b8;
+    opacity: 0.6;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-animation .dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-animation .dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-animation .dot:nth-child(3) { animation-delay: 0; }
+
+@keyframes typingBounce {
+    0%, 70%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}

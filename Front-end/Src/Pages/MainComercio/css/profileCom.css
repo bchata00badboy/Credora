@@ -1,0 +1,143 @@
+/* Front-end\Src\Pages\Main\css\profile.css */
+
+/* Estilos específicos para main_profile.html */
+
+#vista-perfil .seguridad .btn.btn-blue {
+    background-color: var(--color-surface); /* azul del programa */
+    color: #ffffff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 160ms ease, transform 120ms ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#vista-perfil .seguridad .btn.btn-blue:hover {
+    background-color: var(--ai-blue-dark);
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* Ajuste para dispositivos pequeños */
+@media (max-width: 520px) {
+    #vista-perfil .seguridad .btn.btn-blue { flex: 1 1 100%; }
+}
+
+/* Centrado del contenedor de botones de seguridad */
+#vista-perfil .seguridad .seguridad-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+#vista-perfil .seguridad .seguridad-actions .btn {
+    min-width: 140px;
+}
+
+/* Sheen animation (brillo deslizante) */
+#vista-perfil .seguridad .btn.btn-blue::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.06), rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+    transform: skewX(-20deg);
+    will-change: left;
+    pointer-events: none;
+}
+
+#vista-perfil .seguridad .btn.btn-blue:hover::after {
+    animation: sheen 900ms ease-in-out;
+}
+
+@keyframes sheen {
+    from { left: -75%; }
+    to { left: 125%; }
+}
+
+#vista-perfil .seguridad .btn.btn-blue:active {
+    transform: translateY(0) scale(0.99);
+}
+
+/* Reglas globales para cualquier botón azul dentro de la vista de perfil (incluye popover) */
+#vista-perfil .btn.btn-blue {
+    background-color: var(--color-surface);
+    color: #ffffff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 160ms ease, transform 120ms ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#vista-perfil .btn.btn-blue:hover {
+    background-color: var(--ai-blue-dark);
+    transform: translateY(-2px) scale(1.02);
+}
+
+#vista-perfil .btn.btn-blue::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.06), rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+    transform: skewX(-20deg);
+    will-change: left;
+    pointer-events: none;
+}
+
+#vista-perfil .btn.btn-blue:hover::after {
+    animation: sheen 900ms ease-in-out;
+}
+
+#vista-perfil .btn.btn-blue:active {
+    transform: translateY(0) scale(0.99);
+}
+
+/* Estilos para las cajas de PIN (Estilo unificado) */
+.pin-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 5px;
+}
+
+.pin-box {
+    width: 50px;
+    height: 50px; /* Un poco más pequeños para que quepan 3 filas */
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 24px;
+    text-align: center;
+    background: #f8f9fa;
+    color: #003049;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.pin-box:focus {
+    border-color: #003049;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 48, 73, 0.1);
+    outline: none;
+    transform: translateY(-2px);
+}
+
+/* Ajuste para que los labels centrados se vean bien */
+#form-change-pin label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #666;
+}

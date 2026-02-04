@@ -1,0 +1,124 @@
+<!-- /Front-end/Src/Pages/Main/Main_Parts/main_profile.html -->
+<section class="content-section" id="vista-perfil">
+    <header> 
+        <h1>Mi Perfil</h1>
+        <p>Gestiona tu información personal y seguridad</p>
+    </header>
+
+    <div class="perfil-grid">
+        <div class="card-perfil profile-single" id="profile-single">
+            <div style="display:flex; gap:18px; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:18px; align-items:center;">
+                    <div class="avatar-circle" id="profile-avatar"></div>
+                    <div>
+                        <h2 id="profile-name">Cargando usuario...</h2>
+                        <p class="rol">Cliente Credora</p>
+                    </div>
+                </div>
+                <div style="position:relative;">
+                    <div class="actions-popover" id="profile-actions-popover">
+                        </div>
+                </div>
+            </div>
+
+            <hr style="border:none; height:1px; background:rgba(0, 0, 0, 0); margin:18px 0;" />
+
+            <div class="info-list">
+                <div class="info-row"><span class="label">Correo:</span><span class="value" id="profile-email">...</span></div>
+                <div class="info-row"><span class="label">Nro. Cuenta:</span><span class="value monospace" id="profile-account">...</span></div>
+                <div class="info-row"><span class="label">Nro. Tarjeta:</span><span class="value monospace" id="profile-card">...</span></div>
+                <div class="info-row"><span class="label">Rif:</span><span class="value" id="profile-rif">...</span></div>
+                <div class="info-row"><span class="label">Teléfono:</span><span class="value" id="profile-telefono">...</span></div>
+                <div class="info-row"><span class="label">Comercio:</span><span class="value" id="profile-trade">...</span></div>
+                <div class="info-row"><span class="label">Estado:</span><span class="value status-active" id="profile-status">...</span></div>
+            </div>
+            
+            <div class="seguridad">
+                <h3>Seguridad</h3>
+                <div class="seguridad-actions">
+                    <button class="btn btn-blue register" id="btn-kyc">Verificarse KYC</button>
+                    <button class="btn btn-blue change-pass" data-modal="modal-pass">Cambiar contraseña</button>
+                    <button class="btn btn-blue change-pin" data-modal="modal-pin">Cambiar PIN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-pass" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <h3>Cambiar contraseña</h3>
+                <button class="modal-close" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-change-pass">
+                    <div class="form-group">
+                        <label>Contraseña actual</label>
+                        <input type="password" name="old-pass" placeholder="Contraseña actual" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva contraseña</label>
+                        <input type="password" name="new-pass" placeholder="Nueva contraseña" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar nueva contraseña</label>
+                        <input type="password" name="confirm-pass" placeholder="Confirmar" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-blue">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<div class="modal-overlay" id="modal-pin" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3><i class='bx bxs-lock-alt'></i> Cambiar PIN de Seguridad</h3>
+                <button class="modal-close" aria-label="Cerrar">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="form-change-pin">
+                    
+                    <div class="form-group" style="text-align: center;">
+                        <label style="margin-bottom: 10px; display: block;">PIN Actual</label>
+                        <div class="pin-container" data-group="old">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px dashed #ddd; margin: 15px 0;">
+
+                    <div class="form-group" style="text-align: center;">
+                        <label style="margin-bottom: 10px; display: block;">Nuevo PIN</label>
+                        <div class="pin-container" data-group="new">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="text-align: center;">
+                        <label style="margin-bottom: 10px; display: block;">Confirmar PIN</label>
+                        <div class="pin-container" data-group="confirm">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                            <input type="password" class="pin-box pin-digit" maxlength="1" placeholder="•">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" style="justify-content: center; margin-top: 20px;">
+                        <button type="submit" class="btn btn-blue" style="width: 100%;">Actualizar PIN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

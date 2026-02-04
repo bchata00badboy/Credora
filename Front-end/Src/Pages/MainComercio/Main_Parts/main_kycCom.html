@@ -1,0 +1,103 @@
+<!-- Front-end\Src\Pages\Main\Main_Parts\main_kyc.html -->
+
+<link rel="stylesheet" href="./css/kycCom.css">
+
+<section class="content-section">
+    <header style="margin-bottom: 2rem;">
+        <h1>Verificación de Identidad (KYC)</h1>
+        <p>Sube tu documento para habilitar todas las funciones de Credora.</p>
+    </header>
+
+    <div class="kyc-wrapper">
+        <div style="text-align: right; margin-bottom: 8px;">
+            <a href="#" class="btn-texto" id="btn-back-profile">&larr; Volver al perfil</a>
+        </div>
+        
+        <div id="vista-subida">
+            <form id="form-kyc">
+                <div class="kyc-upload-area" onclick="document.getElementById('doc-id').click()">
+                    <i class='bx bxs-cloud-upload'></i>
+                    <h3>Sube tu Cédula</h3>
+                    <p>Haz clic aquí para seleccionar (JPG o PNG, máx 5MB)</p>
+                    <input type="file" id="doc-id" accept=".jpg, .jpeg, .png" style="display: none;" required>
+                </div>
+                
+                <p id="file-name" style="margin-top: 15px; font-weight: bold; color: #00d26a; min-height: 20px;"></p>
+                
+                <button type="submit" class="btn-confirmar" style="width: 100%; margin-top: 15px;">
+                    <i class='bx bx-scan'></i> Analizar Documento
+                </button>
+            </form>
+        </div>
+
+        <div id="vista-carga" style="display: none; padding: 2rem 0;">
+            <i class='bx bx-loader-alt bx-spin' style="font-size: 3rem; color: #003049;"></i>
+            <h3 style="margin-top: 1rem;">Analizando Documento...</h3>
+            <p style="color: #666;">Nuestra IA está extrayendo tus datos.</p>
+            
+            <div class="progress-container">
+                <div id="barra-progreso" class="progress-bar"></div>
+            </div>
+        </div>
+
+        <div id="vista-resultados" style="display: none;">
+            <h3 class="kyc-title">Datos Extraídos</h3>
+            <form id="form-finalizar-kyc">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="res-nombre" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Cédula Detectada</label>
+                    <input type="text" id="res-cedula" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Estado</label>
+                    <div id="res-vencimiento" class="status-badge">Verificando...</div>
+                </div>
+
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+                
+                <p style="text-align: left; margin-bottom: 10px; font-weight: bold;">Completa tu perfil:</p>
+
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="user-direccion" placeholder="Ej: Av. Bolívar, Casa 12" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" id="user-phone" placeholder="+58 ..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Cuenta</label>
+                    <select id="tipe-user">
+                        <option value="User-Persona">Persona Natural</option>
+                        <option value="User-Business">Negocio</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-confirmar" style="width: 100%;">Finalizar Verificación</button>
+            </form>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    // Manejar botón de regreso al perfil
+    (function(){
+        try {
+            const btn = document.getElementById('btn-back-profile');
+            if (!btn) return;
+            btn.addEventListener('click', function(e){
+                e.preventDefault();
+                if (window.cargarVista) window.cargarVista('Main_Parts/main_profileCom.html');
+                else console.warn('cargarVista no disponible');
+            });
+        } catch(err){ console.warn('Error bind back button', err); }
+    })();
+</script>

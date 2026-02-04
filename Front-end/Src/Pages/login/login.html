@@ -166,16 +166,19 @@
 
 <div id="modal-verify" class="modal-overlay" style="display: none;">
     <div class="modal-box">
+        
         <div class="modal-header">
             <h3>Verifica tu Correo</h3>
-        </div>
-        <div class="modal-body">
-            <p>Ingresa el código que enviamos a tu correo.</p>
-            <div class="input_box">
-                <input type="text" id="verify-code" placeholder="Código" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
             </div>
-            <button id="btn-verify-action" class="btn" style="margin-top: 15px;">Verificar</button>
+
+        <div class="modal-body">
+            <p>Ingresa el código de 6 dígitos que enviamos a tu email.</p>
+
+            <input type="text" id="verify-code" class="input-code" placeholder="000000" maxlength="6">
+
+            <button id="btn-verify-action" class="btn">Verificar</button>
         </div>
+
     </div>
 </div>
 
@@ -207,7 +210,6 @@
     </div>
 </div>
 
-    <!-- <script src="conexion.js"></script> -->
     <script src="login.js"></script>
 </body>
 </html>

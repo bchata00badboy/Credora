@@ -1,4 +1,4 @@
-# Back-end\app\db\sesion.py
+# Back-end\app\db\modelos.py
 
 import enum
 from sqlalchemy import Column, Integer, String, Numeric, Text, DateTime, ForeignKey, Boolean, Enum
@@ -137,13 +137,21 @@ class Negocio(Base):
 
 class MetaFinanciera(Base):
     __tablename__ = 'metafinanciera'
+
     id_meta = Column(Integer, primary_key=True, index=True)
     id_usuario = Column(Integer, ForeignKey('usuario.id_usuario', ondelete="CASCADE"), nullable=False)
+    
     nombre_meta = Column(String(100), nullable=False)
     monto_objetivo = Column(Numeric(15, 2), nullable=False)
     monto_actual = Column(Numeric(15, 2), default=0.00, nullable=False)
-    fecha_limite = Column(DateTime)
-    estado = Column(String(20), default='En Progreso') 
+    
+    fecha_limite = Column(DateTime, nullable=False)
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    
+    estado = Column(String(20), default='En Progreso') # 'En Progreso', 'Finalizado'
+    
+    # Relación inversa (opcional pero útil)
+    usuario = relationship("Usuario", backref="metas")
 
 class ContenidoEducativo(Base):
     __tablename__ = 'contenidoeducativo'

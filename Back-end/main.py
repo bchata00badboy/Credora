@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles # Importante para imágenes
 # --- IMPORTACIONES ---
 from configuracion import CARPETA_SUBIDAS
 from app.db.sesion import engine, Base
-from app.routers import rutas_autenticacion, rutas_billetera, rutas_admin
+from app.routers import rutas_autenticacion, rutas_billetera, rutas_admin, rutas_ahorro
 
 # --- INICIALIZACIÓN BD ---
 Base.metadata.create_all(bind=engine)
@@ -46,6 +46,7 @@ app.mount("/uploads", StaticFiles(directory=CARPETA_SUBIDAS), name="uploads")
 app.include_router(rutas_autenticacion.router, prefix="/api/v1/auth", tags=["Autenticación"])
 app.include_router(rutas_billetera.router, prefix="/api/v1", tags=["Billetera"])
 app.include_router(rutas_admin.router, prefix="/api/v1")
+app.include_router(rutas_ahorro.router, prefix="/api/v1", tags=["Ahorro"])
 
 # --- ROOT ---
 @app.get("/")

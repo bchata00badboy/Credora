@@ -17,7 +17,8 @@ const controladores = {
     'Main_Parts/main_mov_data.html': iniciardatamov,    
     'Main_Parts/main_kyc.html': iniciarKYC, 
     'Main_Parts/main_config.html': iniciarConfiguracion,
-    'Main_Parts/main_educ.html': iniciarEducacion
+    'Main_Parts/main_educ.html': iniciarEducacion,
+    'Main_Parts/main_ahorro.html': () => { if(window.iniciarModuloAhorro) window.iniciarModuloAhorro(); }
 };
 
 /* =========================================

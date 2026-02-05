@@ -157,7 +157,6 @@ if (formLogin) {
     });
 }
 
-// --- B. REGISTRO DE USUARIO (SOLUCIÓN DEL PROBLEMA) ---
 const formRegister = document.getElementById('formRegister');
 if (formRegister) {
     formRegister.addEventListener('submit', async (e) => {
@@ -170,8 +169,8 @@ if (formRegister) {
         const terms = document.getElementById('checkTerms').checked;
         const btn = formRegister.querySelector('button');
 
+        // Validaciones previas
         if (pass !== confirmPass) { alert("Las contraseñas no coinciden."); return; }
-        // Validar reglas de contraseña
         const rulesOk = validatePasswordRules(pass);
         if (!rulesOk) {
             const errEl = document.querySelector('.password-error') || createPasswordError();
@@ -181,6 +180,7 @@ if (formRegister) {
         }
         if (!terms) { alert("Acepta los términos para continuar."); return; }
 
+        // Feedback visual
         btn.innerText = "Procesando..."; btn.disabled = true;
 
         try {
@@ -193,23 +193,30 @@ if (formRegister) {
             const data = await res.json();
 
             if (res.ok) {
-                // ----------------------------------------------------
-                // AQUÍ ESTABA EL ERROR ANTES: NO HACEMOS LOGIN AUTOMÁTICO
-                // ----------------------------------------------------
-                console.log("✅ Usuario creado. Esperando verificación.");
+                console.log("✅ Código enviado. Abriendo modal...");
                 
-                // 1. Guardar correo temporalmente
+                // 1. Guardar correo
                 localStorage.setItem('temp_email', email);
 
-                // 2. Mostrar Modal de Verificación
+                // 2. Mostrar Modal (CORRECCIÓN VISUAL)
                 const modalVerify = document.getElementById('modal-verify');
+                
                 if (modalVerify) {
-                    modalVerify.style.display = 'flex';
-                    modalVerify.style.zIndex = '10000'; // Asegurar que esté encima
-                    container.style.filter = 'blur(5px)'; // Efecto visual
+                    // ELIMINAR EL DISPLAY: NONE DEL HTML
+                    modalVerify.style.display = 'flex'; 
+                    
+                    // Esperar un frame para agregar la clase active (animación)
+                    setTimeout(() => {
+                        modalVerify.classList.add('active');
+                    }, 10);
+                    
+                    if(container) container.style.filter = 'blur(5px)';
+                } else {
+                    console.error("CRÍTICO: No existe el elemento con ID 'modal-verify' en el HTML.");
+                    alert("Por favor revisa tu correo para el código.");
                 }
 
-                formRegister.reset(); // Limpiar formulario
+                formRegister.reset(); 
                 resetPasswordRules();
             } else {
                 alert("⚠️ " + (data.detail || "Error al registrarse."));

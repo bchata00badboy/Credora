@@ -14,15 +14,30 @@ def enviar_correo_generico(destinatario: str, asunto: str, cuerpo_html: str):
     mensaje.attach(MIMEText(cuerpo_html, "html"))
 
     try:
-        context = smtplib.ssl.create_default_context()
-        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=context) as servidor:
-            servidor.login(SMTP_USER, SMTP_PASSWORD)
-            servidor.sendmail(SMTP_USER, destinatario, mensaje.as_string())
+        # LÓGICA HÍBRIDA SEGÚN EL PUERTO
+        if SMTP_PORT == 465:
+            # Conexión SSL Implícita (Gmail/Outlook puerto 465)
+            context = smtplib.ssl.create_default_context()
+            with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=context) as servidor:
+                servidor.login(SMTP_USER, SMTP_PASSWORD)
+                servidor.sendmail(SMTP_USER, destinatario, mensaje.as_string())
+        else:
+            # Conexión STARTTLS (Gmail/Outlook puerto 587)
+            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as servidor:
+                servidor.ehlo()
+                servidor.starttls() # Encriptar conexión
+                servidor.ehlo()
+                servidor.login(SMTP_USER, SMTP_PASSWORD)
+                servidor.sendmail(SMTP_USER, destinatario, mensaje.as_string())
+        
+        print(f"📧 Correo enviado a {destinatario}")
         return True
+
     except Exception as e:
         print(f"❌ Error SMTP: {e}")
         return False
 
+# ... (Las funciones enviar_codigo_registro y enviar_codigo_recuperacion quedan igual) ...
 def enviar_codigo_registro(correo: str, codigo: str):
     html = f"""
     <div style="font-family: Arial; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">

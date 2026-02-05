@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import timedelta
+from datetime import timedelta, datetime
 import random
 from fastapi.security import OAuth2PasswordBearer 
 from app.seguridad.jwt_utils import decodificar_token 
@@ -12,104 +12,112 @@ from pydantic import BaseModel
 
 # Importaciones del proyecto
 from app.db.sesion import get_db
-from app.db.modelos import Usuario # Importamos el modelo para consultas directas
-from app.servicios.servicio_usuarios import crear_usuario, autenticar_usuario, obtener_hash_contrasena
+from app.db.modelos import Usuario, RegistroTemporal, Cuenta 
+from app.servicios.servicio_usuarios import autenticar_usuario, obtener_hash_contrasena
 from app.seguridad.jwt_utils import crear_token_acceso
 from app.esquemas.esquema_usuario import EsquemaRegistro, EsquemaToken, EsquemaUsuario
 from app.servicios.servicio_correo import enviar_codigo_registro, enviar_codigo_recuperacion
 
 router = APIRouter()
 
-# --- CONFIGURACIÓN DE SEGURIDAD PARA ESTE ROUTER ---
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
 def obtener_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decodificar_token(token)
     if payload is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Credenciales inválidas"
-        )
-    
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
     user_id = payload.get("sub")
     usuario = db.query(Usuario).filter(Usuario.id_usuario == user_id).first()
-    
     if usuario is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-        
     return usuario
 
 # --------------------------------------------------------------------------
-# 1. REGISTRO (AHORA CON ENVÍO DE CÓDIGO)
+# 1. REGISTRO (AHORA SÍ USA TABLA TEMPORAL)
 # --------------------------------------------------------------------------
-@router.post("/registro", response_model=EsquemaUsuario)
+@router.post("/registro")
 def registro_usuario(datos: EsquemaRegistro, db: Session = Depends(get_db)):
-    # 1. Verificar si el usuario ya existe
-    usuario_existente = db.query(Usuario).filter(Usuario.correo == datos.correo).first()
-    
+    # A. Verificar si ya es usuario real
+    if db.query(Usuario).filter(Usuario.correo == datos.correo).first():
+        raise HTTPException(status_code=400, detail="Este correo ya está registrado. Inicia sesión.")
+
+    # B. Generar datos
     nuevo_codigo = str(random.randint(100000, 999999))
+    hashed_password = obtener_hash_contrasena(datos.contrasena)
 
-    if usuario_existente:
-        # CASO A: Ya existe y ya validó su cuenta -> ERROR REAL
-        if usuario_existente.correo_verificado:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Este correo ya está registrado y activo. Inicia sesión."
-            )
-        
-        # CASO B: Existe pero es un "Zombie" (No verificado) -> RECICLAR CUENTA
-        # Actualizamos sus datos y le mandamos código nuevo
-        print(f"♻️ Reciclando usuario no verificado: {datos.correo}")
-        usuario_existente.nombre_completo = datos.nombre_completo
-        usuario_existente.hash_contrasena = obtener_hash_contrasena(datos.contrasena)
-        usuario_existente.codigo_verificacion = nuevo_codigo
-        db.commit()
-        db.refresh(usuario_existente)
-        
-        # Reenviar correo
-        enviar_codigo_registro(usuario_existente.correo, nuevo_codigo)
-        return usuario_existente
-
-    # CASO C: Usuario Nuevo (No existe) -> CREAR DESDE CERO
-    try:
-        nuevo_usuario = crear_usuario(db, datos)
-        
-        # Inyectar código manualmente (porque crear_usuario no lo hace por defecto)
-        nuevo_usuario.codigo_verificacion = nuevo_codigo
-        nuevo_usuario.correo_verificado = False
-        db.commit()
-
-        # Enviar Correo
-        enviar_codigo_registro(nuevo_usuario.correo, nuevo_codigo)
-        
-        return nuevo_usuario
-        
-    except Exception as e:
-        db.rollback() # Importante: Deshacer cambios si algo falla
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error al registrar: {str(e)}"
+    # C. Verificar si ya está en temporal (actualizar código)
+    registro_temp = db.query(RegistroTemporal).filter(RegistroTemporal.correo == datos.correo).first()
+    
+    if registro_temp:
+        registro_temp.nombre_completo = datos.nombre_completo
+        registro_temp.hash_contrasena = hashed_password
+        registro_temp.codigo_verificacion = nuevo_codigo
+        registro_temp.fecha_creacion = datetime.utcnow()
+    else:
+        # D. Crear nuevo registro temporal
+        registro_temp = RegistroTemporal(
+            correo=datos.correo,
+            nombre_completo=datos.nombre_completo,
+            hash_contrasena=hashed_password,
+            codigo_verificacion=nuevo_codigo
         )
+        db.add(registro_temp)
+    
+    try:
+        db.commit()
+        # Intentar enviar correo (sin bloquear si falla, para pruebas)
+        enviar_codigo_registro(datos.correo, nuevo_codigo)
+        return {"mensaje": "Código enviado. Revisa tu correo."}
+    except Exception as e:
+        db.rollback()
+        print(f"Error registro: {e}")
+        raise HTTPException(status_code=500, detail="Error interno al registrar.")
 
 # --------------------------------------------------------------------------
-# 2. VERIFICAR CÓDIGO (NUEVO)
+# 2. VERIFICAR CÓDIGO (MIGRA DE TEMPORAL A REAL)
 # --------------------------------------------------------------------------
 @router.post("/verificar-cuenta")
 def verificar_cuenta(correo: str = Body(...), codigo: str = Body(...), db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.correo == correo).first()
+    # 1. Buscar en Temporal
+    temp_user = db.query(RegistroTemporal).filter(RegistroTemporal.correo == correo).first()
     
-    if not usuario:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if not temp_user:
+        # Si no está en temporal, ¿quizás ya se verificó?
+        if db.query(Usuario).filter(Usuario.correo == correo).first():
+             return {"mensaje": "La cuenta ya está activa. Inicia sesión."}
+        raise HTTPException(status_code=404, detail="No se encontró solicitud de registro (o expiró).")
         
-    if usuario.codigo_verificacion != codigo:
+    # 2. Validar Código
+    if temp_user.codigo_verificacion != codigo:
         raise HTTPException(status_code=400, detail="Código incorrecto")
         
-    # Validar
-    usuario.correo_verificado = True
-    usuario.codigo_verificacion = None # Limpiar código
-    db.commit()
+    # 3. CREAR USUARIO REAL
+    nuevo_usuario = Usuario(
+        nombre_completo=temp_user.nombre_completo,
+        correo=temp_user.correo,
+        hash_contrasena=temp_user.hash_contrasena,
+        rol="cliente",
+        correo_verificado=True, 
+        estado_kyc="PENDIENTE"
+    )
+    db.add(nuevo_usuario)
     
-    return {"mensaje": "Cuenta verificada exitosamente"}
+    # 4. BORRAR TEMPORAL
+    db.delete(temp_user)
+    
+    # 5. CREAR BILLETERA
+    db.flush() # Obtener ID del usuario nuevo
+    nueva_cuenta = Cuenta(
+        id_usuario=nuevo_usuario.id_usuario,
+        saldo=0.00,
+        moneda="USD",
+        id_cuenta=int(f"10{random.randint(10000000, 99999999)}") 
+    )
+    nuevo_usuario.numero_cuenta = str(nueva_cuenta.id_cuenta)
+    db.add(nueva_cuenta)
+    
+    db.commit()
+    return {"mensaje": "Verificación exitosa. ¡Bienvenido!"}
 
 # --------------------------------------------------------------------------
 # 3. SOLICITAR RECUPERACIÓN (OLVIDÉ CONTRASEÑA)

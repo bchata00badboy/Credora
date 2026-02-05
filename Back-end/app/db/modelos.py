@@ -160,3 +160,12 @@ class ContenidoEducativo(Base):
     cuerpo_texto = Column(Text)
     nivel_dificultad = Column(String(20))
     puntos_recompensa = Column(Integer, default=10)
+    
+class RegistroTemporal(Base):
+    __tablename__ = 'registro_temporal'
+    
+    correo = Column(String(100), primary_key=True, index=True)
+    nombre_completo = Column(String(100), nullable=False)
+    hash_contrasena = Column(String(255), nullable=False)
+    codigo_verificacion = Column(String(6), nullable=False)
+    fecha_creacion = Column(DateTime, default=datetime.utcnow)

@@ -67,6 +67,16 @@
             </div>
             <div class="item-action"><i class='bx bx-chevron-right'></i></div>
         </button>
+
+        <!-- Botón para reiniciar/mostrar tutorial -->
+        <button id="btn-restart-tutorial" class="settings-item" onclick="localStorage.removeItem('credora_tutorial_shown'); try{ startCredoraTour({force:true}); }catch(e){ /* ignore */ }">
+            <div class="item-icon blue-icon"><i class='bx bx-help-circle'></i></div>
+            <div class="item-content">
+                <h4>Ver Tutorial</h4>
+                <p>Repetir el tour de la billetera en cualquier momento.</p>
+            </div>
+            <div class="item-action"><i class='bx bx-chevron-right'></i></div>
+        </button>
     </div>
 
 <div class="modal-overlay modal-fullscreen" id="modal-soporte" data-fullscreen="true">
